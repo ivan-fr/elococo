@@ -33,8 +33,11 @@ class AddToBasketForm(forms.Form):
             if self.cleaned_data.get('quantity', None) is None:
                 raise forms.ValidationError("Incohérence dans le formulaire.")
 
-            if self.cleaned_data.get('quantity', None) > product.stock:
-                raise forms.ValidationError("Vous avez depassé le stock disponible avec cette demande.")
+            if self.cleaned_data["quantity"] > product.stock:
+                raise forms.ValidationError(
+                    f"""Vous avez depassé le stock disponible de ce
+                     produit avec cette quantité ({self.cleaned_data['quantity']}) demandé."""
+                )
 
             if self.session is None:
                 basket = {}
@@ -42,14 +45,15 @@ class AddToBasketForm(forms.Form):
                 basket = self.session.get(BASKET_SESSION_KEY, {})
 
             if basket != {} and basket.get(product.slug, None) is not None:
-                if self.cleaned_data.get('quantity', None) + basket[product.slug]["quantity"] > max(self.choices):
+                if self.cleaned_data["quantity"] + basket[product.slug]["quantity"] > max(self.choices):
                     raise forms.ValidationError(
                         f"Vous ne pouvez pas mettre plus de {max(self.choices)} de ce produit dans votre panier."
                     )
 
-                if self.cleaned_data.get('quantity', None) + basket[product.slug]["quantity"] > product.stock:
+                if self.cleaned_data["quantity"] + basket[product.slug]["quantity"] > product.stock:
                     raise forms.ValidationError(
-                        "Vous avez depassé le stock disponible en essayant d'ajouter cette quantité dans votre panier."
+                        f"""Vous avez depassé le stock disponible de ce produit
+                         en essayant d'ajouter cette quantité ({self.cleaned_data["quantity"]}) dans votre panier."""
                     )
 
         except queryset.model.DoesNotExist:
