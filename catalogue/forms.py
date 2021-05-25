@@ -2,6 +2,7 @@ from django import forms
 from catalogue.models import Product
 
 BASKET_SESSION_KEY = "basket"
+MAX_BASKET_PRODUCT = 5
 
 
 class AddToBasketForm(forms.Form):
@@ -27,6 +28,15 @@ class AddToBasketForm(forms.Form):
 
     def clean(self):
         queryset = Product.objects.filter(slug__exact=self.cleaned_data['product_slug'])
+        if self.session is None:
+            basket = {}
+        else:
+            basket = self.session.get(BASKET_SESSION_KEY, {})
+
+        if len(basket) > MAX_BASKET_PRODUCT:
+            raise forms.ValidationError(
+                f"Nombre maximal ({MAX_BASKET_PRODUCT}) de produits atteint dans le panier"
+            )
 
         try:
             product = queryset.get()
@@ -39,12 +49,7 @@ class AddToBasketForm(forms.Form):
                      produit avec cette quantité ({self.cleaned_data['quantity']}) demandé."""
                 )
 
-            if self.session is None:
-                basket = {}
-            else:
-                basket = self.session.get(BASKET_SESSION_KEY, {})
-
-            if basket != {} and basket.get(product.slug, None) is not None:
+            if bool(basket) and basket.get(product.slug, None) is not None:
                 if self.cleaned_data["quantity"] + basket[product.slug]["quantity"] > max(self.choices):
                     raise forms.ValidationError(
                         f"Vous ne pouvez pas mettre plus de {max(self.choices)} de ce produit dans votre panier."

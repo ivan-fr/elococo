@@ -1,9 +1,61 @@
 from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
+from django.views.generic.list import BaseListView
 from catalogue.models import Product
-from catalogue.bdd_calculations import price_annotation_format, filled_category
-from catalogue.forms import AddToBasketForm, BASKET_SESSION_KEY
+from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
+from catalogue.forms import AddToBasketForm, BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from django.urls import reverse
+from django.http import JsonResponse, Http404
+from django.utils.translation import gettext as _
+
+
+class BasketView(BaseListView):
+    allow_empty = False
+    template_name = 'catalogue/index_list.html'
+    model = Product
+
+    def get_queryset(self):
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        self.queryset = self.model.objects.filter(enable_sale=True)
+        self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
+        self.queryset = self.queryset.annotate(**price_annotation_format(basket)) \
+                            .annotate(total_price_from_all_product())[:MAX_BASKET_PRODUCT]
+
+        return super(BasketView, self).get_queryset()
+
+    def get(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404()
+
+        self.object_list = self.get_queryset()
+        allow_empty = self.get_allow_empty()
+
+        if not allow_empty:
+            # When pagination is enabled and object_list is a queryset,
+            # it's better to do a cheap query than to load the unpaginated
+            # queryset in memory.
+            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = not self.object_list
+            if is_empty:
+                if request.is_ajax():
+                    return JsonResponse({})
+                raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
+                    'class_name': self.__class__.__name__,
+                })
+
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+
+        for product in self.object_list:
+            basket[product.slug].update({
+                "exact_price_with_quantity": product.exact_price_with_quantity,
+                "exact_price_with_quantity__sum": product.exact_price_with_quantity__sum,
+                "effective_reduction": product.effective_reduction,
+                "exact_price": product.exact_price
+            })
+
+        return JsonResponse(basket)
 
 
 class IndexView(ListView):

@@ -85,28 +85,6 @@
     border-bottom: unset;
 }
 
-main h3, main h2 {
-    display: flex;
-    justify-content: space-between;
-}
-
-main h3::before, main h2::after {
-    display: block;
-    content: "";
-    background-image: url("../images/feuille.png");
-    background-size: cover;
-    width: 1.5em;
-}
-
-main h3::after, main h2::before {
-    display: block;
-    content: "";
-    background-image: url("../images/feuille.png");
-    background-size: cover;
-    width: 1.5em;
-    transform: rotateY(180deg);
-}
-
 #detail figure.hover_figure {
     height: 20em;
 }

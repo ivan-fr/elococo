@@ -231,3 +231,34 @@ table {
     display: none;
 }
 
+.modal-header {
+    background-color: #ffe2d1;
+    border-bottom: 0.1em solid #ff6c00;
+}
+
+.modal-header > h3 {
+    margin: 0;
+    width: 100%;
+}
+
+main h3, main h2, .modal h3, .modal h2 {
+    display: flex;
+    justify-content: space-between;
+}
+
+main h3::before, main h2::after, .modal h3::before, .modal h2::after {
+    display: block;
+    content: "";
+    background-image: url("../images/feuille.png");
+    background-size: cover;
+    width: 1.5em;
+}
+
+main h3::after, main h2::before, .modal h3::after, .modal h2::before {
+    display: block;
+    content: "";
+    background-image: url("../images/feuille.png");
+    background-size: cover;
+    width: 1.5em;
+    transform: rotateY(180deg);
+}
