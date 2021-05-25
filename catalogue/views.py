@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
 from catalogue.models import Product
 from catalogue.bdd_calculations import price_annotation_format, filled_category
@@ -60,3 +60,7 @@ class ProductDetailView(FormMixin, DetailView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+
+class IndexRedirectionView(RedirectView):
+    pattern_name = "catalogue_index"
