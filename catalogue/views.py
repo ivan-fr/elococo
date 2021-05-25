@@ -52,7 +52,7 @@ class BasketView(BaseListView):
                 "exact_price_with_quantity": product.exact_price_with_quantity,
                 "exact_price_with_quantity__sum": product.exact_price_with_quantity__sum,
                 "effective_reduction": product.effective_reduction,
-                "exact_price": product.exact_price
+                "exact_price": product.exact_price,
             })
 
         return JsonResponse(basket)

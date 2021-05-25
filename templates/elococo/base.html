@@ -50,9 +50,65 @@
     let url_get_basket = "{{ url_get_basket }}";
     let httpRequest = new XMLHttpRequest();
 
-    function construct_basket_table(object) {
+    function construct_basket_table(basket) {
         let table = document.createElement("table");
         table.classList.add("table");
+
+        let thead = document.createElement("thead");
+        let thead_tr = document.createElement("tr");
+
+        let columns = ["#", "Nom du produit", "Prix unitaire (€)", "Dont réduction (%)", "Quantité", "Sous Total (€)"]
+
+        for (let i = 0; i < columns.length; i++) {
+            let th = document.createElement("th");
+            th.setAttribute("scope", "col");
+            let texte = document.createTextNode(columns[i]);
+            th.appendChild(texte);
+            thead_tr.appendChild(th);
+        }
+
+        thead.appendChild(thead_tr);
+        table.appendChild(thead);
+
+        let tbody = document.createElement("tbody");
+
+        let keys_basket = ["product_name", "exact_price", "effective_reduction", "quantity", "exact_price_with_quantity"];
+        let prefix_values = ["", "", "- ", "", ""];
+        let suffixe_values = ["", "€", "%", "", "€"];
+
+        let i = 1;
+        for (const keysBasketKey in basket) {
+            let tbody_tr = document.createElement("tr");
+
+            let data = {};
+            if (basket.hasOwnProperty(keysBasketKey)) {
+                data = basket[keysBasketKey];
+            }
+
+            let th = document.createElement("th");
+            th.setAttribute("scope", "row");
+            let text = document.createTextNode(i.toString());
+            tbody_tr.appendChild(text);
+
+            let j = 0;
+            for (const key of keys_basket) {
+                let td = document.createElement("td");
+                let info = "";
+                if (data.hasOwnProperty(key)) {
+                    info = basket[key];
+                }
+                text = document.createTextNode(prefix_values[j] + info.toString() + suffixe_values[j]);
+                td.appendChild(text);
+                tbody_tr.appendChild(td);
+                j++;
+            }
+
+            tbody.appendChild(tbody_tr);
+
+            i++;
+        }
+
+        table.appendChild(tbody);
 
         return table;
     }
@@ -60,7 +116,11 @@
     function treatment() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status === 200) {
-                alert(httpRequest.response);
+                let table = construct_basket_table(httpRequest.response);
+                let modal_body = basket_modal.querySelector(".modal-body");
+                let modal_body_spinner = modal_body.querySelector(".spinner-border");
+                modal_body.removeChild(modal_body_spinner);
+                modal_body.appendChild(table);
             } else {
                 alert('Il y a eu un problème avec la requête.');
             }
