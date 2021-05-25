@@ -1,4 +1,5 @@
 .idea/
+elococo/secrets.json
 migrations/
 uploads/
 # Byte-compiled / optimized / DLL files
