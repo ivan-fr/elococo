@@ -3,6 +3,7 @@ from django.views.generic.edit import FormMixin
 from catalogue.models import Product
 from catalogue.bdd_calculations import price_annotation_format, filled_category
 from catalogue.forms import AddToBasketForm
+from django.urls import reverse
 
 
 class IndexView(ListView):
@@ -38,6 +39,9 @@ class ProductDetailView(FormMixin, DetailView):
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 
+    def get_success_url(self):
+        return reverse("catalogue_product_detail", kwargs={"slug_product": self.object.slug})
+
     def get_initial(self):
         initial = super(ProductDetailView, self).get_initial()
         initial.update({
@@ -50,6 +54,7 @@ class ProductDetailView(FormMixin, DetailView):
         Handle POST requests: instantiate a form instance with the passed
         POST variables and then check if it's valid.
         """
+        self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)

@@ -41,7 +41,8 @@
                             {% if product.stock <= 0 %}
                                 Ce produit n'a plus de stock, essayez un autre jours.
                             {% elif product.stock <= 5 %}
-                                Il ne reste plus que <strong>{{ product.stock }} unités</strong> de ce produit en stock
+                                Il ne reste plus que <strong>{{ product.stock }} unité(s)</strong> de ce produit en
+                                stock
                                 !
                             {% else %}
                                 <strong>Ce produit est en stock !</strong>
@@ -52,34 +53,25 @@
                 <section class="box">
                     <h3>Commandes</h3>
                     <div class="content">
-                        <form action="{% url 'catalogue_product_detail' product.slug %}" method="post">
+                        <form id="addBasketForm"
+                              action="{% url 'catalogue_product_detail' product.slug %}"
+                              method="post">
                             {% csrf_token %}
-                            {% if form.errors %}
-                                {{ form.errors }}
+                            {% if form.non_field_errors %}
+                                {{ form.non_field_errors }}
                             {% endif %}
-                            {{ form.id.as_hidden }}
-                            <div class="field is-grouped">
+                            {{ form.product_slug.as_hidden }}
 
-                                <div class="field-label is-normal">
-                                    <label class="label">{{ form.quantity.label }}</label>
+                            <div class="quantity">
+                                <label class="form-label">{{ form.quantity.label }}</label>
+                                {{ form.quantity }}
+                                <div class="form-text">
+                                    {{ form.quantity.help_text }}
                                 </div>
-
-                                    <div class="field is-narrow">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                {{ form.quantity }}
-                                            </div>
-                                        </div>
-                                        {% if form.quantity.errors %}
-                                            <div class="help is-danger">
-                                                {{ form.quantity.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                                <div class="control">
-                                    <input type="submit" class="button is-primary" value="Envoyer"/>
-                                </div>
+                                {{ form.quantity.errors }}
+                            </div>
+                            <div class="submit">
+                                <input type="submit" class="btn btn-info" value="Ajouter dans le panier"/>
                             </div>
                         </form>
                     </div>
