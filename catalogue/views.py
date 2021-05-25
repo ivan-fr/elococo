@@ -1,6 +1,8 @@
 from django.views.generic import ListView, DetailView
+from django.views.generic.edit import FormMixin
 from catalogue.models import Product
 from catalogue.bdd_calculations import price_annotation_format, filled_category
+from catalogue.forms import AddToBasketForm
 
 
 class IndexView(ListView):
@@ -24,7 +26,8 @@ class IndexView(ListView):
         return super(IndexView, self).get_queryset()
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(FormMixin, DetailView):
+    form_class = AddToBasketForm
     model = Product
     template_name = 'catalogue/product_detail.html'
     slug_url_kwarg = 'slug_product'
@@ -34,3 +37,21 @@ class ProductDetailView(DetailView):
         self.queryset = self.model.objects.filter(stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
+
+    def get_initial(self):
+        initial = super(ProductDetailView, self).get_initial()
+        initial.update({
+            "product_slug": self.object.slug
+        })
+        return initial
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

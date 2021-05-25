@@ -52,7 +52,36 @@
                 <section class="box">
                     <h3>Commandes</h3>
                     <div class="content">
+                        <form action="{% url 'catalogue_product_detail' product.slug %}" method="post">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                {{ form.errors }}
+                            {% endif %}
+                            {{ form.id.as_hidden }}
+                            <div class="field is-grouped">
 
+                                <div class="field-label is-normal">
+                                    <label class="label">{{ form.quantity.label }}</label>
+                                </div>
+
+                                    <div class="field is-narrow">
+                                        <div class="control">
+                                            <div class="select is-fullwidth">
+                                                {{ form.quantity }}
+                                            </div>
+                                        </div>
+                                        {% if form.quantity.errors %}
+                                            <div class="help is-danger">
+                                                {{ form.quantity.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                <div class="control">
+                                    <input type="submit" class="button is-primary" value="Envoyer"/>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </section>
             </div>
