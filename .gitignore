@@ -1,4 +1,5 @@
 .idea/
+static/scss
 elococo/secrets.json
 migrations/
 uploads/
