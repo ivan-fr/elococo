@@ -6,11 +6,10 @@
 {% endblock %}
 
 {% block base_container %}
-
     <section id="catalogue">
-        <h3 class="is-hidden">Boutique</h3>
+        <h2 class="is-hidden">Boutique</h2>
         <article id="detail">
-            <h3>{{ product.name|title }}</h3>
+            <h2>{{ product.name|title }}</h2>
             <section class="image_produit">
                 {% for product_image in product.productimage_set.all %}
 
@@ -24,24 +23,39 @@
 
                 {% endfor %}
             </section>
-            <section>
-                <h2>Informations d'achats</h2>
-                <p>Son prix à l'unité est de <strong>{{ product.exact_price|floatformat:2 }} €</strong></p>
-                {% if product.effective_reduction > 0 %}
-                    <p>Il y a une réduction sur ce produit ! De
-                        <strong>- {{ product.effective_reduction|floatformat:2 }}%</strong>.</p>
-                    <p>Son prix de base était de {{ product.base_price|floatformat:2 }} €</p>
-                {% endif %}
-                <p>
-                    {% if product.stock <= 0 %}
-                        Ce produit n'a plus de stock, essayez un autre jours.
-                    {% elif product.stock <= 5 %}
-                        Il ne reste plus que {{ product.stock }} unités de ce produit en stock !
-                    {% else %}
-                        Ce produit est en stock !
-                    {% endif %}
-                </p>
-            </section>
+            <div>
+                <section class="box">
+                    <h3>Informations de vente</h3>
+                    <div class="content">
+                        <p>Son prix à l'unité est de <strong>{{ product.exact_price|floatformat:2 }} €</strong></p>
+                        {% if product.effective_reduction > 0 %}
+                            <p>Il y a une réduction sur ce produit ! De
+                                <strong>- {{ product.effective_reduction|floatformat:2 }}%</strong>.
+                            </p>
+                            <p>
+                                Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u> (UTC+2).
+                            </p>
+                            <p>Son prix de base était de {{ product.base_price|floatformat:2 }} €</p>
+                        {% endif %}
+                        <p>
+                            {% if product.stock <= 0 %}
+                                Ce produit n'a plus de stock, essayez un autre jours.
+                            {% elif product.stock <= 5 %}
+                                Il ne reste plus que <strong>{{ product.stock }} unités</strong> de ce produit en stock
+                                !
+                            {% else %}
+                                <strong>Ce produit est en stock !</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </section>
+                <section class="box">
+                    <h3>Commandes</h3>
+                    <div class="content">
+
+                    </div>
+                </section>
+            </div>
             <figure>
                 <img src="{% static "images/rule1.bmp" %}" alt="licence">
                 <figcaption>Images Licence</figcaption>
