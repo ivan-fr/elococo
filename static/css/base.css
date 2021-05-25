@@ -165,6 +165,7 @@ table {
     height: auto;
     border: 0.10em solid #551c0f;
     border-radius: 0.25em;
+    display: flex;
 }
 
 .navbar ul {
@@ -174,11 +175,23 @@ table {
     height: 100%;
 }
 
+.navbar ul:first-child {
+    flex: 1;
+}
+
 .navbar ul > li {
     display: flex;
     padding: 0.5em;
     align-items: center;
-    border-right: 0.10em solid #551c0f;
+    border-left: .1em solid black;
+}
+
+.navbar ul > li.brand {
+    border-left: unset;
+}
+
+.navbar ul > li:first-child {
+    border-left: unset;
 }
 
 .navbar ul > li.link {
@@ -210,8 +223,8 @@ table {
     border-right: unset;
 }
 
-.navbar ul > li.logo:hover {
-    background-color: #ba6c6d;
+.navbar ul > li.brand {
+    margin-right: 1em;
 }
 
 .is-hidden {

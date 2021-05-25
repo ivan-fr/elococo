@@ -64,7 +64,10 @@
 
                             <div class="quantity">
                                 <label class="form-label">{{ form.quantity.label }}</label>
-                                {{ form.quantity }}
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1"><i class="bi-sort-numeric-down"></i></span>
+                                    {{ form.quantity }}
+                                </div>
                                 <div class="form-text">
                                     {{ form.quantity.help_text }}
                                 </div>

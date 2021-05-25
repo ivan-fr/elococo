@@ -2,7 +2,7 @@ from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
 from catalogue.models import Product
 from catalogue.bdd_calculations import price_annotation_format, filled_category
-from catalogue.forms import AddToBasketForm
+from catalogue.forms import AddToBasketForm, BASKET_SESSION_KEY
 from django.urls import reverse
 
 
@@ -48,6 +48,33 @@ class ProductDetailView(FormMixin, DetailView):
             "product_slug": self.object.slug
         })
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(ProductDetailView, self).get_form_kwargs()
+        kwargs.update({"session": self.request.session})
+        return kwargs
+
+    def form_valid(self, form):
+        basket = self.request.session.get(BASKET_SESSION_KEY, None)
+
+        if basket is None:
+            self.request.session[BASKET_SESSION_KEY] = {form.cleaned_data["product_slug"]: {
+                "product_name": self.object.name,
+                "quantity": form.cleaned_data["quantity"]
+            }}
+        else:
+            if self.request.session[BASKET_SESSION_KEY].get(form.cleaned_data["product_slug"], None) is not None:
+                self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] = \
+                    self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] \
+                    + form.cleaned_data[BASKET_SESSION_KEY]
+            else:
+                self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]] = {
+                    "product_name": self.object.name,
+                    "quantity": form.cleaned_data["quantity"]
+                }
+            self.request.session.modified = True
+
+        return super(ProductDetailView, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         """
