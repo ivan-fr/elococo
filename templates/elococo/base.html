@@ -45,6 +45,8 @@
         crossorigin="anonymous"></script>
 
 <script type="application/javascript">
+    // From IB - 2021
+
     let basket_modal = document.getElementById('basket_modal');
     let basket_modal_showed = false;
     let url_get_basket = "{{ url_get_basket }}";
@@ -52,7 +54,7 @@
 
     function construct_basket_table(basket) {
         let table = document.createElement("table");
-        table.classList.add("table");
+        table.classList.add("table", "table-bordered", "border-primary", "basket-table");
 
         let thead = document.createElement("thead");
         let thead_tr = document.createElement("tr");
@@ -62,8 +64,8 @@
         for (let i = 0; i < columns.length; i++) {
             let th = document.createElement("th");
             th.setAttribute("scope", "col");
-            let texte = document.createTextNode(columns[i]);
-            th.appendChild(texte);
+            let text = document.createTextNode(columns[i]);
+            th.appendChild(text);
             thead_tr.appendChild(th);
         }
 
@@ -73,8 +75,12 @@
         let tbody = document.createElement("tbody");
 
         let keys_basket = ["product_name", "exact_price", "effective_reduction", "quantity", "exact_price_with_quantity"];
-        let prefix_values = ["", "", "- ", "", ""];
-        let suffixe_values = ["", "€", "%", "", "€"];
+        let prefix_values = ["", "", "-", "", ""];
+        let suffix_values = ["", "€", "%", "", "€"];
+
+        let all = basket["__all__"];
+        delete basket["__all__"];
+        let keys_basket_all = ["exact_price_with_quantity__sum"];
 
         let i = 1;
         for (const keysBasketKey in basket) {
@@ -88,16 +94,22 @@
             let th = document.createElement("th");
             th.setAttribute("scope", "row");
             let text = document.createTextNode(i.toString());
-            tbody_tr.appendChild(text);
+            th.appendChild(text);
+            tbody_tr.appendChild(th);
 
             let j = 0;
             for (const key of keys_basket) {
                 let td = document.createElement("td");
                 let info = "";
                 if (data.hasOwnProperty(key)) {
-                    info = basket[key];
+                    info = data[key];
                 }
-                text = document.createTextNode(prefix_values[j] + info.toString() + suffixe_values[j]);
+
+                if (j === 1 || j === 2 || j === 4) {
+                    info = info.toFixed(2);
+                }
+
+                text = document.createTextNode(prefix_values[j] + info.toString() + suffix_values[j]);
                 td.appendChild(text);
                 tbody_tr.appendChild(td);
                 j++;
@@ -108,6 +120,22 @@
             i++;
         }
 
+        let tbody_tr = document.createElement("tr");
+        let td = document.createElement("td");
+        td.setAttribute("colspan", "5");
+        let text = document.createTextNode("Total");
+        td.appendChild(text);
+        tbody_tr.appendChild(td);
+        tbody.appendChild(tbody_tr);
+
+        td = document.createElement("td");
+        let strong = document.createElement("strong");
+        text = document.createTextNode(all[keys_basket_all[0]] + "€");
+        strong.appendChild(text);
+        td.appendChild(strong);
+        tbody_tr.appendChild(td);
+        tbody.appendChild(tbody_tr);
+
         table.appendChild(tbody);
 
         return table;
@@ -116,11 +144,21 @@
     function treatment() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status === 200) {
-                let table = construct_basket_table(httpRequest.response);
+                let basket = httpRequest.response;
                 let modal_body = basket_modal.querySelector(".modal-body");
                 let modal_body_spinner = modal_body.querySelector(".spinner-border");
                 modal_body.removeChild(modal_body_spinner);
-                modal_body.appendChild(table);
+
+                if (Object.keys(basket).length > 0) {
+                    let table = construct_basket_table(basket);
+                    modal_body.appendChild(table);
+                } else {
+                    let div = document.createElement("div");
+                    let text = document.createTextNode("Votre panier est vide");
+                    div.appendChild(text);
+                    modal_body.appendChild(div);
+                }
+
             } else {
                 alert('Il y a eu un problème avec la requête.');
             }
@@ -142,6 +180,7 @@
         httpRequest.onreadystatechange = treatment;
         httpRequest.open('GET', url_get_basket);
         httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest.responseType = 'json';
         httpRequest.send();
     }
 

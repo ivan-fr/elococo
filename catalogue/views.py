@@ -16,16 +16,24 @@ class BasketView(BaseListView):
 
     def get_queryset(self):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
-        self.queryset = self.model.objects.filter(enable_sale=True)
-        self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
-        self.queryset = self.queryset.annotate(**price_annotation_format(basket)) \
-                            .annotate(total_price_from_all_product())[:MAX_BASKET_PRODUCT]
+
+        if bool(basket):
+            self.queryset = self.model.objects.filter(enable_sale=True)
+            self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
+            self.queryset = self.queryset.annotate(**price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
+        else:
+            self.queryset = None
 
         return super(BasketView, self).get_queryset()
 
     def get(self, request, *args, **kwargs):
         if not request.is_ajax():
             raise Http404()
+
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+
+        if not bool(basket):
+            return JsonResponse({})
 
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
@@ -45,15 +53,14 @@ class BasketView(BaseListView):
                     'class_name': self.__class__.__name__,
                 })
 
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
-
+        aggregate = self.queryset.aggregate(total_price_from_all_product())
         for product in self.object_list:
             basket[product.slug].update({
                 "exact_price_with_quantity": product.exact_price_with_quantity,
-                "exact_price_with_quantity__sum": product.exact_price_with_quantity__sum,
                 "effective_reduction": product.effective_reduction,
                 "exact_price": product.exact_price,
             })
+        basket["__all__"] = aggregate
 
         return JsonResponse(basket)
 

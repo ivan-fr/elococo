@@ -6,6 +6,7 @@ body {
     font-family: "Gill Sans", sans-serif;
     font-size: 1em;
     font-weight: 400;
+    padding: .5em;
 }
 
 body > nav {
@@ -68,6 +69,11 @@ body > footer > section:last-child {
 
 a {
     text-decoration: none;
+    color: unset;
+}
+
+li {
+    list-style-type: unset;
 }
 
 a:visited {
@@ -163,7 +169,7 @@ table {
 
 .navbar {
     height: auto;
-    border: 0.10em solid #551c0f;
+    border: 1px solid #551c0f;
     border-radius: 0.25em;
     display: flex;
 }
@@ -261,4 +267,8 @@ main h3::after, main h2::before, .modal h3::after, .modal h2::before {
     background-size: cover;
     width: 1.5em;
     transform: rotateY(180deg);
+}
+
+table.basket-table {
+    margin: 0;
 }
