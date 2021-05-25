@@ -66,7 +66,7 @@ class ProductDetailView(FormMixin, DetailView):
             if self.request.session[BASKET_SESSION_KEY].get(form.cleaned_data["product_slug"], None) is not None:
                 self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] = \
                     self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] \
-                    + form.cleaned_data[BASKET_SESSION_KEY]
+                    + form.cleaned_data["quantity"]
             else:
                 self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]] = {
                     "product_name": self.object.name,

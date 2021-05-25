@@ -5,7 +5,8 @@ BASKET_SESSION_KEY = "basket"
 
 
 class AddToBasketForm(forms.Form):
-    quantity = forms.ChoiceField(choices=((i, i) for i in tuple(range(1, 10))),
+    choices = tuple(range(1, 10))
+    quantity = forms.ChoiceField(choices=((i, i) for i in choices),
                                  help_text="Choisir une quantité.",
                                  label="Quantiter",
                                  widget=forms.Select(attrs={"class": "form-select"}))
@@ -41,6 +42,11 @@ class AddToBasketForm(forms.Form):
                 basket = self.session.get(BASKET_SESSION_KEY, {})
 
             if basket != {} and basket.get(product.slug, None) is not None:
+                if self.cleaned_data.get('quantity', None) + basket[product.slug]["quantity"] > max(self.choices):
+                    raise forms.ValidationError(
+                        f"Vous ne pouvez pas mettre plus de {max(self.choices)} de ce produit dans votre panier."
+                    )
+
                 if self.cleaned_data.get('quantity', None) + basket[product.slug]["quantity"] > product.stock:
                     raise forms.ValidationError(
                         "Vous avez depassé le stock disponible en essayant d'ajouter cette quantité dans votre panier."
