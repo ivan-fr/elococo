@@ -1,0 +1,69 @@
+{% load static %}
+
+<footer class="footer">
+    <section class="logos">
+        <h3>Logo Et Certifications</h3>
+        <div id="logo_grid">
+            <figure class="fig1">
+                <img src="{% static random_footer_logo %}" alt="logo">
+                <figcaption>
+                    {{ website_title }}
+                </figcaption>
+            </figure>
+            <figure class="fig2">
+                <img
+                        src="{% static "images/Valid_css.svg" %}"
+                        alt="CSS Valide !"/>
+                <figcaption>
+                    CSS valide
+                </figcaption>
+            </figure>
+            <figure class="fig3">
+                <img src="{% static "images/html5-validator-badge-blue.svg" %}"
+                     alt="html_valide"/>
+                <figcaption>
+                    HTML valide
+                </figcaption>
+            </figure>
+            <figure class="fig4">
+                <img src="{% static "images/django.jpg" %}"
+                     alt="html_valide"/>
+                <figcaption>
+                    Django backend
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+    <section class="description">
+        <h3>À Propos</h3>
+        <p class="m-0">Développé par BESEVIC Ivan</p>
+        <p> Tous droits réservés - {% now "Y" %}</p>
+        <figure>
+            <a target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+                <img src="{% static "images/rule2.bmp" %}" alt="licence">
+            </a>
+            <figcaption>
+                Licences
+            </figcaption>
+        </figure>
+    </section>
+    <section class="payments">
+        <h3 class="title is-3 mt-0">
+            Mode de paiements
+        </h3>
+        <!-- PayPal Logo -->
+        <figure>
+            <a href="https://www.paypal.com/fr/webapps/mpp/paypal-popup" title="PayPal Comment Ca Marche"
+               onclick="window.open('https://www.paypal.com/fr/webapps/mpp/paypal-popup','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700'); return false;"><img
+                    src="https://www.paypalobjects.com/webstatic/mktg/logo-center/logo_paypal_site_fr.png"
+                    alt="Now accepting PayPal"/></a>
+        </figure>
+        <!-- PayPal Logo -->
+        <figure>
+            <img src="{% static "images/visa.png" %}" alt="visa"/>
+        </figure>
+        <figure>
+            <img src="{% static "images/cb.jpg" %}" alt="visa"/>
+        </figure>
+    </section>
+</footer>

@@ -1,0 +1,33 @@
+<nav class="navbar">
+    <ul>
+        {% if index is None %}
+            <li class="link is-active">
+                <a href="{% url 'catalogue_index' %}">
+                    Tous les produits
+                </a>
+            </li>
+        {% else %}
+            <li class="link">
+                <a href="{% url 'catalogue_index' %}">
+                    Tous les produits
+                </a>
+            </li>
+        {% endif %}
+
+        {% for category in categories %}
+            {% if index == category.slug %}
+                <li class="link is-active">
+                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">
+                        {{ category.category|title }} ({{ category.product__count }})
+                    </a>
+                </li>
+            {% else %}
+                <li class="link">
+                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">
+                        {{ category.category|title }} ({{ category.product__count }})
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</nav>

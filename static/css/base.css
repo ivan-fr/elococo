@@ -1,0 +1,220 @@
+body {
+    display: grid;
+    grid-template-columns: 1fr repeat(2, 2fr) 1fr;
+    grid-gap: 1em;
+    grid-auto-rows: minmax(4em, auto);
+    font-family: "Gill Sans", sans-serif;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+body > nav {
+    grid-column: 1 / 5;
+    grid-row: 1;
+}
+
+body::before {
+    display: block;
+    content: "";
+    grid-column: 1;
+    grid-row: 2;
+    background-image: url("../images/paris.jpg");
+    background-size: cover;
+}
+
+body.main_expand_left::before {
+    display: none;
+}
+
+body::after {
+    content: "";
+    display: block;
+    grid-column: 4;
+    grid-row: 2;
+    background-image: url("../images/paris2.jpg");
+    background-size: cover;
+}
+
+body > main {
+    grid-column: 2 / 4;
+    grid-row: 2;
+}
+
+body.main_expand_left > main {
+    grid-column: 1 / 4;
+}
+
+
+body > footer {
+    border-top: 2px solid #ff6c00;
+    grid-column: 1 / 5;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    row-gap: 1em;
+    column-gap: 3em;
+    background: #ffe2d1;
+    padding: 1em;
+    justify-items: center;
+}
+
+body > footer .payments figure:nth-last-of-type(2), body > footer .payments figure:last-of-type {
+    display: inline-block;
+}
+
+body > footer > section:last-child {
+    grid-column: 4;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: unset;
+}
+
+#logo_grid {
+    display: grid;
+    grid-gap: 2em;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#logo_grid .fig1 {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+#logo_grid .fig2 {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#logo_grid .fig3 {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+#logo_grid .fig4 {
+    grid-column: 2 / 4;
+    grid-row: 2;
+}
+
+#logo_grid .fig4 img {
+    height: 5em;
+}
+
+#logo_grid .fig5 {
+    grid-column: 2 / 4;
+    grid-row: 3;
+}
+
+figure {
+    margin: 0;
+}
+
+figure img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+figure.hover_figure {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    height: 100%;
+}
+
+figure.hover_figure img {
+    width: 100%;
+    height: 100%;
+    border-radius: .25em;
+}
+
+figure.hover_figure:hover figcaption {
+    display: block;
+}
+
+figure.hover_figure figcaption {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    display: none;
+    border-bottom-left-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 0.50em;
+    text-align: center;
+    box-sizing: border-box;
+    width: 100%;
+    font-weight: bold;
+    border-top: 0.1em solid black;
+}
+
+figure.shadow img {
+    filter: drop-shadow(0 0 0.070rem #000000);
+}
+
+table {
+    margin: 0;
+}
+
+.navbar {
+    height: auto;
+    border: 0.10em solid #551c0f;
+    border-radius: 0.25em;
+}
+
+.navbar ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.navbar ul > li {
+    display: flex;
+    padding: 0.5em;
+    align-items: center;
+    border-right: 0.10em solid #551c0f;
+}
+
+.navbar ul > li.link {
+    padding: unset;
+    display: block;
+    align-items: unset;
+}
+
+.navbar ul > li.link.is-active {
+    background-color: #9e3b49;
+    font-weight: bold;
+    color: white;
+}
+
+.navbar ul > li.link a {
+    padding: 0.5em;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.navbar ul > li.link:hover {
+    background-color: #ba6c6d;
+    color: white;
+}
+
+.navbar ul > li.logo {
+    border-right: unset;
+}
+
+.navbar ul > li.logo:hover {
+    background-color: #ba6c6d;
+}
+
+.is-hidden {
+    display: none;
+}
+

@@ -1,0 +1,38 @@
+{% extends 'elococo/base.html' %}
+
+{% block base_container %}
+
+    <section>
+        <h3 class="is-hidden">Boutique</h3>
+        {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+
+        <div id="boutique">
+            {% for product in product_list %}
+                <article>
+                    <h3>{{ product.name|title }}</h3>
+                    {% with product_image=product.productimage_set.first %}
+                        {% if product_image %}
+                            <figure class="hover_figure shadow">
+                                <a href="{% url 'catalogue_product_detail' product.slug %}">
+                                    <img src="{{ product_image.image.url }}"
+                                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                                </a>
+                                {% if product.effective_reduction > 0 %}
+                                    <div class="info_reduction">
+                                        - {{ product.effective_reduction|floatformat:2 }}%
+                                    </div>
+                                {% endif %}
+                                <div class="info_price">
+                                    {{ product.exact_price|floatformat:2 }} €
+                                </div>
+                                <figcaption>
+                                    {{ product.name|title }}
+                                </figcaption>
+                            </figure>
+                        {% endif %}
+                    {% endwith %}
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

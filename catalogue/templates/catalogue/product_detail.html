@@ -1,0 +1,51 @@
+{% extends 'elococo/base.html' %}
+{% load static %}
+
+{% block body_class %}
+    main_expand_left
+{% endblock %}
+
+{% block base_container %}
+
+    <section id="catalogue">
+        <h3 class="is-hidden">Boutique</h3>
+        <article id="detail">
+            <h3>{{ product.name|title }}</h3>
+            <section class="image_produit">
+                {% for product_image in product.productimage_set.all %}
+
+                    <figure class="hover_figure shadow">
+                        <img src="{{ product_image.image.url }}"
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                        <figcaption>
+                            Image du produit n°{{ forloop.counter }}
+                        </figcaption>
+                    </figure>
+
+                {% endfor %}
+            </section>
+            <section>
+                <h2>Informations d'achats</h2>
+                <p>Son prix à l'unité est de <strong>{{ product.exact_price|floatformat:2 }} €</strong></p>
+                {% if product.effective_reduction > 0 %}
+                    <p>Il y a une réduction sur ce produit ! De
+                        <strong>- {{ product.effective_reduction|floatformat:2 }}%</strong>.</p>
+                    <p>Son prix de base était de {{ product.base_price|floatformat:2 }} €</p>
+                {% endif %}
+                <p>
+                    {% if product.stock <= 0 %}
+                        Ce produit n'a plus de stock, essayez un autre jours.
+                    {% elif product.stock <= 5 %}
+                        Il ne reste plus que {{ product.stock }} unités de ce produit en stock !
+                    {% else %}
+                        Ce produit est en stock !
+                    {% endif %}
+                </p>
+            </section>
+            <figure>
+                <img src="{% static "images/rule1.bmp" %}" alt="licence">
+                <figcaption>Images Licence</figcaption>
+            </figure>
+        </article>
+    </section>
+{% endblock %}

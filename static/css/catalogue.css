@@ -1,0 +1,125 @@
+#boutique {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 1em;
+    grid-auto-rows: 23em;
+}
+
+#boutique > .title,
+#boutique > .counter {
+    grid-column: 1 / 5;
+}
+
+#boutique > article {
+    grid-column: auto;
+    grid-row: auto;
+    margin: 0 auto;
+}
+
+#boutique > article > *:not(figure) {
+    display: none;
+}
+
+#boutique > article figure.hover_figure .info_reduction {
+    left: 0;
+    top: 0;
+    position: absolute;
+    display: block;
+    border-bottom-right-radius: 0.25em;
+    background-color: #dd9a24;
+    padding: 0.5em;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+#boutique > article figure.hover_figure .info_price {
+    right: 0;
+    top: 0;
+    position: absolute;
+    display: none;
+    border-bottom-left-radius: 0.25em;
+    background-color: #ff8033;
+    padding: 0.5em;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+#boutique > article figure.hover_figure:hover .info_price {
+    display: block;
+}
+
+article#detail {
+    display: grid;
+    grid-auto-rows: auto;
+    grid-template-columns: 1.5fr 1fr;
+    grid-gap: 1em;
+}
+
+article#detail > h3 {
+    grid-column: 1 / 3;
+    background-color: #ffe2d1;
+    border-bottom: 0.1em solid #ff6c00;
+    padding: 0.5em;
+    margin: 0;
+    color: #2f2f2f;
+}
+
+main h3, main h2 {
+    display: flex;
+    justify-content: space-between;
+}
+
+main h3::before, main h2::after {
+    display: block;
+    content: "";
+    background-image: url("../images/feuille.png");
+    background-size: cover;
+    width: 1.5em;
+}
+
+main h3::after, main h2::before {
+    display: block;
+    content: "";
+    background-image: url("../images/feuille.png");
+    background-size: cover;
+    width: 1.5em;
+    transform: rotateY(180deg);
+}
+
+article#detail figure.hover_figure {
+    height: 20em;
+}
+
+article#detail > figure {
+    grid-column: 1;
+}
+
+.image_produit {
+    display: grid;
+    grid-auto-rows: auto;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: .5em;
+}
+
+main .navbar {
+    background-color: unset;
+    border-radius: unset;
+    margin-bottom: 1em;
+}
+
+main .navbar ul > li.link.is-active {
+    background-color: #9e3b49;
+    color: white;
+}
+
+main .navbar ul > li.link a {
+    justify-content: center;
+}
+
+main .navbar ul > li {
+    flex: 1;
+}
+
+
