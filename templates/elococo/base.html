@@ -44,7 +44,7 @@
         crossorigin="anonymous"></script>
 
 <script type="application/javascript">
-    // From IB - 2021
+    // From IB - {% now "Y" %}
 
     let basket_modal = document.getElementById('basket_modal');
     let basket_modal_showed = false;
@@ -208,6 +208,10 @@
 
     basket_modal.addEventListener('show.bs.modal', get_basket);
 </script>
+
+{% block body_js %}
+
+{% endblock %}
 
 </body>
 </html>

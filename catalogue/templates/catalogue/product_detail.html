@@ -10,10 +10,15 @@
         <h2 class="is_colored">{{ product.name|title }}</h2>
         <article id="detail">
             <h3 class="is-hidden">Details</h3>
-            <section class="image_produit">
+
+            <div class="image_produit">
+                <div class="spinner-border text-info" role="status"></div>
+            </div>
+
+            <div class="image_produits">
                 {% for product_image in product.productimage_set.all %}
 
-                    <figure class="hover_figure shadow">
+                    <figure class="hover_figure grid shadow">
                         <img src="{{ product_image.image.url }}"
                              alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                         <figcaption>
@@ -22,7 +27,7 @@
                     </figure>
 
                 {% endfor %}
-            </section>
+            </div>
 
             <div class="info_description">
                 <div class="card text-dark bg-light">
@@ -52,8 +57,7 @@
                                 Ce produit n'a plus de stock, essayez un autre jours.
                             {% elif product.stock <= 5 %}
                                 Il ne reste plus que <strong>{{ product.stock }} unité(s)</strong> de ce produit en
-                                stock
-                                !
+                                stock !
                             {% else %}
                                 <strong>Ce produit est en stock !</strong>
                             {% endif %}
@@ -97,4 +101,45 @@
             </figure>
         </article>
     </section>
+{% endblock %}
+
+{% block body_js %}
+    {{ block.super }}
+    <script type="application/javascript">
+        // From IB - {% now "Y" %}
+        let image_product = document.querySelector("#detail .image_produit");
+        let images_products = document.querySelector("#detail .image_produits");
+        let height_images_products = images_products.offsetHeight;
+        let figures = images_products.querySelectorAll(":scope figure");
+
+        function treatment_image(figure) {
+            let figure_clone = figure.cloneNode(true);
+            figure_clone.classList.remove("grid", "pointer");
+            figure_clone.style.height = height_images_products.toString() + "px";
+            image_product.innerHTML = "";
+            image_product.appendChild(figure_clone);
+        }
+
+        function handle_image_product(event) {
+            treatment_image(event.currentTarget);
+        }
+
+        function initListener() {
+            try {
+                let first_figure = figures[0];
+                treatment_image(first_figure);
+            } catch (e) {
+                return false;
+            }
+
+            for (const figure of figures) {
+                figure.addEventListener("click", handle_image_product, false);
+                figure.classList.add("pointer");
+            }
+
+            return true;
+        }
+
+        setTimeout(initListener, 500);
+    </script>
 {% endblock %}

@@ -6,7 +6,6 @@ body {
     font-family: "Gill Sans", sans-serif;
     font-size: 1em;
     font-weight: 400;
-    padding: .5em;
 }
 
 body > nav {
@@ -170,10 +169,6 @@ figure.shadow img {
     filter: drop-shadow(0 0 0.070rem #000000);
 }
 
-table {
-    margin: 0;
-}
-
 .navbar {
     height: auto;
     border: 1px solid #551c0f;
@@ -238,6 +233,7 @@ table {
 
 .navbar ul > li.brand {
     margin-right: 1em;
+    font-family: cursive;
 }
 
 .is-hidden {
@@ -286,4 +282,23 @@ h6, h5, h4, h3, h2, h1 {
 
 figure.mt-1 {
     margin-bottom: 0.2em;
+}
+
+table {
+    caption-side: bottom;
+    border-collapse: collapse;
+}
+
+thead, tbody, tfoot, tr, td, th {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+}
+
+.spinner-border {
+    color: #ff7c2f;
+}
+
+.pointer {
+    cursor: pointer;
 }
