@@ -7,9 +7,9 @@
 
 {% block base_container %}
     <section id="catalogue">
-        <h2 class="is-hidden">Boutique</h2>
+        <h2 class="is_colored">{{ product.name|title }}</h2>
         <article id="detail">
-            <h2>{{ product.name|title }}</h2>
+            <h3 class="is-hidden">Details</h3>
             <section class="image_produit">
                 {% for product_image in product.productimage_set.all %}
 
@@ -23,7 +23,17 @@
 
                 {% endfor %}
             </section>
-            <div>
+
+            <div class="info_description">
+                <div class="card text-dark bg-light">
+                    <div class="card-header">Description du produit</div>
+                    <div class="card-body">
+                        <p class="card-text">{{ product.description|capfirst }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info_sale">
                 <section class="box">
                     <h3>Informations de vente</h3>
                     <div class="content">
@@ -65,7 +75,8 @@
                             <div class="quantity">
                                 <label class="form-label">{{ form.quantity.label }}</label>
                                 <div class="input-group">
-                                    <span class="input-group-text" id="basic-addon1"><i class="bi-sort-numeric-down"></i></span>
+                                    <span class="input-group-text" id="basic-addon1"><i
+                                            class="bi-sort-numeric-down"></i></span>
                                     {{ form.quantity }}
                                 </div>
                                 <div class="form-text">
@@ -80,7 +91,7 @@
                     </div>
                 </section>
             </div>
-            <figure>
+            <figure class="image_licence">
                 <img src="{% static "images/rule1.bmp" %}" alt="licence">
                 <figcaption>Images Licence</figcaption>
             </figure>

@@ -27,6 +27,10 @@ body.main_expand_left::before {
     display: none;
 }
 
+body.main_expand_right::after {
+    display: none;
+}
+
 body::after {
     content: "";
     display: block;
@@ -45,6 +49,9 @@ body.main_expand_left > main {
     grid-column: 1 / 4;
 }
 
+body.main_expand_right > main {
+    grid-column: 2 / 5;
+}
 
 body > footer {
     border-top: 2px solid #ff6c00;
@@ -271,4 +278,12 @@ main h3::after, main h2::before, .modal h3::after, .modal h2::before {
 
 table.basket-table {
     margin: 0;
+}
+
+h6, h5, h4, h3, h2, h1 {
+    margin-bottom: 1rem;
+}
+
+figure.mt-1 {
+    margin-bottom: 0.2em;
 }

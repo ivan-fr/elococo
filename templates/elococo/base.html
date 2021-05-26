@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{% static "css/catalogue.css" %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 </head>
-<body class="{% spaceless %}{% block body_class %}{% endblock %}{% endspaceless %}">
+<body class="{% spaceless %}{% block body_class %}main_expand_right{% endblock %}{% endspaceless %}">
 
 {% include "elococo/navbar.html" %}
 
@@ -34,7 +34,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success">Valider mon panier</button>
             </div>
         </div>
     </div>
@@ -106,10 +105,14 @@
                 }
 
                 if (j === 1 || j === 2 || j === 4) {
-                    info = info.toFixed(2);
+                    if (j === 2 && parseInt(info) === 0) {
+                        info = "Pas de reduction";
+                    } else {
+                        info = prefix_values[j] + info.toFixed(2).toString() + suffix_values[j];
+                    }
                 }
 
-                text = document.createTextNode(prefix_values[j] + info.toString() + suffix_values[j]);
+                text = document.createTextNode(info);
                 td.appendChild(text);
                 tbody_tr.appendChild(td);
                 j++;
@@ -121,16 +124,23 @@
         }
 
         let tbody_tr = document.createElement("tr");
+
         let td = document.createElement("td");
-        td.setAttribute("colspan", "5");
+        let strong = document.createElement("strong");
         let text = document.createTextNode("Total");
-        td.appendChild(text);
+        strong.appendChild(text);
+        td.appendChild(strong);
         tbody_tr.appendChild(td);
         tbody.appendChild(tbody_tr);
 
         td = document.createElement("td");
-        let strong = document.createElement("strong");
-        text = document.createTextNode(all[keys_basket_all[0]] + "€");
+        td.setAttribute("colspan", "4");
+        tbody_tr.appendChild(td);
+        tbody.appendChild(tbody_tr);
+
+        td = document.createElement("td");
+        strong = document.createElement("strong");
+        text = document.createTextNode(all[keys_basket_all[0]].toFixed(2) + "€");
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);
@@ -141,24 +151,36 @@
         return table;
     }
 
-    function treatment() {
+    function status200() {
+        let basket = httpRequest.response;
+        let modal_body = basket_modal.querySelector(".modal-body");
+        let modal_body_spinner = modal_body.querySelector(".spinner-border");
+        modal_body.removeChild(modal_body_spinner);
+
+        if (Object.keys(basket).length > 0) {
+            let table = construct_basket_table(basket);
+            modal_body.appendChild(table);
+            let modal_footer = basket_modal.querySelector(".modal-footer");
+
+            let button_validation = document.createElement("button");
+            button_validation.setAttribute("type", "button");
+            button_validation.classList.add("btn", "btn-success");
+            let text = document.createTextNode("Valider mon panier");
+            button_validation.appendChild(text);
+
+            modal_footer.appendChild(button_validation);
+        } else {
+            let div = document.createElement("div");
+            let text = document.createTextNode("Votre panier est vide");
+            div.appendChild(text);
+            modal_body.appendChild(div);
+        }
+    }
+
+    function onload() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status === 200) {
-                let basket = httpRequest.response;
-                let modal_body = basket_modal.querySelector(".modal-body");
-                let modal_body_spinner = modal_body.querySelector(".spinner-border");
-                modal_body.removeChild(modal_body_spinner);
-
-                if (Object.keys(basket).length > 0) {
-                    let table = construct_basket_table(basket);
-                    modal_body.appendChild(table);
-                } else {
-                    let div = document.createElement("div");
-                    let text = document.createTextNode("Votre panier est vide");
-                    div.appendChild(text);
-                    modal_body.appendChild(div);
-                }
-
+                setTimeout(status200, 500);
             } else {
                 alert('Il y a eu un problème avec la requête.');
             }
@@ -177,7 +199,7 @@
             return false;
         }
 
-        httpRequest.onreadystatechange = treatment;
+        httpRequest.onload = onload;
         httpRequest.open('GET', url_get_basket);
         httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         httpRequest.responseType = 'json';
