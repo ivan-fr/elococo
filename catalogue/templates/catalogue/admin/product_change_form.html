@@ -1,0 +1,23 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+    <!-- Include the Quill library -->
+    <script src="https://cdn.tiny.cloud/1/bookpd0vbeavu0n3tygdsmyoxy5elt4wi97n1k2v72o86us1/tinymce/5/tinymce.min.js"
+            referrerpolicy="origin"></script>
+    <!-- Initialize Quill editor -->
+    <script type="application/javascript">
+        tinymce.init({
+            selector: '#id_description',
+            plugins: 'advlist autolink lists link charmap preview hr anchor pagebreak autoresize',
+            toolbar_mode: 'floating',
+            language: 'fr_FR',
+        });
+    </script>
+{% endblock %}

@@ -33,7 +33,7 @@
                 <div class="card text-dark bg-light">
                     <div class="card-header">Description du produit</div>
                     <div class="card-body">
-                        <p class="card-text">{{ product.description|capfirst }}</p>
+                        <div class="card-text">{{ product.description|safe }}</div>
                     </div>
                 </div>
             </div>

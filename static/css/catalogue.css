@@ -76,6 +76,14 @@
     grid-column: 2;
 }
 
+#detail .info_description h2, #detail .info_description h3 {
+    display: unset;
+}
+
+#detail .info_description h2::after, #detail .info_description h3::after, #detail .info_description h2::before, #detail .info_description h3::before {
+    display: none;
+}
+
 main h2.is_colored {
     background-color: #ffe2d1;
     border-bottom: 0.1em solid #ff6c00;

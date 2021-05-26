@@ -43,6 +43,7 @@ class ProductAdmin(admin.ModelAdmin):
     filter_horizontal = ('categories',)
     prepopulated_fields = {"slug": ("name",)}
     exclude = ('enable_sale',)
+    change_form_template = "catalogue/admin/product_change_form.html"
 
     def get_queryset(self, request):
         queryset = super(ProductAdmin, self).get_queryset(request)
