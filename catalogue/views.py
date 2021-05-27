@@ -1,18 +1,31 @@
+from operator import methodcaller
+
+from django.http import JsonResponse, Http404
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import BaseListView
-from catalogue.models import Product
+
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
-from catalogue.forms import AddToBasketForm, BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
-from django.urls import reverse
-from django.http import JsonResponse, Http404
-from django.utils.translation import gettext as _
+from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
+from catalogue.generic import FormSetMixin
+from catalogue.models import Product
 
 
-class BasketView(BaseListView):
+class BasketView(FormSetMixin, BaseListView):
     allow_empty = False
     template_name = 'catalogue/index_list.html'
     model = Product
+    form_class = UpdateBasketForm
+    formset_class = ProductFormSet
+    factory_kwargs = {'extra': 0,
+                      'absolute_max': MAX_BASKET_PRODUCT,
+                      'max_num': MAX_BASKET_PRODUCT, 'validate_max': True,
+                      'min_num': 1, 'validate_min': True,
+                      'can_order': False,
+                      'can_delete': False}
 
     def get_queryset(self):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
@@ -26,11 +39,21 @@ class BasketView(BaseListView):
 
         return super(BasketView, self).get_queryset()
 
+    def get_formset_kwargs(self):
+        kwargs = super(BasketView, self).get_formset_kwargs()
+
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
+        sorted_from_bakset = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
+
+        kwargs.update({"products_queryset": sorted_from_bakset})
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         if not request.is_ajax():
             raise Http404()
 
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(BASKET_SESSION_KEY, {}).copy()
 
         if not bool(basket):
             return JsonResponse({})
@@ -54,13 +77,21 @@ class BasketView(BaseListView):
                 })
 
         aggregate = self.queryset.aggregate(total_price_from_all_product())
-        for product in self.object_list:
+        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
+                        for product_slug in basket.keys()]
+
+        formset = self.construct_formset()
+
+        for i, product in enumerate(self.object_list):
             basket[product.slug].update({
+                "input_html_quantity": str(formset[i]['quantity']),
+                "input_html_remove": str(formset[i]['remove']),
                 "exact_price_with_quantity": product.exact_price_with_quantity,
                 "effective_reduction": product.effective_reduction,
                 "exact_price": product.exact_price,
             })
         basket["__all__"] = aggregate
+        basket["formset_management"] = str(formset.management_form)
 
         return JsonResponse(basket)
 
@@ -110,24 +141,24 @@ class ProductDetailView(FormMixin, DetailView):
 
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
-        kwargs.update({"session": self.request.session})
+        kwargs.update({"session": self.request.session, "product_instance": self.object})
         return kwargs
 
     def form_valid(self, form):
         basket = self.request.session.get(BASKET_SESSION_KEY, None)
 
         if basket is None:
-            self.request.session[BASKET_SESSION_KEY] = {form.cleaned_data["product_slug"]: {
+            self.request.session[BASKET_SESSION_KEY] = {self.object.slug: {
                 "product_name": self.object.name,
                 "quantity": form.cleaned_data["quantity"]
             }}
         else:
-            if self.request.session[BASKET_SESSION_KEY].get(form.cleaned_data["product_slug"], None) is not None:
-                self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] = \
-                    self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]]["quantity"] \
+            if self.request.session[BASKET_SESSION_KEY].get(self.object.slug, None) is not None:
+                self.request.session[BASKET_SESSION_KEY][self.object.slug]["quantity"] = \
+                    self.request.session[BASKET_SESSION_KEY][self.object.slug]["quantity"] \
                     + form.cleaned_data["quantity"]
             else:
-                self.request.session[BASKET_SESSION_KEY][form.cleaned_data["product_slug"]] = {
+                self.request.session[BASKET_SESSION_KEY][self.object.slug] = {
                     "product_name": self.object.name,
                     "quantity": form.cleaned_data["quantity"]
                 }

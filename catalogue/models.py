@@ -1,13 +1,14 @@
+import os
+import shutil
+import time
+
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.core.validators import MaxValueValidator
-from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.conf import settings
-import time
-import os
-import shutil
 
 
 def product_image_path(instance, filename: str):
@@ -37,6 +38,9 @@ class Product(models.Model):
     categories = models.ManyToManyField(Category)
     enable_comment = models.BooleanField(default=False)
     enable_sale = models.BooleanField(default=False)
+
+    def compute_basket_oder(self, basket_enum):
+        return basket_enum[self.slug]
 
     class Meta:
         ordering = ('-date', '-dateUpdate')

@@ -23,17 +23,19 @@
 {% include "elococo/footer.html" %}
 
 <div class="modal fade" id="basket_modal" tabindex="-1" aria-labelledby="basket_modal" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Mon Panier</h3>
             </div>
-            <div class="modal-body">
-                <div class="spinner-border text-success" role="status">
+            <div id="basket_form">
+                <div class="modal-body">
+                    <div class="spinner-border text-success" role="status">
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -58,7 +60,7 @@
         let thead = document.createElement("thead");
         let thead_tr = document.createElement("tr");
 
-        let columns = ["#", "Nom du produit", "Prix unitaire (€)", "Dont réduction (%)", "Quantité", "Sous Total (€)"]
+        let columns = ["#", "Nom du produit", "Prix unitaire (€)", "Dont réduction (%)", "Quantité", "Sous Total (€)", "Supprimer ?"]
 
         for (let i = 0; i < columns.length; i++) {
             let th = document.createElement("th");
@@ -73,12 +75,14 @@
 
         let tbody = document.createElement("tbody");
 
-        let keys_basket = ["product_name", "exact_price", "effective_reduction", "quantity", "exact_price_with_quantity"];
-        let prefix_values = ["", "", "-", "", ""];
-        let suffix_values = ["", "€", "%", "", "€"];
+        let keys_basket = ["product_name", "exact_price", "effective_reduction", "input_html_quantity", "exact_price_with_quantity", "input_html_remove"];
+        let prefix_values = ["", "", "-", "", "", ""];
+        let suffix_values = ["", "€", "%", "", "€", ""];
 
         let all = basket["__all__"];
         delete basket["__all__"];
+        let formset_management = basket["formset_management"];
+        delete basket["formset_management"];
         let keys_basket_all = ["exact_price_with_quantity__sum"];
 
         let i = 1;
@@ -104,16 +108,21 @@
                     info = data[key];
                 }
 
-                if (j === 1 || j === 2 || j === 4) {
-                    if (j === 2 && parseInt(info) === 0) {
-                        info = "Pas de reduction";
-                    } else {
-                        info = prefix_values[j] + info.toFixed(2).toString() + suffix_values[j];
+                if (j === 3 || j === 5) {
+                    td.innerHTML = info;
+                } else {
+                    if (j === 1 || j === 2 || j === 4) {
+                        if (j === 2 && parseInt(info) === 0) {
+                            info = "Pas de reduction";
+                        } else {
+                            info = prefix_values[j] + info.toFixed(2).toString() + suffix_values[j];
+                        }
                     }
+
+                    text = document.createTextNode(info);
+                    td.appendChild(text);
                 }
 
-                text = document.createTextNode(info);
-                td.appendChild(text);
                 tbody_tr.appendChild(td);
                 j++;
             }
@@ -148,7 +157,14 @@
 
         table.appendChild(tbody);
 
-        return table;
+        let form = document.createElement("form");
+        form.setAttribute("action", url_get_basket);
+        form.setAttribute("method", "post");
+
+        form.innerHTML = formset_management;
+        form.appendChild(table);
+
+        return form;
     }
 
     function status200() {
@@ -158,8 +174,10 @@
         modal_body.removeChild(modal_body_spinner);
 
         if (Object.keys(basket).length > 0) {
-            let table = construct_basket_table(basket);
-            modal_body.appendChild(table);
+            let
+
+            let form = construct_basket_table(basket);
+            modal_body.appendChild(form);
             let modal_footer = basket_modal.querySelector(".modal-footer");
 
             let button_validation = document.createElement("button");
