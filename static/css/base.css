@@ -274,10 +274,7 @@ main h3::after, main h2::before, .modal h3::after, .modal h2::before {
 
 table.basket-table {
     margin: 0;
-}
-
-h6, h5, h4, h3, h2, h1 {
-    margin-bottom: 1rem;
+    border-style: hidden;
 }
 
 figure.mt-1 {

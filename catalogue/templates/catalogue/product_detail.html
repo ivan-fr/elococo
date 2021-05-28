@@ -140,5 +140,13 @@
         }
 
         setTimeout(initListener, 500);
+
+        {% if basket_updated %}
+            let basket_modal_call = new bootstrap.Modal(basket_modal, {
+                keyboard: false
+            })
+            basket_modal_call.show();
+            basket_modal_showed = true;
+        {% endif %}
     </script>
 {% endblock %}

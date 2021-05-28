@@ -8,7 +8,8 @@ from django.views.generic.edit import FormMixin
 from django.views.generic.list import BaseListView
 
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
-from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
+from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
+    MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
 from catalogue.generic import FormSetMixin
 from catalogue.models import Product
 
@@ -61,9 +62,6 @@ class BasketView(FormSetMixin, BaseListView):
         allow_empty = self.get_allow_empty()
 
         if not allow_empty:
-            # When pagination is enabled and object_list is a queryset,
-            # it's better to do a cheap query than to load the unpaginated
-            # queryset in memory.
             if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
                 is_empty = not self.object_list.exists()
             else:
@@ -140,30 +138,41 @@ class ProductDetailView(FormMixin, DetailView):
 
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
-        kwargs.update({"session": self.request.session, "product_instance": self.object})
+        kwargs.update({"session": self.request.session, PRODUCT_INSTANCE_KEY: self.object})
         return kwargs
 
     def form_valid(self, form):
-        basket = self.request.session.get(BASKET_SESSION_KEY, None)
-
-        if basket is None:
-            self.request.session[BASKET_SESSION_KEY] = {self.object.slug: {
+        session = self.request.session
+        if session.get(BASKET_SESSION_KEY, None) is None:
+            session[BASKET_SESSION_KEY] = {self.object.slug: {
                 "product_name": self.object.name,
                 "quantity": form.cleaned_data["quantity"]
             }}
         else:
-            if self.request.session[BASKET_SESSION_KEY].get(self.object.slug, None) is not None:
-                self.request.session[BASKET_SESSION_KEY][self.object.slug]["quantity"] = \
-                    self.request.session[BASKET_SESSION_KEY][self.object.slug]["quantity"] \
-                    + form.cleaned_data["quantity"]
+            if session[BASKET_SESSION_KEY].get(self.object.slug, None) is not None:
+                session[BASKET_SESSION_KEY][self.object.slug]["quantity"] = \
+                    session[BASKET_SESSION_KEY][self.object.slug]["quantity"] + form.cleaned_data["quantity"]
             else:
-                self.request.session[BASKET_SESSION_KEY][self.object.slug] = {
+                session[BASKET_SESSION_KEY][self.object.slug] = {
                     "product_name": self.object.name,
                     "quantity": form.cleaned_data["quantity"]
                 }
-            self.request.session.modified = True
+            session.modified = True
 
+        session["basket_updated"] = True
         return super(ProductDetailView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        updated = self.request.session.get("basket_updated", False)
+        self.extra_context = {"basket_updated": updated}
+
+        if updated:
+            self.request.session["basket_updated"] = False
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         """

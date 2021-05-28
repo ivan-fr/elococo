@@ -22,7 +22,7 @@
 
 {% include "elococo/footer.html" %}
 
-<div class="modal fade" id="basket_modal" tabindex="-1" aria-labelledby="basket_modal" aria-hidden="true">
+<div class="modal fade" id="basket-modal" tabindex="-1" aria-labelledby="basket-modal" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -48,7 +48,7 @@
 <script type="application/javascript">
     // From IB - {% now "Y" %}
 
-    let basket_modal = document.getElementById('basket_modal');
+    let basket_modal = document.getElementById('basket-modal');
     let basket_modal_showed = false;
     let url_get_basket = "{{ url_get_basket }}";
     let httpRequest = new XMLHttpRequest();
@@ -113,7 +113,7 @@
                 } else {
                     if (j === 1 || j === 2 || j === 4) {
                         if (j === 2 && parseInt(info) === 0) {
-                            info = "Pas de reduction";
+                            info = "Pas de reduction.";
                         } else {
                             info = prefix_values[j] + info.toFixed(2).toString() + suffix_values[j];
                         }
@@ -159,15 +159,13 @@
 
         table.appendChild(tbody);
 
-        let modal_form_container_body = basket_modal.querySelector(".modal-body").cloneNode();
-        let modal_form_container_footer = basket_modal.querySelector(".modal-footer").cloneNode(true);
+        table.classList.add("modal-body");
 
-        modal_form_container_body.innerHtml = "";
-        modal_form_container_body.appendChild(table);
+        let modal_form_container_footer = basket_modal.querySelector(".modal-footer").cloneNode(true);
 
         let button_validation = document.createElement("a");
         button_validation.classList.add("btn", "btn-success");
-        text = document.createTextNode("Valider mon panier");
+        text = document.createTextNode("Reserver");
         button_validation.appendChild(text);
 
         modal_form_container_footer.appendChild(button_validation);
@@ -178,7 +176,7 @@
 
         form.innerHTML = formset_management;
 
-        form.appendChild(modal_form_container_body);
+        form.appendChild(table);
         form.appendChild(modal_form_container_footer);
 
         return form;
