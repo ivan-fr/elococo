@@ -8,9 +8,10 @@ PRODUCT_INSTANCE_KEY = "product_instance"
 
 
 class ProductFormSet(BaseFormSet):
-    def __init__(self, products_queryset, *args, **kwargs):
+    def __init__(self, products_queryset, session, *args, **kwargs):
         super(ProductFormSet, self).__init__(*args, **kwargs)
         self.products_queryset = products_queryset
+        self.session = session
 
     def get_form_kwargs(self, form_index):
         form_kwargs = super(ProductFormSet, self).get_form_kwargs(form_index)
@@ -19,6 +20,7 @@ class ProductFormSet(BaseFormSet):
                 form_kwargs[PRODUCT_INSTANCE_KEY] = self.products_queryset[form_index]
             except IndexError:
                 pass
+        form_kwargs["session"] = self.session
         return form_kwargs
 
 
@@ -50,12 +52,9 @@ class AddToBasketForm(forms.Form):
         if self.product_instance is None:
             raise forms.ValidationError("Le produit n'existe pas.")
 
-        if self.session is None:
-            basket = {}
-        else:
-            basket = self.session.get(BASKET_SESSION_KEY, {})
+        basket = self.session.get(BASKET_SESSION_KEY, {})
 
-        if len(basket) > MAX_BASKET_PRODUCT:
+        if len(basket) >= MAX_BASKET_PRODUCT:
             raise forms.ValidationError(
                 f"Nombre maximal ({MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
             )
@@ -79,9 +78,28 @@ class AddToBasketForm(forms.Form):
 
 
 class UpdateBasketForm(AddToBasketForm):
-    remove = forms.BooleanField(required=False)
+    remove = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
 
     def clean(self):
         if self.cleaned_data.get("remove", False):
             return super(AddToBasketForm, self).clean()
-        return super(UpdateBasketForm, self).clean()
+
+        if self.product_instance is None:
+            raise forms.ValidationError("Le produit n'existe pas.")
+
+        basket = self.session.get(BASKET_SESSION_KEY, {})
+
+        if len(basket) >= MAX_BASKET_PRODUCT:
+            raise forms.ValidationError(
+                f"Nombre maximal ({MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
+            )
+
+        if self.cleaned_data.get('quantity', None) is None:
+            self.add_error("quantity", forms.ValidationError("Incohérence dans le formulaire."))
+
+        elif self.cleaned_data["quantity"] > max(self.choices):
+            self.add_error("quantity", forms.ValidationError(
+                f"""vous depassez la limite autorisé avec cette quantité ({self.cleaned_data['quantity']}) demandé."""
+            ))
+
+        return super(AddToBasketForm, self).clean()

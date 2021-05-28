@@ -50,10 +50,31 @@
 
     let basket_modal = document.getElementById('basket-modal');
     let basket_modal_showed = false;
+    let basket_save_button = false;
     let url_get_basket = "{{ url_get_basket }}";
     let httpRequest = new XMLHttpRequest();
+    let spinner = basket_modal.querySelector(".modal-body").cloneNode(true);
+    let modal_footer_clone = basket_modal.querySelector(".modal-footer").cloneNode(true);
+
+    function add_save_button(footer) {
+        return function listener() {
+            if (basket_save_button) {
+                return;
+            }
+
+            basket_save_button = true;
+            let submit_button = document.createElement("button");
+            submit_button.setAttribute("type", "submit")
+            submit_button.classList.add("btn", "btn-info");
+            text = document.createTextNode("Sauvegarder les changements");
+            submit_button.appendChild(text);
+            footer.appendChild(submit_button);
+        }
+    }
 
     function construct_basket_form(basket) {
+        let errors_form = null;
+        let modal_form_container_footer = modal_footer_clone.cloneNode(true);
         let table = document.createElement("table");
         table.classList.add("table", "table-bordered", "border-primary", "basket-table");
 
@@ -75,14 +96,23 @@
 
         let tbody = document.createElement("tbody");
 
-        let keys_basket = ["product_name", "exact_price", "effective_reduction", "input_html_quantity", "exact_price_with_quantity", "input_html_remove"];
-        let prefix_values = ["", "", "-", "", "", ""];
-        let suffix_values = ["", "€", "%", "", "€", ""];
+        let keys_basket = ["product_name", "exact_price", "effective_reduction", "input_html_quantity", "exact_price_with_quantity", "input_html_remove", "form_errors"];
+        let prefix_values = ["", "", "-", "", "", "", ""];
+        let suffix_values = ["", "€", "%", "", "€", "", ""];
 
         let all = basket["__all__"];
         delete basket["__all__"];
+
         let formset_management = basket["formset_management"];
         delete basket["formset_management"];
+
+        let csrf_token = basket["csrf_token"];
+        delete basket["csrf_token"];
+        let input_csrf = document.createElement("input");
+        input_csrf.setAttribute("type", "hidden");
+        input_csrf.setAttribute("name", "csrfmiddlewaretoken");
+        input_csrf.setAttribute("value", csrf_token);
+
         let keys_basket_all = ["exact_price_with_quantity__sum"];
 
         let i = 1;
@@ -110,6 +140,27 @@
 
                 if (j === 3 || j === 5) {
                     td.innerHTML = info;
+
+                    if (j === 3) {
+                        let select = td.querySelector(":scope select");
+                        select.addEventListener("change", add_save_button(modal_form_container_footer));
+                    } else if (j === 5) {
+                        let input = td.querySelector(":scope input");
+                        input.addEventListener("change", add_save_button(modal_form_container_footer));
+                    }
+                } else if (j === 6) {
+                    if (info === "") {
+                        continue;
+                    }
+
+                    if (errors_form === null) {
+                        errors_form = document.createElement("ul");
+                    }
+                    let li_product = document.createElement("li");
+                    text = document.createTextNode(data["product_name"]);
+                    li_product.appendChild(text);
+                    li_product.insertAdjacentHTML("beforeend", info);
+                    errors_form.appendChild(li_product);
                 } else {
                     if (j === 1 || j === 2 || j === 4) {
                         if (j === 2 && parseInt(info) === 0) {
@@ -161,8 +212,6 @@
 
         table.classList.add("modal-body");
 
-        let modal_form_container_footer = basket_modal.querySelector(".modal-footer").cloneNode(true);
-
         let button_validation = document.createElement("a");
         button_validation.classList.add("btn", "btn-success");
         text = document.createTextNode("Reserver");
@@ -175,9 +224,16 @@
         form.setAttribute("method", "post");
 
         form.innerHTML = formset_management;
+        form.appendChild(input_csrf);
+
+        if (errors_form !== null) {
+            form.appendChild(errors_form);
+        }
 
         form.appendChild(table);
         form.appendChild(modal_form_container_footer);
+
+        form.addEventListener("submit", post_basket);
 
         return form;
     }
@@ -185,18 +241,18 @@
     function status200() {
         let basket = httpRequest.response;
         let modal_body = basket_modal.querySelector(".modal-body");
-        let modal_body_spinner = modal_body.querySelector(".spinner-border");
         let modal_form_container = document.getElementById("basket-form");
-        modal_body.removeChild(modal_body_spinner);
 
         if (Object.keys(basket).length > 0) {
+            basket_save_button = false;
             let form = construct_basket_form(basket);
             modal_form_container.innerHTML = "";
             modal_form_container.appendChild(form);
         } else {
             let div = document.createElement("div");
-            let text = document.createTextNode("Votre panier est vide");
+            let text = document.createTextNode("Votre panier est vide.");
             div.appendChild(text);
+            modal_body.innerHTML = "";
             modal_body.appendChild(div);
         }
     }
@@ -228,6 +284,25 @@
         httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         httpRequest.responseType = 'json';
         httpRequest.send();
+    }
+
+    function post_basket(event) {
+        event.preventDefault();
+        if (!httpRequest) {
+            alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+            return false;
+        }
+
+        let modal_form_container = document.getElementById("basket-form");
+        modal_form_container.innerHTML = "";
+        modal_form_container.appendChild(spinner.cloneNode(true));
+        modal_form_container.appendChild(modal_footer_clone.cloneNode(true));
+
+        httpRequest.onload = onload;
+        httpRequest.open('POST', url_get_basket, true);
+        httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest.responseType = 'json';
+        httpRequest.send(new FormData(event.currentTarget));
     }
 
     basket_modal.addEventListener('show.bs.modal', get_basket);

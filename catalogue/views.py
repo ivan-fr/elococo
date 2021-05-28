@@ -1,7 +1,9 @@
+import copy
 from operator import methodcaller
 
 from django.http import JsonResponse, Http404
-from django.urls import reverse
+from django.middleware.csrf import get_token
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
@@ -14,10 +16,44 @@ from catalogue.generic import FormSetMixin
 from catalogue.models import Product
 
 
+def update_basket_session(session, form, change=False):
+    product = getattr(form, PRODUCT_INSTANCE_KEY)
+
+    if form.cleaned_data.get("remove", False):
+        if session.get(BASKET_SESSION_KEY, None) is None:
+            return
+        del session[BASKET_SESSION_KEY][product.slug]
+        session.modified = True
+        return
+
+    if change:
+        if session[BASKET_SESSION_KEY].get(product.slug, None) is not None:
+            session[BASKET_SESSION_KEY][product.slug]["quantity"] = form.cleaned_data["quantity"]
+            session.modified = True
+        return
+
+    if session.get(BASKET_SESSION_KEY, None) is None:
+        session[BASKET_SESSION_KEY] = {product.slug: {
+            "product_name": product.name,
+            "quantity": form.cleaned_data["quantity"]
+        }}
+    else:
+        if session[BASKET_SESSION_KEY].get(product.slug, None) is not None:
+            session[BASKET_SESSION_KEY][product.slug]["quantity"] = \
+                session[BASKET_SESSION_KEY][product.slug]["quantity"] + form.cleaned_data["quantity"]
+        else:
+            session[BASKET_SESSION_KEY][product.slug] = {
+                "product_name": product.name,
+                "quantity": form.cleaned_data["quantity"]
+            }
+        session.modified = True
+
+
 class BasketView(FormSetMixin, BaseListView):
     allow_empty = False
     template_name = 'catalogue/index_list.html'
     model = Product
+    success_url = reverse_lazy("catalogue_basket")
     form_class = UpdateBasketForm
     formset_class = ProductFormSet
     factory_kwargs = {'extra': 0,
@@ -39,21 +75,50 @@ class BasketView(FormSetMixin, BaseListView):
 
         return super(BasketView, self).get_queryset()
 
-    def get_formset_kwargs(self):
-        kwargs = super(BasketView, self).get_formset_kwargs()
+    def get_factory_kwargs(self):
+        kwargs = super(BasketView, self).get_factory_kwargs()
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        kwargs["max_num"] = len(basket)
+        return kwargs
 
+    def get_formset_kwargs(self):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
         basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
         self.object_list = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
 
-        kwargs.update({"products_queryset": self.object_list})
-        return kwargs
+        self.formset_kwargs = {"products_queryset": self.object_list, "session": self.request.session}
+        return super(BasketView, self).get_formset_kwargs()
+
+    def formset_valid(self, formset):
+        for form in formset:
+            update_basket_session(self.request.session, form, True)
+
+        return super(BasketView, self).formset_valid(formset)
+
+    def jsonReponse(self, formset, basket):
+        basket = copy.deepcopy(basket)
+        aggregate = self.queryset.aggregate(total_price_from_all_product())
+
+        for i, product in enumerate(self.object_list):
+            basket[product.slug].update({
+                "input_html_quantity": str(formset[i]['quantity']),
+                "input_html_remove": str(formset[i]['remove']),
+                "exact_price_with_quantity": product.exact_price_with_quantity,
+                "effective_reduction": product.effective_reduction,
+                "exact_price": product.exact_price,
+                "form_errors": str(formset[i].errors)
+            })
+        basket["__all__"] = aggregate
+        basket["formset_management"] = str(formset.management_form)
+        basket["csrf_token"] = get_token(self.request)
+
+        return JsonResponse(basket)
 
     def get(self, request, *args, **kwargs):
         if not request.is_ajax():
             raise Http404()
 
-        basket = self.request.session.get(BASKET_SESSION_KEY, {}).copy()
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         if not bool(basket):
             return JsonResponse({})
@@ -72,25 +137,32 @@ class BasketView(FormSetMixin, BaseListView):
                 raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
                     'class_name': self.__class__.__name__,
                 })
+        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
+                        for product_slug in basket.keys()]
 
-        aggregate = self.queryset.aggregate(total_price_from_all_product())
+        formset = self.construct_formset()
+        return self.jsonReponse(formset, basket)
+
+    def post(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            raise Http404()
+
+        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+
+        if not bool(basket):
+            return JsonResponse({})
+
+        self.object_list = self.get_queryset()
+
         self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
                         for product_slug in basket.keys()]
 
         formset = self.construct_formset()
 
-        for i, product in enumerate(self.object_list):
-            basket[product.slug].update({
-                "input_html_quantity": str(formset[i]['quantity']),
-                "input_html_remove": str(formset[i]['remove']),
-                "exact_price_with_quantity": product.exact_price_with_quantity,
-                "effective_reduction": product.effective_reduction,
-                "exact_price": product.exact_price,
-            })
-        basket["__all__"] = aggregate
-        basket["formset_management"] = str(formset.management_form)
-
-        return JsonResponse(basket)
+        if formset.is_valid():
+            return self.formset_valid(formset)
+        else:
+            return self.jsonReponse(formset, basket)
 
 
 class IndexView(ListView):
@@ -143,22 +215,7 @@ class ProductDetailView(FormMixin, DetailView):
 
     def form_valid(self, form):
         session = self.request.session
-        if session.get(BASKET_SESSION_KEY, None) is None:
-            session[BASKET_SESSION_KEY] = {self.object.slug: {
-                "product_name": self.object.name,
-                "quantity": form.cleaned_data["quantity"]
-            }}
-        else:
-            if session[BASKET_SESSION_KEY].get(self.object.slug, None) is not None:
-                session[BASKET_SESSION_KEY][self.object.slug]["quantity"] = \
-                    session[BASKET_SESSION_KEY][self.object.slug]["quantity"] + form.cleaned_data["quantity"]
-            else:
-                session[BASKET_SESSION_KEY][self.object.slug] = {
-                    "product_name": self.object.name,
-                    "quantity": form.cleaned_data["quantity"]
-                }
-            session.modified = True
-
+        update_basket_session(session, form)
         session["basket_updated"] = True
         return super(ProductDetailView, self).form_valid(form)
 

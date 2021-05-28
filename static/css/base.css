@@ -299,3 +299,9 @@ thead, tbody, tfoot, tr, td, th {
 .pointer {
     cursor: pointer;
 }
+
+#basket-form form > ul {
+    border-bottom: 1px solid black;
+    margin-bottom: 0;
+    padding-bottom: 1em;
+}
