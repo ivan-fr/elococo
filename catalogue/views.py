@@ -1,7 +1,6 @@
 from operator import methodcaller
 
 from django.http import JsonResponse, Http404
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
@@ -44,9 +43,9 @@ class BasketView(FormSetMixin, BaseListView):
 
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
         basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
-        sorted_from_bakset = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
+        self.object_list = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
 
-        kwargs.update({"products_queryset": sorted_from_bakset})
+        kwargs.update({"products_queryset": self.object_list})
         return kwargs
 
     def get(self, request, *args, **kwargs):

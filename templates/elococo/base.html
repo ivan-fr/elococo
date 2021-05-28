@@ -28,7 +28,7 @@
             <div class="modal-header">
                 <h3 class="modal-title">Mon Panier</h3>
             </div>
-            <div id="basket_form">
+            <div id="basket-form">
                 <div class="modal-body">
                     <div class="spinner-border text-success" role="status">
                     </div>
@@ -53,7 +53,7 @@
     let url_get_basket = "{{ url_get_basket }}";
     let httpRequest = new XMLHttpRequest();
 
-    function construct_basket_table(basket) {
+    function construct_basket_form(basket) {
         let table = document.createElement("table");
         table.classList.add("table", "table-bordered", "border-primary", "basket-table");
 
@@ -140,12 +140,10 @@
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);
-        tbody.appendChild(tbody_tr);
 
         td = document.createElement("td");
         td.setAttribute("colspan", "4");
         tbody_tr.appendChild(td);
-        tbody.appendChild(tbody_tr);
 
         td = document.createElement("td");
         strong = document.createElement("strong");
@@ -153,16 +151,35 @@
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);
+
+        td = document.createElement("td");
+        tbody_tr.appendChild(td);
+
         tbody.appendChild(tbody_tr);
 
         table.appendChild(tbody);
+
+        let modal_form_container_body = basket_modal.querySelector(".modal-body").cloneNode();
+        let modal_form_container_footer = basket_modal.querySelector(".modal-footer").cloneNode(true);
+
+        modal_form_container_body.innerHtml = "";
+        modal_form_container_body.appendChild(table);
+
+        let button_validation = document.createElement("a");
+        button_validation.classList.add("btn", "btn-success");
+        text = document.createTextNode("Valider mon panier");
+        button_validation.appendChild(text);
+
+        modal_form_container_footer.appendChild(button_validation);
 
         let form = document.createElement("form");
         form.setAttribute("action", url_get_basket);
         form.setAttribute("method", "post");
 
         form.innerHTML = formset_management;
-        form.appendChild(table);
+
+        form.appendChild(modal_form_container_body);
+        form.appendChild(modal_form_container_footer);
 
         return form;
     }
@@ -171,22 +188,13 @@
         let basket = httpRequest.response;
         let modal_body = basket_modal.querySelector(".modal-body");
         let modal_body_spinner = modal_body.querySelector(".spinner-border");
+        let modal_form_container = document.getElementById("basket-form");
         modal_body.removeChild(modal_body_spinner);
 
         if (Object.keys(basket).length > 0) {
-            let
-
-            let form = construct_basket_table(basket);
-            modal_body.appendChild(form);
-            let modal_footer = basket_modal.querySelector(".modal-footer");
-
-            let button_validation = document.createElement("button");
-            button_validation.setAttribute("type", "button");
-            button_validation.classList.add("btn", "btn-success");
-            let text = document.createTextNode("Valider mon panier");
-            button_validation.appendChild(text);
-
-            modal_footer.appendChild(button_validation);
+            let form = construct_basket_form(basket);
+            modal_form_container.innerHTML = "";
+            modal_form_container.appendChild(form);
         } else {
             let div = document.createElement("div");
             let text = document.createTextNode("Votre panier est vide");

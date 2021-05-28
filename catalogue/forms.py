@@ -32,7 +32,7 @@ def clean_treatment(self, super_call):
 
     if len(basket) > MAX_BASKET_PRODUCT:
         raise forms.ValidationError(
-            f"Nombre maximal ({MAX_BASKET_PRODUCT}) de produits atteint dans le panier"
+            f"Nombre maximal ({MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
         )
 
     if self.cleaned_data.get('quantity', None) is None:
@@ -70,13 +70,15 @@ class AddToBasketForm(forms.Form):
         self.session = kwargs.pop('session', None)
         self.product_instance = kwargs.pop(PRODUCT_INSTANCE_KEY, None)
         super(AddToBasketForm, self).__init__(*args, **kwargs)
+        if self.product_instance is not None:
+            self.fields["quantity"].choices = ((i, i) for i in range(1, min(self.product_instance.stock, 9) + 1))
 
     def clean_quantity(self):
         try:
             data = int(self.cleaned_data['quantity'])
             return data
         except ValueError:
-            raise forms.ValidationError("Valeur incompatible")
+            raise forms.ValidationError("Valeur incompatible.")
 
     def clean(self):
         return clean_treatment(self, AddToBasketForm)
