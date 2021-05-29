@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -11,8 +12,14 @@ TIME_ORDERED_LIFE_MINUTES = 45
 
 
 class Ordered(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    order_number = models.UUIDField(default=uuid.uuid4, editable=False)
+
+    email = models.EmailField(null=True)
+    address = models.CharField(max_length=255, null=True)
+    address2 = models.CharField(max_length=255, null=True)
+    postal_code = models.PositiveIntegerField(null=True)
+    city = models.CharField(max_length=255, null=True)
+
     meetings = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',
                                       through_fields=('from_ordered',
