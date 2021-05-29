@@ -156,20 +156,23 @@ class BasketView(FormSetMixin, BaseListView):
         if not bool(basket):
             return JsonResponse({})
 
-        if response := self.init_queryset() is not None:
+        response = self.init_queryset()
+        if response is not None:
             return response
 
         return None
 
     def get(self, request, *args, **kwargs):
-        if response := self.base_logical_response() is not None:
+        response = self.base_logical_response()
+        if response is not None:
             return response
 
         formset = self.construct_formset()
         return self.json_response(formset, self.request.session.get(BASKET_SESSION_KEY, {}))
 
     def post(self, request, *args, **kwargs):
-        if response := self.base_logical_response() is not None:
+        response = self.base_logical_response()
+        if response is not None:
             return response
 
         formset = self.construct_formset()
