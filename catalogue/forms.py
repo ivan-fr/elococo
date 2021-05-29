@@ -2,8 +2,8 @@ from django import forms
 from django.forms import BaseFormSet
 
 BASKET_SESSION_KEY = "basket"
-BASKET_MAX_QUANTITY_PER_FORM = 9
-MAX_BASKET_PRODUCT = 5
+BASKET_MAX_QUANTITY_PER_FORM = 3
+MAX_BASKET_PRODUCT = 8
 PRODUCT_INSTANCE_KEY = "product_instance"
 
 
