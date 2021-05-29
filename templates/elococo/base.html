@@ -52,9 +52,11 @@
     let basket_modal_showed = false;
     let basket_save_button = false;
     let url_get_basket = "{{ url_get_basket }}";
+    let url_get_booking = "{{ url_get_booking }}";
     let httpRequest = new XMLHttpRequest();
     let spinner = basket_modal.querySelector(".modal-body").cloneNode(true);
     let modal_footer_clone = basket_modal.querySelector(".modal-footer").cloneNode(true);
+    let modal_form_container = document.getElementById("basket-form");
 
     function add_save_button(footer) {
         return function listener() {
@@ -69,12 +71,30 @@
             text = document.createTextNode("Sauvegarder les changements");
             submit_button.appendChild(text);
             footer.appendChild(submit_button);
+            footer.classList.remove("is-hidden");
         }
+    }
+
+    function create_form_csrf(csrf, url) {
+        let form = document.createElement("form");
+        form.setAttribute("action", url);
+        form.setAttribute("method", "post");
+        form.appendChild(csrf_input(csrf));
+        return form;
+    }
+
+    function csrf_input(csrf) {
+        let input_csrf = document.createElement("input");
+        input_csrf.setAttribute("type", "hidden");
+        input_csrf.setAttribute("name", "csrfmiddlewaretoken");
+        input_csrf.setAttribute("value", csrf);
+        return input_csrf
     }
 
     function construct_basket_form(basket) {
         let errors_form = null;
-        let modal_form_container_footer = modal_footer_clone.cloneNode(true);
+        let modal_form_container_footer = modal_footer_clone.cloneNode();
+        modal_form_container_footer.classList.add("btn", "is-hidden");
         let table = document.createElement("table");
         table.classList.add("table", "table-bordered", "border-primary", "basket-table");
 
@@ -108,10 +128,6 @@
 
         let csrf_token = basket["csrf_token"];
         delete basket["csrf_token"];
-        let input_csrf = document.createElement("input");
-        input_csrf.setAttribute("type", "hidden");
-        input_csrf.setAttribute("name", "csrfmiddlewaretoken");
-        input_csrf.setAttribute("value", csrf_token);
 
         let keys_basket_all = ["price_exact_ttc_with_quantity__sum"];
 
@@ -188,7 +204,7 @@
 
         let td = document.createElement("td");
         let strong = document.createElement("strong");
-        let text = document.createTextNode("Total TTC");
+        let text = document.createTextNode("Total (TTC)");
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);
@@ -213,19 +229,8 @@
 
         table.classList.add("modal-body");
 
-        let button_validation = document.createElement("a");
-        button_validation.classList.add("btn", "btn-success");
-        text = document.createTextNode("Reserver");
-        button_validation.appendChild(text);
-
-        modal_form_container_footer.appendChild(button_validation);
-
-        let form = document.createElement("form");
-        form.setAttribute("action", url_get_basket);
-        form.setAttribute("method", "post");
-
-        form.innerHTML = formset_management;
-        form.appendChild(input_csrf);
+        let form = create_form_csrf(csrf_token, url_get_basket);
+        form.insertAdjacentHTML("beforeend", formset_management);
 
         if (errors_form !== null) {
             form.appendChild(errors_form);
@@ -241,14 +246,14 @@
 
     function status200() {
         let basket = httpRequest.response;
-        let modal_body = basket_modal.querySelector(".modal-body");
-        let modal_form_container = document.getElementById("basket-form");
+        let modal_body = basket_modal.querySelector(":scope .modal-body");
 
         if (Object.keys(basket).length > 0) {
             basket_save_button = false;
             let form = construct_basket_form(basket);
             modal_form_container.innerHTML = "";
             modal_form_container.appendChild(form);
+            get_booking();
         } else {
             let div = document.createElement("div");
             let text = document.createTextNode("Votre panier est vide.");
@@ -258,7 +263,7 @@
         }
     }
 
-    function onload() {
+    function onload_bakset() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status === 200) {
                 setTimeout(status200, 500);
@@ -266,6 +271,52 @@
                 alert('Il y a eu un problème avec la requête.');
             }
         }
+    }
+
+    function onload_booking() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status === 200) {
+                let data = httpRequest.response;
+                if (data.hasOwnProperty("redirect")) {
+                    window.location.href = data["redirect"];
+                } else {
+                    let modal_form_container_footer = modal_footer_clone.cloneNode(true);
+                    modal_form_container.appendChild(modal_form_container_footer);
+
+                    setTimeout(function () {
+                        let form = create_form_csrf(data["csrf_token"], url_get_booking);
+                        let button_validation = document.createElement("button");
+                        button_validation.setAttribute("type", "submit");
+                        button_validation.classList.add("btn", "btn-success");
+                        text = document.createTextNode("Reserver");
+                        button_validation.appendChild(text);
+                        form.appendChild(button_validation);
+                        form.addEventListener("submit", post_booking);
+
+                        if (data.hasOwnProperty("form_errors")) {
+                            form.insertAdjacentHTML("afterbegin", data["form_errors"]);
+                        }
+
+                        modal_form_container_footer.appendChild(form);
+                    }, 500);
+                }
+            } else {
+                alert('Il y a eu un problème avec la requête.');
+            }
+        }
+    }
+
+    function get_booking() {
+        if (!httpRequest) {
+            alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+            return false;
+        }
+
+        httpRequest.onload = onload_booking;
+        httpRequest.open('GET', url_get_booking);
+        httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest.responseType = 'json';
+        httpRequest.send();
     }
 
     function get_basket() {
@@ -280,7 +331,7 @@
             return false;
         }
 
-        httpRequest.onload = onload;
+        httpRequest.onload = onload_bakset;
         httpRequest.open('GET', url_get_basket);
         httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         httpRequest.responseType = 'json';
@@ -294,13 +345,26 @@
             return false;
         }
 
-        let modal_form_container = document.getElementById("basket-form");
         modal_form_container.innerHTML = "";
         modal_form_container.appendChild(spinner.cloneNode(true));
         modal_form_container.appendChild(modal_footer_clone.cloneNode(true));
 
-        httpRequest.onload = onload;
+        httpRequest.onload = onload_bakset;
         httpRequest.open('POST', url_get_basket, true);
+        httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest.responseType = 'json';
+        httpRequest.send(new FormData(event.currentTarget));
+    }
+
+    function post_booking(event) {
+        event.preventDefault();
+        if (!httpRequest) {
+            alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+            return false;
+        }
+
+        httpRequest.onload = onload_booking;
+        httpRequest.open('POST', url_get_booking, true);
         httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         httpRequest.responseType = 'json';
         httpRequest.send(new FormData(event.currentTarget));

@@ -42,7 +42,7 @@
                 <section class="box">
                     <h3>Informations de vente</h3>
                     <div class="content">
-                        <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>
+                        <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
                         </p>
                         {% if product.effective_reduction > 0 %}
                             <p>Il y a une réduction sur ce produit ! De
@@ -52,7 +52,7 @@
                                 Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
                                 (Heure Europe/Paris, UTC+2).
                             </p>
-                            <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC</p>
+                            <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
                         {% endif %}
                         <p>
                             {% if product.stock <= 0 %}
