@@ -305,3 +305,8 @@ thead, tbody, tfoot, tr, td, th {
 .d-flex {
     display: flex;
 }
+
+.form-control {
+    padding: .75em;
+    box-sizing: border-box;
+}

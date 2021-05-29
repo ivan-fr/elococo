@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Product
@@ -15,13 +16,13 @@ TIME_ORDERED_LIFE_MINUTES = 45
 class Ordered(models.Model):
     order_number = models.UUIDField(default=uuid.uuid4, editable=False)
 
-    first_name = models.CharField(null=True, max_length=255)
-    last_name = models.CharField(null=True, max_length=255)
+    first_name = models.CharField(_("prénom"), null=True, max_length=255)
+    last_name = models.CharField(_("nom de famille"), null=True, max_length=255)
     email = models.EmailField(null=True)
-    address = models.CharField(max_length=255, null=True)
-    address2 = models.CharField(max_length=255, null=True)
-    postal_code = models.PositiveIntegerField(null=True)
-    city = models.CharField(max_length=255, null=True)
+    address = models.CharField(_("ligne adresse 1"), max_length=255, null=True)
+    address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True)
+    postal_code = models.PositiveIntegerField(_("code postal"), null=True)
+    city = models.CharField(_("ville"), max_length=255, null=True)
 
     products = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',

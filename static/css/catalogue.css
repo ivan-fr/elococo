@@ -57,6 +57,27 @@
     grid-gap: 1em;
 }
 
+#order-fill form {
+    display: grid;
+    grid-auto-rows: auto;
+    grid-template-columns:  1fr 1fr;
+    grid-gap: 1em;
+}
+
+#order-fill form .form-control {
+    width: 80%;
+}
+
+#order-fill form > p:nth-of-type(4), #order-fill form > p:nth-of-type(7), #order-fill form > input:last-child {
+    grid-column: 1;
+}
+
+#order-fill > form p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 #detail .image_produits {
     grid-row: 1;
     grid-column: 2;

@@ -1,4 +1,22 @@
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form }}
-</form>
+{% extends 'elococo/base.html' %}
+{% load static %}
+
+{% block body_class %}
+    main_expand_left
+{% endblock %}
+
+{% block base_container %}
+    <section id="catalogue">
+        <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+        <section id="order-fill">
+            <h3>Votre commande a été réservé, ne reste plus qu'a renseigner vos coordonnées pour passer au
+                paiement</h3>
+            <form action="{% url 'sale:fill' ordered.pk %}"
+                  method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" class="btn btn-success" value="Envoyer mes coordonées"/>
+            </form>
+        </section>
+    </section>
+{% endblock %}
