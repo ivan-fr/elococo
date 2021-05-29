@@ -78,11 +78,26 @@ class BasketView(FormSetMixin, BaseListView):
     def get_factory_kwargs(self):
         kwargs = super(BasketView, self).get_factory_kwargs()
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
+
+        basket_set = {product_slug for product_slug in basket.keys()}
+        product_bdd_set = {product.slug for product in self.object_list}
+
+        diff = basket_set.difference(product_bdd_set)
+
+        if len(diff) > 0:
+            for product_slug in diff:
+                del basket[product_slug]
+            self.request.session[BASKET_SESSION_KEY] = basket
+            self.request.session.modified = True
+
+        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
+                        for product_slug in basket.keys()]
         kwargs["max_num"] = len(basket)
         return kwargs
 
     def get_formset_kwargs(self):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
+
         basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
         self.object_list = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
 
@@ -95,7 +110,7 @@ class BasketView(FormSetMixin, BaseListView):
 
         return super(BasketView, self).formset_valid(formset)
 
-    def jsonReponse(self, formset, basket):
+    def json_response(self, formset, basket):
         basket = copy.deepcopy(basket)
         aggregate = self.queryset.aggregate(total_price_from_all_product())
 
@@ -114,15 +129,7 @@ class BasketView(FormSetMixin, BaseListView):
 
         return JsonResponse(basket)
 
-    def get(self, request, *args, **kwargs):
-        if not request.is_ajax():
-            raise Http404()
-
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
-
-        if not bool(basket):
-            return JsonResponse({})
-
+    def init_queryset(self):
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
 
@@ -132,19 +139,16 @@ class BasketView(FormSetMixin, BaseListView):
             else:
                 is_empty = not self.object_list
             if is_empty:
-                if request.is_ajax():
+                if self.request.is_ajax():
                     return JsonResponse({})
                 raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
                     'class_name': self.__class__.__name__,
                 })
-        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
-                        for product_slug in basket.keys()]
 
-        formset = self.construct_formset()
-        return self.jsonReponse(formset, basket)
+        return None
 
-    def post(self, request, *args, **kwargs):
-        if not request.is_ajax():
+    def base_logical_response(self):
+        if not self.request.is_ajax():
             raise Http404()
 
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
@@ -152,17 +156,28 @@ class BasketView(FormSetMixin, BaseListView):
         if not bool(basket):
             return JsonResponse({})
 
-        self.object_list = self.get_queryset()
+        if response := self.init_queryset() is not None:
+            return response
 
-        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
-                        for product_slug in basket.keys()]
+        return None
+
+    def get(self, request, *args, **kwargs):
+        if response := self.base_logical_response() is not None:
+            return response
+
+        formset = self.construct_formset()
+        return self.json_response(formset, self.request.session.get(BASKET_SESSION_KEY, {}))
+
+    def post(self, request, *args, **kwargs):
+        if response := self.base_logical_response() is not None:
+            return response
 
         formset = self.construct_formset()
 
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
-            return self.jsonReponse(formset, basket)
+            return self.json_response(formset, self.request.session.get(BASKET_SESSION_KEY, {}))
 
 
 class IndexView(ListView):
