@@ -81,7 +81,7 @@
         let thead = document.createElement("thead");
         let thead_tr = document.createElement("tr");
 
-        let columns = ["#", "Nom du produit", "Prix unitaire (HT)", "Prix unitaire (TTC)", "Dont réduction (%)", "Quantité", "Sous Total (€)", "Supprimer ?"]
+        let columns = ["#", "Nom du produit", "Prix unitaire (HT)", "Prix unitaire (TTC)", "Dont réduction (%)", "Quantité", "Sous Total (TTC)", "Supprimer ?"]
 
         for (let i = 0; i < columns.length; i++) {
             let th = document.createElement("th");
@@ -188,7 +188,7 @@
 
         let td = document.createElement("td");
         let strong = document.createElement("strong");
-        let text = document.createTextNode("Total");
+        let text = document.createTextNode("Total TTC");
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);
