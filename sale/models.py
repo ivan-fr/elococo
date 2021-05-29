@@ -7,36 +7,43 @@ from django.db import models
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Product
 
+TIME_ORDERED_LIFE_MINUTES = 45
+
 
 class Ordered(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     meetings = models.ManyToManyField(Product,
-                                      through='sale.models.OrderedProduct',
+                                      through='sale.OrderedProduct',
                                       through_fields=('from_ordered',
-                                                      'to_meeting'))
+                                                      'to_product'))
     payment_status = models.BooleanField(default=False)
-    enabled = models.BooleanField(default=True)
-    too_late_accepted_payment = models.BooleanField(default=False)
+
+    price_exact_ttc_with_quantity_sum = models.PositiveIntegerField()
+    price_exact_ht_with_quantity_sum = models.PositiveIntegerField()
+
+    createdAt = models.DateTimeField(auto_now_add=True)
+    endOfLife = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.endOfLife = self.createdAt + datetime.timedelta(minutes=TIME_ORDERED_LIFE_MINUTES)
+        super().save(*args, **kwargs)
 
 
 class OrderedProduct(models.Model):
     from_ordered = models.ForeignKey(Ordered, on_delete=models.CASCADE,
                                      related_name='from_ordered')
-    to_product = models.ForeignKey(Product, on_delete=models.CASCADE,
-                                   related_name="to_product")
+    to_product = models.ForeignKey(Product, on_delete=models.SET_NULL,
+                                   related_name="to_product", null=True)
     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1),
                                                             MaxValueValidator(BASKET_MAX_QUANTITY_PER_FORM)])
 
-    createdAt = models.DateTimeField(auto_now_add=True)
-    endOfLife = models.DateTimeField(auto_now_add=True)
-
-    qrcode = models.ImageField(upload_to='qrcode/%Y/%m/%d/', null=True,
-                               blank=True)
-
-    def save(self, *args, **kwargs):
-        self.endOfLife = self.createdAt + datetime.timedelta(minutes=45)
-        super().save(*args, **kwargs)
+    product_name = models.CharField(max_length=50)
+    effective_reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
+    price_exact_ttc = models.PositiveIntegerField()
+    price_exact_ht = models.PositiveIntegerField()
+    price_exact_ttc_with_quantity = models.PositiveIntegerField()
+    price_exact_ht_with_quantity = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('from_ordered', 'to_product')

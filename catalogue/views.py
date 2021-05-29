@@ -112,7 +112,7 @@ class BasketView(FormSetMixin, BaseListView):
 
     def json_response(self, formset, basket):
         basket = copy.deepcopy(basket)
-        aggregate = self.queryset.aggregate(total_price_from_all_product())
+        aggregate = self.queryset.aggregate(*total_price_from_all_product())
 
         for i, product in enumerate(self.object_list):
             basket[product.slug].update({

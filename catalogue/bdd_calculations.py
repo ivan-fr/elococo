@@ -45,19 +45,21 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
 
 def price_annotation_format(basket=None):
     price_exact_ttc_ = price_exact_ttc()
+    price_exact_ht_ = price_exact_ht()
     my_dict = {"price_exact_ttc": price_exact_ttc_,
-               "price_exact_ht": price_exact_ht(),
+               "price_exact_ht": price_exact_ht_,
                "price_base_ttc": price_exact_ttc(with_reduction=False),
                "effective_reduction": reduction_from_bdd()}
 
     if basket is not None and bool(basket):
         my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ttc_)
+        my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ht_)
 
     return my_dict
 
 
 def total_price_from_all_product():
-    return Sum(F("price_exact_ttc_with_quantity"))
+    return Sum(F("price_exact_ttc_with_quantity")), Sum(F("price_exact_ht_with_quantity"))
 
 
 def filled_category(limit):
