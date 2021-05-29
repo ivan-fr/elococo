@@ -74,8 +74,12 @@
 
 #order-fill > form p {
     display: flex;
-    justify-content: space-between;
+    justify-content: right;
     align-items: center;
+}
+
+#order-fill > form p label {
+    margin-right: 0.5em;
 }
 
 #detail .image_produits {
