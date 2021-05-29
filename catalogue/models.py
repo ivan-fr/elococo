@@ -28,6 +28,8 @@ class Product(models.Model):
     slug = models.SlugField(primary_key=True)
     description = models.TextField()
     price = models.PositiveSmallIntegerField()
+    TTC_price = models.BooleanField(default=False)
+
     reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
     reduction_end = models.DateField(null=True, blank=True)
 

@@ -1,7 +1,6 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-
     <section>
         <h2 class="is_colored">Boutique</h2>
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
@@ -19,11 +18,11 @@
                                 </a>
                                 {% if product.effective_reduction > 0 %}
                                     <div class="info_reduction">
-                                        - {{ product.effective_reduction|floatformat:2 }}%
+                                        - {{ product.effective_reduction }}%
                                     </div>
                                 {% endif %}
                                 <div class="info_price">
-                                    {{ product.exact_price|floatformat:2 }} €
+                                    {{ product.price_exact_ttc|floatformat:2 }} € TTC
                                 </div>
                                 <figcaption>
                                     {{ product.name|title }}

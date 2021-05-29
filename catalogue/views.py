@@ -118,9 +118,10 @@ class BasketView(FormSetMixin, BaseListView):
             basket[product.slug].update({
                 "input_html_quantity": str(formset[i]['quantity']),
                 "input_html_remove": str(formset[i]['remove']),
-                "exact_price_with_quantity": product.exact_price_with_quantity,
+                "price_exact_ttc_with_quantity": product.price_exact_ttc_with_quantity,
                 "effective_reduction": product.effective_reduction,
-                "exact_price": product.exact_price,
+                "price_exact_ttc": product.price_exact_ttc,
+                "price_exact_ht": product.price_exact_ht,
                 "form_errors": str(formset[i].errors)
             })
         basket["__all__"] = aggregate

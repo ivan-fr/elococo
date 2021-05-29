@@ -81,7 +81,7 @@
         let thead = document.createElement("thead");
         let thead_tr = document.createElement("tr");
 
-        let columns = ["#", "Nom du produit", "Prix unitaire (€)", "Dont réduction (%)", "Quantité", "Sous Total (€)", "Supprimer ?"]
+        let columns = ["#", "Nom du produit", "Prix unitaire (HT)", "Prix unitaire (TTC)", "Dont réduction (%)", "Quantité", "Sous Total (€)", "Supprimer ?"]
 
         for (let i = 0; i < columns.length; i++) {
             let th = document.createElement("th");
@@ -96,9 +96,9 @@
 
         let tbody = document.createElement("tbody");
 
-        let keys_basket = ["product_name", "exact_price", "effective_reduction", "input_html_quantity", "exact_price_with_quantity", "input_html_remove", "form_errors"];
-        let prefix_values = ["", "", "-", "", "", "", ""];
-        let suffix_values = ["", "€", "%", "", "€", "", ""];
+        let keys_basket = ["product_name", "price_exact_ht", "price_exact_ttc", "effective_reduction", "input_html_quantity", "price_exact_ttc_with_quantity", "input_html_remove", "form_errors"];
+        let prefix_values = ["", "", "", "-", "", "", "", ""];
+        let suffix_values = ["", "€", "€", "%", "", "€", "", ""];
 
         let all = basket["__all__"];
         delete basket["__all__"];
@@ -113,7 +113,7 @@
         input_csrf.setAttribute("name", "csrfmiddlewaretoken");
         input_csrf.setAttribute("value", csrf_token);
 
-        let keys_basket_all = ["exact_price_with_quantity__sum"];
+        let keys_basket_all = ["price_exact_ttc_with_quantity__sum"];
 
         let i = 1;
         for (const keysBasketKey in basket) {
@@ -138,17 +138,17 @@
                     info = data[key];
                 }
 
-                if (j === 3 || j === 5) {
+                if (j === 4 || j === 6) {
                     td.innerHTML = info;
 
-                    if (j === 3) {
+                    if (j === 4) {
                         let select = td.querySelector(":scope select");
                         select.addEventListener("change", add_save_button(modal_form_container_footer));
-                    } else if (j === 5) {
+                    } else if (j === 6) {
                         let input = td.querySelector(":scope input");
                         input.addEventListener("change", add_save_button(modal_form_container_footer));
                     }
-                } else if (j === 6) {
+                } else if (j === 7) {
                     if (info === "") {
                         continue;
                     }
@@ -162,10 +162,11 @@
                     li_product.insertAdjacentHTML("beforeend", info);
                     errors_form.appendChild(li_product);
                 } else {
-                    if (j === 1 || j === 2 || j === 4) {
-                        if (j === 2 && parseInt(info) === 0) {
+                    if (j === 1 || j === 2 || j === 3 || j === 5) {
+                        if (j === 3 && parseInt(info) === 0) {
                             info = "Pas de reduction.";
                         } else {
+                            info = parseFloat(info);
                             info = prefix_values[j] + info.toFixed(2).toString() + suffix_values[j];
                         }
                     }
@@ -193,12 +194,12 @@
         tbody_tr.appendChild(td);
 
         td = document.createElement("td");
-        td.setAttribute("colspan", "4");
+        td.setAttribute("colspan", "5");
         tbody_tr.appendChild(td);
 
         td = document.createElement("td");
         strong = document.createElement("strong");
-        text = document.createTextNode(all[keys_basket_all[0]].toFixed(2) + "€");
+        text = document.createTextNode(parseFloat(all[keys_basket_all[0]]).toFixed(2) + "€");
         strong.appendChild(text);
         td.appendChild(strong);
         tbody_tr.appendChild(td);

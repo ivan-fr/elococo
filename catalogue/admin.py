@@ -26,18 +26,18 @@ def reductions(obj):
     return "{}%".format(obj.effective_reduction)
 
 
-def prices_effective(obj):
-    return "{:.2f} euros".format(obj.exact_price)
+def price_exact_ttc(obj):
+    return "{:.2f} euros".format(obj.price_exact_ttc)
 
 
-def prices_base(obj):
-    return "{:.2f} euros".format(obj.base_price)
+def price_base_ttc(obj):
+    return "{:.2f} euros".format(obj.price_base_ttc)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dateUpdate', 'stock', reductions, prices_base,
-                    prices_effective, categories, 'enable_sale', 'enable_comment')
+    list_display = ('name', 'dateUpdate', 'stock', reductions, price_base_ttc,
+                    price_exact_ttc, categories, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', 'stock')
     inlines = (ProductImageAdmin,)
     filter_horizontal = ('categories',)
