@@ -5,6 +5,7 @@ from django.db.models import DecimalField, PositiveSmallIntegerField
 from django.db.models import F, Count, Case, When, Value, Sum, Min
 from django.db.models.functions import Cast, Ceil
 
+from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
 
 TVA = Decimal(1.2)
@@ -36,7 +37,8 @@ def price_exact_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
-    return Min(Cast(data["quantity"], PositiveSmallIntegerField()), F("stock"))
+    return Min(Cast(data["quantity"], PositiveSmallIntegerField()),
+               Cast(BASKET_MAX_QUANTITY_PER_FORM, PositiveSmallIntegerField()), F("stock"))
 
 
 def effective_quantity_per_product_from_basket(basket):
