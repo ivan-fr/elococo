@@ -62,11 +62,6 @@ class AddToBasketForm(forms.Form):
         if self.cleaned_data.get('quantity', None) is None:
             raise forms.ValidationError("Incohérence dans le formulaire.")
 
-        if self.cleaned_data["quantity"] > max(self.choices):
-            raise forms.ValidationError(
-                f"""vous depassez la limite autorisé avec cette quantité ({self.cleaned_data['quantity']}) demandé."""
-            )
-
         if bool(basket) and basket.get(self.product_instance.slug, None) is not None:
             if self.cleaned_data["quantity"] + basket[self.product_instance.slug]["quantity"] > max(self.choices):
                 raise forms.ValidationError(

@@ -12,6 +12,13 @@
         </li>
     </ul>
     <ul>
+        {% if url_my_ordered %}
+            <li>
+                <a href="{{ url_my_ordered }}" class="btn btn-success"><i
+                        class="bi-info-circle"></i> Completer ma commande
+                </a>
+            </li>
+        {% endif %}
         <li>
             <button data-bs-toggle="modal" data-bs-target="#basket-modal" class="btn btn-warning"><i
                     class="bi-basket"></i> Mon Panier

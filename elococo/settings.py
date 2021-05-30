@@ -132,3 +132,5 @@ MEDIA_URL = '/uploads/'
 
 # Website title
 WEBSITE_TITLE = "Carla's Cosmetic"
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'

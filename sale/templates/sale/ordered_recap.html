@@ -16,8 +16,8 @@
     <tbody>
     {% for orderedproduct in ordered.from_ordered.all %}
         <tr>
-            <th scope="row">1</th>
-            <td>Parfum 2</td>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ orderedproduct.product_name }}</td>
             <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
             <td>{{ orderedproduct.price_exact_ttc|to_currency }}€</td>
             <td>
@@ -36,7 +36,7 @@
     {% endfor %}
 
     <tr>
-        <td><strong>Total (TTC)</strong></td>
+        <td><strong>Total</strong></td>
         <td colspan="5"></td>
         <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
         <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>

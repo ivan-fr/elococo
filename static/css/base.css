@@ -1,6 +1,6 @@
 body {
     display: grid;
-    grid-template-columns: 1fr repeat(2, 2fr) 1fr;
+    grid-template-columns: 1fr;
     grid-gap: 1em;
     grid-auto-rows: minmax(4em, auto);
     font-family: "Gill Sans", sans-serif;
@@ -8,54 +8,57 @@ body {
     font-weight: 400;
 }
 
-body > nav {
-    grid-column: 1 / 5;
-    grid-row: 1;
+main {
+    display: grid;
+    grid-template-columns: 1fr repeat(2, 2fr) 1fr;
+    grid-gap: 1em;
 }
 
-body::before {
+main::before {
     display: block;
     content: "";
+    grid-row: 1;
     grid-column: 1;
-    grid-row: 2;
     background-image: url("../images/paris.jpg");
     background-size: cover;
 }
 
-body.main_expand_left::before {
+main.main_expand_left::before {
     display: none;
 }
 
-body.main_expand_right::after {
+main.main_expand_right::after {
     display: none;
 }
 
-body::after {
+body > * {
+    margin: 0!important;
+}
+
+main::after {
     content: "";
     display: block;
+    grid-row: 1;
     grid-column: 4;
-    grid-row: 2;
     background-image: url("../images/paris2.jpg");
     background-size: cover;
 }
 
-body > main {
+body > main > section:first-child {
     grid-column: 2 / 4;
-    grid-row: 2;
 }
 
-body.main_expand_left > main {
+main.main_expand_left > section:first-child {
     grid-column: 1 / 4;
+    grid-row: 1;
 }
 
-body.main_expand_right > main {
+main.main_expand_right > section:first-child {
     grid-column: 2 / 5;
 }
 
 body > footer {
     border-top: 2px solid #ff6c00;
-    grid-column: 1 / 5;
-    grid-row: 3;
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1fr;
     row-gap: 1em;
@@ -313,4 +316,8 @@ thead, tbody, tfoot, tr, td, th {
 
 .title_not_centered {
     justify-content: unset;
+}
+
+main h2:first-child {
+    margin-top: 0;
 }

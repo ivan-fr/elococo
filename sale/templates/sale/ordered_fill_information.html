@@ -6,14 +6,15 @@
 {% endblock %}
 
 {% block base_container %}
-    <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
     <section>
-        <h3 class="title_not_centered">Récapitulatif de votre commande</h3>
-        {% include "sale/ordered_recap.html" with ordered=ordered %}
-    </section>
-    <section id="catalogue">
+        <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h3 class="title_not_centered">Récapitulatif de votre commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
+        </section>
         <section id="order-fill">
-            <h3 class="title_not_centered">Votre commande a été réservé, ne reste plus qu'a renseigner vos coordonnées
+            <h3 class="title_not_centered">Votre commande a été réservé, ne reste plus qu'a renseigner vos
+                coordonnées
                 pour passer au
                 paiement</h3>
             <form action="{% url 'sale:fill' ordered.pk %}"
@@ -24,4 +25,5 @@
             </form>
         </section>
     </section>
+
 {% endblock %}

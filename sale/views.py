@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse
 from django.middleware.csrf import get_token
@@ -69,6 +70,11 @@ class BookingBasketView(BaseFormView):
         return None
 
     def form_valid(self, form):
+        if self.request.session.get(BOOKING_SESSION_KEY, None) is not None:
+            messages.warning(self.request,
+                          'Vous avez déjà une commande en attente, une nouvelle reservation est impossible.')
+            return JsonResponse({"reload": True})
+
         self.product_list = self.get_queryset()
         response = self.check_queryset()
 
@@ -113,6 +119,7 @@ class BookingBasketView(BaseFormView):
         except ValueError:
             return HttpResponseBadRequest()
 
+        messages.success(self.request, 'Votre panier a été correctement réservé.')
         return JsonResponse({"redirect": self.get_success_url()})
 
     def form_invalid(self, form):
