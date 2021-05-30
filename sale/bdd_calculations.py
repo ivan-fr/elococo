@@ -17,10 +17,10 @@ def effective_end_time_payment():
 def ordered_is_enable(delete=False):
     if delete:
         time_to_compare = now()
-        bool_to_have = True
+        bool_to_have = False
     else:
         time_to_compare = now() - time_delta()
-        bool_to_have = False
+        bool_to_have = True
 
     return Case(
         When(Q(endOfLife__gt=time_to_compare), then=bool_to_have),
@@ -31,5 +31,5 @@ def ordered_is_enable(delete=False):
 
 def default_ordered_annotation_format():
     my_dict = {"ordered_is_enable": ordered_is_enable(), "effective_end_time_payment": effective_end_time_payment(),
-               "ordered_is_ready_to_delete": ordered_is_enable()}
+               "ordered_is_ready_to_delete": ordered_is_enable(delete=True)}
     return my_dict

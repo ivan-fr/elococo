@@ -1,7 +1,7 @@
 <section class="section-border-right">
     <h2 class="no-flex is_colored">Informations à propos de cette commande</h2>
     <p>
-        Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>
+        Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>.
     </p>
     {% if ordered.payment_status %}
         <p>
@@ -34,8 +34,12 @@
                 jusqu'au <strong>{{ ordered.effective_end_time_payment }}</strong>.
             </p>
             <p>
-                Si vous ne procédez pas au paiement de cette commande avant cette échéance, la réservation sera annulée
+                Si vous ne procédez pas au paiement de cette commande avant l'échéance, la réservation sera annulée
                 et les quantités des produits demandés seront restituées en boutique.
+            </p>
+            <p>
+                <strong>Tous nos produits sont envoyés avec colissimo</strong>. Avec suivi.<br>
+                Il y a donc pas de choix de mode de livraisons.
             </p>
         {% else %}
             <p>

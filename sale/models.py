@@ -17,7 +17,7 @@ TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
 
 def phone_regex():
     return RegexValidator(regex="^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
-                          message="Le numéro ne respect pas le bon format.")
+                          message="Le numéro ne respecte pas le bon format.")
 
 
 class Ordered(models.Model):

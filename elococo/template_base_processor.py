@@ -17,7 +17,7 @@ def template_base_processor(request):
 
     if request.session.get(BOOKING_SESSION_KEY, None) is not None:
         ordered_uuid = uuid.UUID(bytes=bytes(request.session[BOOKING_SESSION_KEY]))
-        if not Ordered.objects.filter(pk=ordered_uuid).exist():
+        if not Ordered.objects.filter(pk=ordered_uuid).exists():
             request.session[BOOKING_SESSION_KEY] = None
             request.session.modified = True
         else:
