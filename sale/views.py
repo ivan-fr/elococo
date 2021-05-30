@@ -34,20 +34,8 @@ class FillInformationOrdered(UpdateView):
         if queryset is None:
             queryset = self.get_queryset()
 
-        pk = self.kwargs.get(self.pk_url_kwarg)
-        slug = self.kwargs.get(self.slug_url_kwarg)
-        if pk is not None:
-            queryset = queryset.filter(pk=pk)
-
-        if slug is not None and (pk is None or self.query_pk_and_slug):
-            slug_field = self.get_slug_field()
-            queryset = queryset.filter(**{slug_field: slug})
-
-        if pk is None and slug is None:
-            raise AttributeError(
-                "Generic detail view %s must be called with either an object "
-                "pk or a slug in the URLconf." % self.__class__.__name__
-            )
+        pk = self.kwargs[self.pk_url_kwarg]
+        queryset = queryset.filter(pk=pk)
 
         try:
             obj = queryset.annotate(**default_ordered_annotation_format()).get()

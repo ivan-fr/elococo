@@ -14,14 +14,22 @@ def effective_end_time_payment():
     return ExpressionWrapper(F("endOfLife") - time_delta(), DateTimeField())
 
 
-def ordered_is_enable():
+def ordered_is_enable(delete=False):
+    if delete:
+        time_to_compare = now()
+        bool_to_have = True
+    else:
+        time_to_compare = now() - time_delta()
+        bool_to_have = False
+
     return Case(
-        When(Q(endOfLife__gt=now() - time_delta()), then=True),
-        When(Q(endOfLife__lte=now() - time_delta()) & Q(payment_status=True), then=True),
-        default=False
+        When(Q(endOfLife__gt=time_to_compare), then=bool_to_have),
+        When(Q(endOfLife__lte=time_to_compare) & Q(payment_status=True), then=bool_to_have),
+        default=not bool_to_have
     )
 
 
 def default_ordered_annotation_format():
-    my_dict = {"ordered_is_enable": ordered_is_enable(), "effective_end_time_payment": effective_end_time_payment()}
+    my_dict = {"ordered_is_enable": ordered_is_enable(), "effective_end_time_payment": effective_end_time_payment(),
+               "ordered_is_ready_to_delete": ordered_is_enable()}
     return my_dict

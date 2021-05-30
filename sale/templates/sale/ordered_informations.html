@@ -1,4 +1,4 @@
-<section>
+<section class="section-border-right">
     <h2 class="no-flex is_colored">Informations à propos de cette commande</h2>
     <p>
         Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>
@@ -43,11 +43,11 @@
                 Son échéance était le {{ ordered.effective_end_time_payment }}.
             </p>
             <p>
-                Vous ne pouvez plus procéder au paiement.<br>
+                Vous ne pouvez plus procéder au paiement ni renseigner vos coordonnées.<br>
                 Les quantités réservés ont été restitués en boutique.
             </p>
             <p>
-                Vous pourrez refaire une réservation dans au plus 10 minutes.<br>
+                Vous pourrez <strong>refaire une autre réservation dans au plus 10 minutes.</strong><br>
                 Cette réservation sera bien entendue supprimer de nos bases données.
             </p>
         {% endif %}

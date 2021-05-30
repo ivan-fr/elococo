@@ -5,6 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from sale.forms import BOOKING_SESSION_KEY
+from sale.models import Ordered
 
 
 def template_base_processor(request):
@@ -15,10 +16,15 @@ def template_base_processor(request):
                'url_my_ordered': None}
 
     if request.session.get(BOOKING_SESSION_KEY, None) is not None:
-        my_dict.update({
-            'url_my_ordered':
-                reverse("sale:fill",
-                        kwargs={"pk": uuid.UUID(bytes=bytes(request.session[BOOKING_SESSION_KEY]))})
-        })
+        ordered_uuid = uuid.UUID(bytes=bytes(request.session[BOOKING_SESSION_KEY]))
+        if not Ordered.objects.filter(pk=ordered_uuid).exist():
+            request.session[BOOKING_SESSION_KEY] = None
+            request.session.modified = True
+        else:
+            my_dict.update({
+                'url_my_ordered':
+                    reverse("sale:fill",
+                            kwargs={"pk": ordered_uuid})
+            })
 
     return my_dict

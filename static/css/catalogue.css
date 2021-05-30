@@ -197,3 +197,7 @@ main .navbar ul > li {
     justify-content: center;
     align-items: center;
 }
+
+main section.section-border-right {
+    border-right: 0.1em solid #ff6c00;
+}
