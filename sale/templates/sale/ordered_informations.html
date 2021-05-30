@@ -1,8 +1,11 @@
 <section>
     <h2 class="no-flex is_colored">Informations à propos de cette commande</h2>
+    <p>
+        Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>
+    </p>
     {% if ordered.payment_status %}
         <p>
-            Votre commande a été payé.
+            Cette commande a été payé.
         </p>
         <p>
             Vous pouvez retrouver un duplicata de votre facture <a href="">ICI</a>.
@@ -11,16 +14,24 @@
             Vous recevrez votre commande sous peu à l'adresse:
         </p>
         <p>
-            {{ ordered.last_name }} {{ first_name }}
-            {{ ordered.address1 }}<br>
+            {{ ordered.last_name }} {{ first_name }}<br>
+            {{ ordered.address }}<br>
             {{ ordered.address2 }}<br>
             {{ ordered.postal_code }}<br>
-            {{ ordered.city }}
+            {{ ordered.city }}<br>
+            Tél: {{ ordered.phone }}
         </p>
     {% else %}
+        <p>
+            Notre site e-commerce prend en considération un stock disponible.<br>
+            Nous ne vendons pas un produit qui n'est pas en stock.<br>
+            Vos quantités réservés seront donc disponible pendant un temps restreint.<br>
+            Si le paiement de la reservation est effective, la reservation sera permanent.
+        </p>
         {% if ordered.ordered_is_enable %}
             <p>
-                Votre réservation est active jusqu'au <strong>{{ ordered.endOfLife }}</strong>.
+                Cette réservation est <strong>active</strong>
+                jusqu'au <strong>{{ ordered.effective_end_time_payment }}</strong>.
             </p>
             <p>
                 Si vous ne procédez pas au paiement de cette commande avant cette échéance, la réservation sera annulée
@@ -28,15 +39,18 @@
             </p>
         {% else %}
             <p>
-                Votre réservation est <strong>inactive</strong>.<br>
-                Son échéance était le {{ ordered.endOfLife }}.
+                Cette réservation est <strong>inactive</strong>.<br>
+                Son échéance était le {{ ordered.effective_end_time_payment }}.
             </p>
             <p>
                 Vous ne pouvez plus procéder au paiement.<br>
-                Les quantités réservés on été restitués en boutique.
+                Les quantités réservés ont été restitués en boutique.
+            </p>
+            <p>
+                Vous pourrez refaire une réservation dans au plus 10 minutes.<br>
+                Cette réservation sera bien entendue supprimer de nos bases données.
             </p>
         {% endif %}
 
     {% endif %}
-
 </section>

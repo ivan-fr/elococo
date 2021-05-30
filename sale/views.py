@@ -11,7 +11,7 @@ from django.views.generic.edit import UpdateView, BaseFormView
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
-from sale.bdd_calculations import default_ordered_annoation_format
+from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY
 from sale.models import Ordered, OrderedProduct
 
@@ -21,7 +21,7 @@ class OrderedDetail(DetailView):
 
     def get_queryset(self):
         queryset = super(OrderedDetail, self).get_queryset()
-        queryset.annotate(**default_ordered_annoation_format())
+        queryset.annotate(**default_ordered_annotation_format())
         return queryset
 
 
@@ -30,10 +30,30 @@ class FillInformationOrdered(UpdateView):
     model = Ordered
     template_name = "sale/ordered_fill_information.html"
 
-    def get_queryset(self):
-        queryset = super(FillInformationOrdered, self).get_queryset()
-        queryset.annotate(**default_ordered_annoation_format())
-        return queryset
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        if pk is not None:
+            queryset = queryset.filter(pk=pk)
+
+        if slug is not None and (pk is None or self.query_pk_and_slug):
+            slug_field = self.get_slug_field()
+            queryset = queryset.filter(**{slug_field: slug})
+
+        if pk is None and slug is None:
+            raise AttributeError(
+                "Generic detail view %s must be called with either an object "
+                "pk or a slug in the URLconf." % self.__class__.__name__
+            )
+
+        try:
+            obj = queryset.annotate(**default_ordered_annotation_format()).get()
+        except queryset.model.DoesNotExist:
+            raise Http404()
+        return obj
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})

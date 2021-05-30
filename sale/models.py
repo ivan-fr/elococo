@@ -12,6 +12,7 @@ from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Product
 
 TIME_ORDERED_LIFE_MINUTES = 45
+TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
 
 
 def phone_regex():
@@ -29,7 +30,7 @@ class Ordered(models.Model):
     address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True)
     postal_code = models.PositiveIntegerField(_("code postal"), null=True)
     city = models.CharField(_("ville"), max_length=255, null=True)
-    phone = models.CharField(validators=phone_regex())
+    phone = models.CharField("téléphone", validators=(phone_regex(),), max_length=20)
 
     products = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',

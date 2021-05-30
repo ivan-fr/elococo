@@ -22,6 +22,7 @@ class OrderedInformation(forms.ModelForm):
             'address2': forms.TextInput(attrs={"class": "form-control"}),
             'postal_code': forms.TextInput(attrs={"class": "form-control"}),
             'city': forms.TextInput(attrs={"class": "form-control"}),
+            'phone': forms.TextInput(attrs={"class": "form-control"}),
         }
 
 
