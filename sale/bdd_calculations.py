@@ -4,8 +4,9 @@ from django.utils.timezone import now
 
 def ordered_is_enable():
     return Case(
-        When(Q(endOfLife__gt=now()) & Q(payment_status=False), then=False),
-        default=True
+        When(Q(endOfLife__lte=now()), then=True),
+        When(Q(endOfLife__gt=now()) & Q(payment_status=True), then=True),
+        default=False
     )
 
 

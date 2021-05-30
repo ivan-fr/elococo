@@ -3,6 +3,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -11,6 +12,11 @@ from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Product
 
 TIME_ORDERED_LIFE_MINUTES = 45
+
+
+def phone_regex():
+    return RegexValidator(regex="^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
+                          message="Le numéro ne respect pas le bon format.")
 
 
 class Ordered(models.Model):
@@ -23,6 +29,7 @@ class Ordered(models.Model):
     address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True)
     postal_code = models.PositiveIntegerField(_("code postal"), null=True)
     city = models.CharField(_("ville"), max_length=255, null=True)
+    phone = models.CharField(validators=phone_regex())
 
     products = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',

@@ -45,9 +45,8 @@
                         <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
                         </p>
                         {% if product.effective_reduction > 0 %}
-                            <p>Il y a une réduction sur ce produit ! De
-                                <strong>-{{ product.effective_reduction }}%</strong>.
-                            </p>
+                            <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
+                                produit.</p>
                             <p>
                                 Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
                                 (Heure Europe/Paris, UTC+2).

@@ -1,6 +1,8 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.db import transaction
-from django.http import HttpResponseBadRequest, Http404, JsonResponse
+from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.views.generic import DetailView
@@ -35,6 +37,24 @@ class FillInformationOrdered(UpdateView):
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.object.ordered_is_enable:
+            return HttpResponseRedirect(reverse("sale:fill", self.object.pk))
+
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        """Insert the form into the context dict."""
+        if 'form' not in kwargs and self.object.ordered_is_enable:
+            kwargs['form'] = self.get_form()
+        return super().get_context_data(**kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -98,8 +118,12 @@ class BookingBasketView(BaseFormView):
         try:
             with transaction.atomic():
                 self.ordered = Ordered.objects.create(
-                    price_exact_ht_with_quantity_sum=int(aggregate["price_exact_ht_with_quantity__sum"] * 100),
-                    price_exact_ttc_with_quantity_sum=int(aggregate["price_exact_ttc_with_quantity__sum"] * 100)
+                    price_exact_ht_with_quantity_sum=int(
+                        aggregate["price_exact_ht_with_quantity__sum"] * Decimal(100.)
+                    ),
+                    price_exact_ttc_with_quantity_sum=int(
+                        aggregate["price_exact_ttc_with_quantity__sum"] * Decimal(100.)
+                    )
                 )
 
                 ordered_product = []
@@ -114,10 +138,10 @@ class BookingBasketView(BaseFormView):
                             to_product=product,
                             product_name=product.name,
                             effective_reduction=product.effective_reduction,
-                            price_exact_ht=int(product.price_exact_ht * 100),
-                            price_exact_ttc=int(product.price_exact_ttc * 100),
-                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * 100),
-                            price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * 100),
+                            price_exact_ht=int(product.price_exact_ht * Decimal(100.)),
+                            price_exact_ttc=int(product.price_exact_ttc * Decimal(100.)),
+                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * Decimal(100.)),
+                            price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * Decimal(100.)),
                             quantity=basket[product.slug]["quantity"]
                         )
                     )

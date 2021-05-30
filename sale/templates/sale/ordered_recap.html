@@ -17,7 +17,7 @@
     {% for orderedproduct in ordered.from_ordered.all %}
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
-            <td>{{ orderedproduct.product_name }}</td>
+            <td><a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a></td>
             <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
             <td>{{ orderedproduct.price_exact_ttc|to_currency }}€</td>
             <td>

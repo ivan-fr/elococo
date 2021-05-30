@@ -1,0 +1,42 @@
+<section>
+    <h2 class="no-flex is_colored">Informations à propos de cette commande</h2>
+    {% if ordered.payment_status %}
+        <p>
+            Votre commande a été payé.
+        </p>
+        <p>
+            Vous pouvez retrouver un duplicata de votre facture <a href="">ICI</a>.
+        </p>
+        <p>
+            Vous recevrez votre commande sous peu à l'adresse:
+        </p>
+        <p>
+            {{ ordered.last_name }} {{ first_name }}
+            {{ ordered.address1 }}<br>
+            {{ ordered.address2 }}<br>
+            {{ ordered.postal_code }}<br>
+            {{ ordered.city }}
+        </p>
+    {% else %}
+        {% if ordered.ordered_is_enable %}
+            <p>
+                Votre réservation est active jusqu'au <strong>{{ ordered.endOfLife }}</strong>.
+            </p>
+            <p>
+                Si vous ne procédez pas au paiement de cette commande avant cette échéance, la réservation sera annulée
+                et les quantités des produits demandés seront restituées en boutique.
+            </p>
+        {% else %}
+            <p>
+                Votre réservation est <strong>inactive</strong>.<br>
+                Son échéance était le {{ ordered.endOfLife }}.
+            </p>
+            <p>
+                Vous ne pouvez plus procéder au paiement.<br>
+                Les quantités réservés on été restitués en boutique.
+            </p>
+        {% endif %}
+
+    {% endif %}
+
+</section>
