@@ -14,11 +14,11 @@ TIME_ORDERED_LIFE_MINUTES = 45
 
 
 class Ordered(models.Model):
-    order_number = models.UUIDField(default=uuid.uuid4, editable=False)
+    order_number = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    email = models.EmailField(null=True)
     first_name = models.CharField(_("prénom"), null=True, max_length=255)
     last_name = models.CharField(_("nom de famille"), null=True, max_length=255)
-    email = models.EmailField(null=True)
     address = models.CharField(_("ligne adresse 1"), max_length=255, null=True)
     address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True)
     postal_code = models.PositiveIntegerField(_("code postal"), null=True)

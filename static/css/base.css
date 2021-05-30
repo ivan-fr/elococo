@@ -310,3 +310,7 @@ thead, tbody, tfoot, tr, td, th {
     padding: .75em;
     box-sizing: border-box;
 }
+
+.title_not_centered {
+    justify-content: unset;
+}

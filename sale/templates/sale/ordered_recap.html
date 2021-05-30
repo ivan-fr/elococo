@@ -1,0 +1,45 @@
+{% load currency %}
+
+<table class="table table-bordered border-primary">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nom du produit</th>
+        <th scope="col">Prix unitaire (HT)</th>
+        <th scope="col">Prix unitaire (TTC)</th>
+        <th scope="col">Dont réduction (%)</th>
+        <th scope="col">Quantité</th>
+        <th scope="col">Sous Total (HT)</th>
+        <th scope="col">Sous Total (TTC)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for orderedproduct in ordered.from_ordered.all %}
+        <tr>
+            <th scope="row">1</th>
+            <td>Parfum 2</td>
+            <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
+            <td>{{ orderedproduct.price_exact_ttc|to_currency }}€</td>
+            <td>
+                {% if orderedproduct.effective_reduction > 0 %}
+                    -{{ orderedproduct.effective_reduction }}%
+                {% else %}
+                    Pas de reduction.
+                {% endif %}
+            </td>
+            <td>
+                {{ orderedproduct.quantity }} unité(s)
+            </td>
+            <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
+            <td>{{ orderedproduct.price_exact_ttc_with_quantity|to_currency }}€</td>
+        </tr>
+    {% endfor %}
+
+    <tr>
+        <td><strong>Total (TTC)</strong></td>
+        <td colspan="5"></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
+        <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
+    </tr>
+    </tbody>
+</table>

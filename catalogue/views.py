@@ -67,7 +67,7 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            self.queryset = self.model.objects.filter(enable_sale=True)
+            self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
             self.queryset = self.queryset.annotate(**price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
         else:
@@ -79,19 +79,29 @@ class BasketView(FormSetMixin, BaseListView):
         kwargs = super(BasketView, self).get_factory_kwargs()
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
-        basket_set = {product_slug for product_slug in basket.keys()}
-        product_bdd_set = {product.slug for product in self.object_list}
+        if bool(basket):
+            basket_set = {product_slug for product_slug in basket.keys()}
+            product_bdd_set = {product.slug for product in self.object_list}
 
-        diff = basket_set.difference(product_bdd_set)
+            diff = basket_set.difference(product_bdd_set)
 
-        if len(diff) > 0:
-            for product_slug in diff:
-                del basket[product_slug]
-            self.request.session[BASKET_SESSION_KEY] = basket
-            self.request.session.modified = True
+            if len(diff) > 0:
+                for product_slug in diff:
+                    del basket[product_slug]
+                self.request.session[BASKET_SESSION_KEY] = basket
+                self.request.session.modified = True
 
-        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
-                        for product_slug in basket.keys()]
+            for product in self.object_list:
+                if product.effective_quantity != basket[product.slug]["quantity"]:
+                    if product.effective_quantity <= 0:
+                        del basket[product.slug]
+                    else:
+                        basket[product.slug]["quantity"] = product.effective_quantity
+                    self.request.session.modified = True
+
+            self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
+                            for product_slug in basket.keys()]
+
         kwargs["max_num"] = len(basket)
         return kwargs
 
@@ -106,7 +116,7 @@ class BasketView(FormSetMixin, BaseListView):
 
     def formset_valid(self, formset):
         for form in formset:
-            update_basket_session(self.request.session, form, True)
+            update_basket_session(self.request.session, form, change=True)
 
         return super(BasketView, self).formset_valid(formset)
 
@@ -192,7 +202,7 @@ class IndexView(ListView):
     extra_context = filled_category(5)
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(enable_sale=True)
+        self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update({"index": category_slug})
 
@@ -213,7 +223,7 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(stock__gt=0)
+        self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 

@@ -24,6 +24,14 @@ class FillInformationOrdered(UpdateView):
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()
+
+        return self.render_to_response(self.get_context_data())
+
 
 class BookingBasketView(BaseFormView):
     form_class = OrderedForm
@@ -33,7 +41,7 @@ class BookingBasketView(BaseFormView):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            queryset = Product.objects.filter(enable_sale=True)
+            queryset = Product.objects.select_for_update().filter(enable_sale=True)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
             queryset = queryset.annotate(**price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
         else:
@@ -45,6 +53,9 @@ class BookingBasketView(BaseFormView):
         return reverse("sale:fill", kwargs={"pk": self.ordered.pk})
 
     def check_queryset(self):
+        if self.product_list is None:
+            return HttpResponseBadRequest()
+
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         basket_set = {product_slug for product_slug in basket.keys()}
@@ -67,32 +78,41 @@ class BookingBasketView(BaseFormView):
         aggregate = self.get_queryset().aggregate(*total_price_from_all_product())
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
-        with transaction.atomic():
-            self.ordered = Ordered.objects.create(
-                price_exact_ht_with_quantity_sum=int(aggregate["price_exact_ht_with_quantity__sum"] * 100),
-                price_exact_ttc_with_quantity_sum=int(aggregate["price_exact_ttc_with_quantity__sum"] * 100)
-            )
-
-            ordered_product = []
-            for product in self.product_list:
-                ordered_product.append(
-                    OrderedProduct(
-                        from_ordered=self.ordered,
-                        to_product=product,
-                        product_name=product.name,
-                        effective_reduction=product.effective_reduction,
-                        price_exact_ht=int(product.price_exact_ht * 100),
-                        price_exact_ttc=int(product.price_exact_ttc * 100),
-                        price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * 100),
-                        price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * 100),
-                        quantity=basket[product.slug]["quantity"]
-                    )
+        try:
+            with transaction.atomic():
+                self.ordered = Ordered.objects.create(
+                    price_exact_ht_with_quantity_sum=int(aggregate["price_exact_ht_with_quantity__sum"] * 100),
+                    price_exact_ttc_with_quantity_sum=int(aggregate["price_exact_ttc_with_quantity__sum"] * 100)
                 )
-            OrderedProduct.objects.bulk_create(ordered_product)
 
-        del self.request.session[BASKET_SESSION_KEY]
-        self.request.session[BOOKING_SESSION_KEY] = self.ordered.pk
-        self.request.session.modified = True
+                ordered_product = []
+                for product in self.product_list:
+                    if product.effective_quantity != basket[product.slug]["quantity"]:
+                        raise ValueError()
+
+                    product.stock -= basket[product.slug]["quantity"]
+                    ordered_product.append(
+                        OrderedProduct(
+                            from_ordered=self.ordered,
+                            to_product=product,
+                            product_name=product.name,
+                            effective_reduction=product.effective_reduction,
+                            price_exact_ht=int(product.price_exact_ht * 100),
+                            price_exact_ttc=int(product.price_exact_ttc * 100),
+                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * 100),
+                            price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * 100),
+                            quantity=basket[product.slug]["quantity"]
+                        )
+                    )
+                Product.objects.bulk_update(self.product_list, ("stock",))
+                OrderedProduct.objects.bulk_create(ordered_product)
+
+            del self.request.session[BASKET_SESSION_KEY]
+            self.request.session[BOOKING_SESSION_KEY] = list(self.ordered.pk.bytes)
+            self.request.session.modified = True
+        except ValueError:
+            return HttpResponseBadRequest()
+
         return JsonResponse({"redirect": self.get_success_url()})
 
     def form_invalid(self, form):

@@ -68,7 +68,7 @@
     width: 80%;
 }
 
-#order-fill form > p:nth-of-type(4), #order-fill form > p:nth-of-type(7), #order-fill form > input:last-child {
+#order-fill form > p:nth-of-type(2), #order-fill form > p:nth-of-type(7), #order-fill form > input:last-child {
     grid-column: 1;
 }
 

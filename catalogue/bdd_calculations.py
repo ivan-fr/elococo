@@ -1,8 +1,8 @@
 from datetime import date
 from decimal import Decimal
 
-from django.db.models import DecimalField
-from django.db.models import F, Count, Case, When, Value, Sum
+from django.db.models import DecimalField, PositiveSmallIntegerField
+from django.db.models import F, Count, Case, When, Value, Sum, Min
 from django.db.models.functions import Cast, Ceil
 
 from catalogue.models import Category
@@ -35,8 +35,24 @@ def price_exact_ttc(with_reduction=True):
     return Case(When(TTC_price=False, then=price * TVA), default=price)
 
 
+def effective_quantity(data):
+    return Min(Cast(data["quantity"], PositiveSmallIntegerField()), F("stock"))
+
+
+def effective_quantity_per_product_from_basket(basket):
+    whens = (When(
+        slug=slug, then=effective_quantity(data)
+    ) for slug, data in basket.items())
+    return Case(
+        *whens,
+        default=Value(0)
+    )
+
+
 def total_price_per_product_from_basket(basket, price_exact_ttc_):
-    whens = (When(slug=slug, then=price_exact_ttc_ * Decimal(data["quantity"])) for slug, data in basket.items())
+    whens = (When(
+        slug=slug, then=price_exact_ttc_ * effective_quantity(data)
+    ) for slug, data in basket.items())
     return Case(
         *whens,
         default=Value(Decimal(0.))
@@ -54,6 +70,7 @@ def price_annotation_format(basket=None):
     if basket is not None and bool(basket):
         my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ttc_)
         my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ht_)
+        my_dict["effective_quantity"] = effective_quantity_per_product_from_basket(basket)
 
     return my_dict
 
