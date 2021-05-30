@@ -65,7 +65,7 @@
 }
 
 #order-fill form .form-control {
-    width: 80%;
+    width: 70%;
 }
 
 #order-fill form > p:nth-of-type(2), #order-fill form > p:nth-of-type(7), #order-fill form > input:last-child {

@@ -9,6 +9,7 @@ from django.views.generic.edit import UpdateView, BaseFormView
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
+from sale.bdd_calculations import default_ordered_annoation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY
 from sale.models import Ordered, OrderedProduct
 
@@ -16,11 +17,21 @@ from sale.models import Ordered, OrderedProduct
 class OrderedDetail(DetailView):
     model = Ordered
 
+    def get_queryset(self):
+        queryset = super(OrderedDetail, self).get_queryset()
+        queryset.annotate(**default_ordered_annoation_format())
+        return queryset
+
 
 class FillInformationOrdered(UpdateView):
     form_class = OrderedInformation
     model = Ordered
     template_name = "sale/ordered_fill_information.html"
+
+    def get_queryset(self):
+        queryset = super(FillInformationOrdered, self).get_queryset()
+        queryset.annotate(**default_ordered_annoation_format())
+        return queryset
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
@@ -72,7 +83,7 @@ class BookingBasketView(BaseFormView):
     def form_valid(self, form):
         if self.request.session.get(BOOKING_SESSION_KEY, None) is not None:
             messages.warning(self.request,
-                          'Vous avez déjà une commande en attente, une nouvelle reservation est impossible.')
+                             'Vous avez déjà une commande en attente, une nouvelle reservation est impossible.')
             return JsonResponse({"reload": True})
 
         self.product_list = self.get_queryset()

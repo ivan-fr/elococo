@@ -32,7 +32,7 @@ main.main_expand_right::after {
 }
 
 body > * {
-    margin: 0!important;
+    margin: 0 !important;
 }
 
 main::after {
@@ -41,6 +41,12 @@ main::after {
     grid-row: 1;
     grid-column: 4;
     background-image: url("../images/paris2.jpg");
+    background-size: cover;
+}
+
+div.covered_image {
+    background-image: url("../images/autumn1.jpg");
+    background-position: center;
     background-size: cover;
 }
 
@@ -258,17 +264,27 @@ main h3::before, main h2::after, .modal h3::before, .modal h2::after {
     display: block;
     content: "";
     background-image: url("../images/feuille.png");
-    background-size: cover;
-    width: 1.5em;
+    background-size: contain;
+    width: 10%;
+    background-repeat: no-repeat;
+}
+
+main h3::after, main h2::after {
+    margin-left: 0.6em;
+}
+
+main h3::before, main h2::before {
+    margin-right: 0.6em;
 }
 
 main h3::after, main h2::before, .modal h3::after, .modal h2::before {
     display: block;
     content: "";
     background-image: url("../images/feuille.png");
-    background-size: cover;
-    width: 1.5em;
+    background-size: contain;
     transform: rotateY(180deg);
+    width: 10%;
+    background-repeat: no-repeat;
 }
 
 table.basket-table {
@@ -320,4 +336,24 @@ thead, tbody, tfoot, tr, td, th {
 
 main h2:first-child {
     margin-top: 0;
+}
+
+main .left-two-span {
+    grid-column: 1 / 4;
+}
+
+main .center-span {
+    grid-column: 2 / 4;
+}
+
+main .right-two-span {
+    grid-column: 3 / 5;
+}
+
+main .right-three-span {
+    grid-column: 2 / 5;
+}
+
+.no-flex {
+    display: inherit;
 }

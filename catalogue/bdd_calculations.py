@@ -1,9 +1,9 @@
-from datetime import date
 from decimal import Decimal
 
 from django.db.models import DecimalField, PositiveSmallIntegerField
 from django.db.models import F, Count, Case, When, Value, Sum, Min
 from django.db.models.functions import Cast, Ceil
+from django.utils.timezone import now
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
@@ -13,7 +13,7 @@ TVA = Decimal(1.2)
 
 def reduction_from_bdd():
     return Case(
-        When(reduction_end__gte=date.today(), then=F('reduction')),
+        When(reduction_end__gte=now().today(), then=F('reduction')),
         default=Value(0)
     )
 
