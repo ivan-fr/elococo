@@ -1,6 +1,6 @@
 {% load currency %}
 
-<table class="table table-bordered border-primary">
+<table class="table table-bordered border-success table-striped">
     <thead>
     <tr>
         <th scope="col">#</th>
@@ -17,7 +17,9 @@
     {% for orderedproduct in ordered.from_ordered.all %}
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
-            <td><a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a></td>
+            <td>
+                <a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
+            </td>
             <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
             <td>{{ orderedproduct.price_exact_ttc|to_currency }}€</td>
             <td>

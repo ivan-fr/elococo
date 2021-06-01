@@ -23,7 +23,7 @@ def ordered_is_enable(delete=False):
         bool_to_have = True
 
     return Case(
-        When(Q(endOfLife__gt=time_to_compare), then=bool_to_have),
+        When(Q(endOfLife__gte=time_to_compare), then=bool_to_have),
         When(Q(endOfLife__lte=time_to_compare) & Q(payment_status=True), then=bool_to_have),
         default=not bool_to_have
     )

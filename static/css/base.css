@@ -165,10 +165,6 @@ figure.hover_figure figcaption {
     border-top: 0.1em solid black;
 }
 
-figure.shadow img {
-    filter: drop-shadow(0 0 0.070rem #000000);
-}
-
 .navbar {
     height: auto;
     border: 1px solid #551c0f;

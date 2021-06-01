@@ -11,7 +11,7 @@
                     <h3>{{ product.name|title }}</h3>
                     {% with product_image=product.productimage_set.first %}
                         {% if product_image %}
-                            <figure class="hover_figure shadow">
+                            <figure class="hover_figure shadow-sm">
                                 <a href="{% url 'catalogue_product_detail' product.slug %}">
                                     <img src="{{ product_image.image.url }}"
                                          alt="product_{{ forloop.counter }}_{{ product.name }}"/>
