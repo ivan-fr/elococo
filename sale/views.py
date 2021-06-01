@@ -22,13 +22,13 @@ from sale.models import Ordered, OrderedProduct
 
 
 @csrf_exempt
-def payment_done(request):
-    return render(request, 'sale/payment_done.html')
+def payment_done(request, pk):
+    return render(request, 'sale/payment_done.html', {"pk": pk})
 
 
 @csrf_exempt
-def payment_canceled(request):
-    return render(request, 'sale/payment_cancelled.html')
+def payment_canceled(request, pk):
+    return render(request, 'sale/payment_cancelled.html', {"pk": pk})
 
 
 def get_object(self, queryset=None):
@@ -54,6 +54,7 @@ class OrderedDetail(FormMixin, DetailView):
             "business": settings.PAYPAL_RECEIVER_EMAIL,
             "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
             "currency_code": "EUR",
+            'item_name': 'Order {}'.format(str(self.object.pk)),
             "invoice": str(self.object.pk),
             "notify_url": self.request.build_absolute_uri(reverse('paypal-ipn')),
             "return_url": self.request.build_absolute_uri(reverse('sale:paypal_return', kwargs={"pk": self.object.pk})),

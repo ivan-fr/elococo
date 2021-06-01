@@ -6,14 +6,14 @@
 
 {% block base_container %}
     <section>
-        <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+        <h2 class="is_colored">Commande #{{ pk }}</h2>
         <section>
             <h3>Mauvaise nouvelle ! Paiement annulé !</h3>
             <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
             <p>
-                Patientez quelques instants..(1secs) Vous allez être redirigé.
+                Patientez quelques instants..(3secs) Vous allez être redirigé.
             </p>
         </section>
     </section>
@@ -21,9 +21,9 @@
 
 {% block body_js %}
     <script type="application/javascript">
-        window.setTimeout(function () {
-            // Move to a new location or you can do something else
-            window.location.href = {% url "sale:detail" pk %};
-        }, 1000);
+        setTimeout(
+            function () {
+                window.location.href = "{% url "sale:detail" pk %}";
+            }, 3000)
     </script>
 {% endblock %}
