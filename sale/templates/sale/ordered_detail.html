@@ -1,1 +1,24 @@
-bonjour
+{% extends 'elococo/base.html' %}
+
+{% block body_class %}
+    main_expand_left
+{% endblock %}
+
+{% block base_container %}
+    <section>
+        <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
+        </section>
+    </section>
+    <div class="covered_image">
+    </div>
+    {% include "sale/ordered_informations.html" with ordered=ordered %}
+    {% if ordered.ordered_is_enable and form %}
+        <section class="right-two-span" id="order-fill">
+            <h2 class="no-flex is_colored">Formulaire de paiement</h2>
+            {{ form.render }}
+        </section>
+    {% endif %}
+{% endblock %}

@@ -1,5 +1,6 @@
 import random
 import uuid
+from payments.models import BasePayment
 
 from django.conf import settings
 from django.urls import reverse

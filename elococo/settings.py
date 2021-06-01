@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
@@ -135,3 +136,7 @@ MEDIA_URL = '/uploads/'
 WEBSITE_TITLE = "Carla's Cosmetic"
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
+
+# PAYMENTS
+PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = 'ivan.besevic_fr-facilitator@yahoo.com'

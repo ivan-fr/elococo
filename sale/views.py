@@ -1,12 +1,17 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
+from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
+from django.views.generic.edit import FormMixin
 from django.views.generic.edit import UpdateView, BaseFormView
+from paypal.standard.forms import PayPalPaymentsForm
 
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
@@ -16,13 +21,49 @@ from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY
 from sale.models import Ordered, OrderedProduct
 
 
-class OrderedDetail(DetailView):
-    model = Ordered
+@csrf_exempt
+def payment_done(request):
+    return render(request, 'sale/payment_done.html')
 
-    def get_queryset(self):
-        queryset = super(OrderedDetail, self).get_queryset()
-        queryset.annotate(**default_ordered_annotation_format())
-        return queryset
+
+@csrf_exempt
+def payment_canceled(request):
+    return render(request, 'sale/payment_cancelled.html')
+
+
+def get_object(self, queryset=None):
+    if queryset is None:
+        queryset = self.get_queryset()
+
+    pk = self.kwargs[self.pk_url_kwarg]
+    queryset = queryset.filter(pk=pk)
+
+    try:
+        obj = queryset.annotate(**default_ordered_annotation_format()).get()
+    except queryset.model.DoesNotExist:
+        raise Http404()
+    return obj
+
+
+class OrderedDetail(FormMixin, DetailView):
+    model = Ordered
+    form_class = PayPalPaymentsForm
+
+    def get_initial(self):
+        return {
+            "business": settings.PAYPAL_RECEIVER_EMAIL,
+            "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
+            "currency_code": "EUR",
+            "invoice": str(self.object.pk),
+            "notify_url": self.request.build_absolute_uri(reverse('paypal-ipn')),
+            "return_url": self.request.build_absolute_uri(reverse('paypal-return')),
+            "cancel_return": self.request.build_absolute_uri(reverse('paypal-cancel')),
+            "lc": 'fr_FR',
+            "no_shipping": '1',
+        }
+
+    def get_object(self, queryset=None):
+        return get_object(self, queryset)
 
 
 class FillInformationOrdered(UpdateView):
@@ -31,17 +72,7 @@ class FillInformationOrdered(UpdateView):
     template_name = "sale/ordered_fill_information.html"
 
     def get_object(self, queryset=None):
-        if queryset is None:
-            queryset = self.get_queryset()
-
-        pk = self.kwargs[self.pk_url_kwarg]
-        queryset = queryset.filter(pk=pk)
-
-        try:
-            obj = queryset.annotate(**default_ordered_annotation_format()).get()
-        except queryset.model.DoesNotExist:
-            raise Http404()
-        return obj
+        return get_object(self, queryset)
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})

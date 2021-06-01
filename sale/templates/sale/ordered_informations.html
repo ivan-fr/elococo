@@ -14,11 +14,12 @@
             Vous recevrez votre commande sous peu à l'adresse:
         </p>
         <p>
-            {{ ordered.last_name }} {{ first_name }}<br>
+            {{ ordered.last_name|upper }} {{ first_name|capfirst }}<br>
             {{ ordered.address }}<br>
             {{ ordered.address2 }}<br>
             {{ ordered.postal_code }}<br>
             {{ ordered.city }}<br>
+            France<br>
             Tél: {{ ordered.phone }}
         </p>
     {% else %}
