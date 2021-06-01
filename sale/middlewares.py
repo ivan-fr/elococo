@@ -1,6 +1,6 @@
 import uuid
 
-from sale.forms import BOOKING_SESSION_KEY
+from sale.forms import BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY
 from sale.models import Ordered
 
 
@@ -12,7 +12,8 @@ class BookingMiddleware:
         if request.session.get(BOOKING_SESSION_KEY, None) is not None:
             ordered_uuid = uuid.UUID(bytes=bytes(request.session.get(BOOKING_SESSION_KEY, None)))
             if not Ordered.objects.filter(pk=ordered_uuid).exists():
-                request.session[BOOKING_SESSION_KEY] = None
+                del request.session[BOOKING_SESSION_KEY]
+                del request.session[BOOKING_SESSION_FILL_KEY]
                 request.session.modified = True
 
         response = self.get_response(request)

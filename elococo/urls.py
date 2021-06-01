@@ -25,4 +25,5 @@ urlpatterns = [
                   path('boutique/', include('catalogue.urls')),
                   path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
                   path('', IndexRedirectionView.as_view()),
+                  path('paypal/', include('paypal.standard.ipn.urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

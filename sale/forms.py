@@ -3,6 +3,7 @@ from django import forms
 from sale.models import Ordered
 
 BOOKING_SESSION_KEY = "ordered_instance_pk"
+BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
 
 
 class OrderedInformation(forms.ModelForm):

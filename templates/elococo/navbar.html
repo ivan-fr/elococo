@@ -14,9 +14,15 @@
     <ul>
         {% if url_my_ordered %}
             <li>
-                <a href="{{ url_my_ordered }}" class="btn btn-success"><i
-                        class="bi-info-circle"></i> Completer ma commande
-                </a>
+                {% if url_my_ordered_detail %}
+                    <a href="{{ url_my_ordered_detail }}" class="btn btn-success"><i
+                            class="bi-info-circle"></i> Paiement de ma commande
+                    </a>
+                {% else %}
+                    <a href="{{ url_my_ordered }}" class="btn btn-success"><i
+                            class="bi-info-circle"></i> Completer ma commande
+                    </a>
+                {% endif %}
             </li>
         {% endif %}
         <li>

@@ -17,7 +17,7 @@ from catalogue.bdd_calculations import price_annotation_format, total_price_from
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY
+from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY
 from sale.models import Ordered, OrderedProduct
 
 
@@ -56,14 +56,27 @@ class OrderedDetail(FormMixin, DetailView):
             "currency_code": "EUR",
             "invoice": str(self.object.pk),
             "notify_url": self.request.build_absolute_uri(reverse('paypal-ipn')),
-            "return_url": self.request.build_absolute_uri(reverse('paypal-return')),
-            "cancel_return": self.request.build_absolute_uri(reverse('paypal-cancel')),
+            "return_url": self.request.build_absolute_uri(reverse('sale:paypal_return', kwargs={"pk": self.object.pk})),
+            "cancel_return": self.request.build_absolute_uri(
+                reverse('sale:paypal_cancel', kwargs={"pk": self.object.pk})),
             "lc": 'fr_FR',
             "no_shipping": '1',
         }
 
     def get_object(self, queryset=None):
-        return get_object(self, queryset)
+        obj = get_object(self, queryset)
+        if obj.last_name is None:
+            raise Http404()
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 class FillInformationOrdered(UpdateView):
@@ -85,6 +98,7 @@ class FillInformationOrdered(UpdateView):
 
         form = self.get_form()
         if form.is_valid():
+            self.request.session[BOOKING_SESSION_FILL_KEY] = True
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
