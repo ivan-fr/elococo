@@ -54,7 +54,7 @@ class OrderedDetail(FormMixin, DetailView):
             "business": settings.PAYPAL_RECEIVER_EMAIL,
             "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
             "currency_code": "EUR",
-            'item_name': 'Order {}'.format(str(self.object.pk)),
+            'item_name': 'Order #{}'.format(str(self.object.pk)),
             "invoice": str(self.object.pk),
             "notify_url": self.request.build_absolute_uri(reverse('paypal-ipn')),
             "return_url": self.request.build_absolute_uri(reverse('sale:paypal_return', kwargs={"pk": self.object.pk})),
@@ -69,6 +69,12 @@ class OrderedDetail(FormMixin, DetailView):
         if obj.last_name is None:
             raise Http404()
         return obj
+
+    def get_form(self, form_class=None):
+        if self.object.payment_status:
+            return None
+        else:
+            return super(OrderedDetail, self).get_form(form_class)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
