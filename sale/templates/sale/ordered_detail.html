@@ -1,6 +1,6 @@
 {% extends 'elococo/base.html' %}
 
-{% if ordered.ordered_is_enabled %}
+{% if ordered.ordered_is_enabled and not ordered.payment_status %}
     {% block head_js %}
         <script src="https://js.braintreegateway.com/web/dropin/1.29.0/js/dropin.min.js"></script>
     {% endblock %}
@@ -21,16 +21,13 @@
     <div class="covered_image">
     </div>
     {% include "sale/ordered_informations.html" with ordered=ordered %}
-    {% if ordered.ordered_is_enable %}
+    {% if ordered.ordered_is_enable and not ordered.payment_status %}
         <section class="right-two-span">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
             <form id="payment-form" action="{% url "sale:detail" ordered.pk %}" method="post">
                 {% csrf_token %}
-                <p>Payments are safely processed with <a href='https://www.braintreepayments.com/' target='_blank'>Braintree</a>.
-                </p>
                 {% if braintree_error %}
-                    <div class="alert alert-danger fade in">
-                        <button class="close" data-dismiss="alert">&times;</button>
+                    <div class="alert alert-danger">
                         {{ braintree_error|safe }}
                     </div>
                 {% endif %}
@@ -43,7 +40,7 @@
     {% endif %}
 {% endblock %}
 
-{% if ordered.ordered_is_enabled %}
+{% if ordered.ordered_is_enabled and not ordered.payment_status %}
     {% block body_js %}
         <script type="application/javascript">
             const braintree_form = document.getElementById('payment-form');
@@ -56,11 +53,7 @@
                 },
                 locale: 'fr_FR'
             }, (error, dropinInstance) => {
-                if (error) {
-                    document.querySelector(".braintree-notifications").innerHTML('<p class="alert alert-danger">' + obj.message + '</p>');
-                    document.querySelector("#nonce[type=submit]").setAttribute('disabled', true);
-                    return
-                }
+                if (error) console.error(error);
 
                 braintree_form.addEventListener('submit', event => {
                     event.preventDefault();

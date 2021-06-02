@@ -18,6 +18,8 @@ from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm
 from sale.models import Ordered, OrderedProduct
 
+TWO_PLACES = Decimal(10) ** -2
+
 
 @csrf_exempt
 def payment_done(request, pk):
@@ -62,7 +64,10 @@ class OrderedDetail(FormMixin, DetailView):
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
-        client_token = settings.GATEWAY.client_token.generate({})
+        if not self.object.payment_status:
+            client_token = settings.GATEWAY.client_token.generate({})
+        else:
+            client_token = None
 
         context = self.get_context_data(object=self.object, client_token=client_token)
         return self.render_to_response(context)
@@ -103,12 +108,16 @@ class OrderedDetail(FormMixin, DetailView):
             "country_code_numeric": '250',
         }
 
+        amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+
         result = settings.GATEWAY.transaction.sale({
             "customer_id": customer_id,
-            "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
+            "amount": amount.quantize(TWO_PLACES),
             "payment_method_nonce": form.cleaned_data['payment_method_nonce'],
             "descriptor": {
-                "name": settings.WEBSITE_TITLE,
+                "name": "company*my product",
+                "phone": "0637728273",
+                "url": "elococo.fr",
             },
             "billing": address_dict,
             "shipping": address_dict,
@@ -120,9 +129,7 @@ class OrderedDetail(FormMixin, DetailView):
         if not result.is_success:
             context = self.get_context_data()
             context.update({
-                'braintree_error':
-                    'Your payment could not be processed. Please check your'
-                    ' input or use another payment method and try again.',
+                'braintree_error': result.errors,
                 "client_token": client_token
             })
             return self.render_to_response(context)
