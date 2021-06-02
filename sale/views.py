@@ -144,6 +144,12 @@ class OrderedDetail(FormMixin, DetailView):
 
         self.object.payment_status = True
         self.object.save()
+
+        if self.request.session.get(BOOKING_SESSION_KEY, None) is not None:
+            del self.request.session[BOOKING_SESSION_KEY]
+            if self.request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
+                del self.request.session[BOOKING_SESSION_FILL_KEY]
+
         return super(OrderedDetail, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
