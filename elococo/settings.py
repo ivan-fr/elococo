@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import json
 from pathlib import Path
 
+import braintree
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
@@ -26,7 +28,7 @@ SECRET_KEY = secrets['secret_key']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = secrets['allowed_hosts']
 
 # Application definition
 
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
@@ -135,8 +136,11 @@ MEDIA_URL = '/uploads/'
 # Website title
 WEBSITE_TITLE = "Carla's Cosmetic"
 
+# MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-# PAYMENTS
-PAYPAL_TEST = True
-PAYPAL_RECEIVER_EMAIL = 'ivan.besevic_fr-facilitator@yahoo.com'
+GATEWAY = braintree.BraintreeGateway(
+    braintree.Configuration(
+        braintree.Environment.Sandbox, **secrets['braintree']
+    )
+)

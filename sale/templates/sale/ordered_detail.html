@@ -1,5 +1,11 @@
 {% extends 'elococo/base.html' %}
 
+{% if ordered.ordered_is_enabled %}
+    {% block head_js %}
+        <script src="https://js.braintreegateway.com/web/dropin/1.29.0/js/dropin.min.js"></script>
+    {% endblock %}
+{% endif %}
+
 {% block body_class %}
     main_expand_left
 {% endblock %}
@@ -15,10 +21,63 @@
     <div class="covered_image">
     </div>
     {% include "sale/ordered_informations.html" with ordered=ordered %}
-    {% if ordered.ordered_is_enable and form %}
-        <section class="right-two-span" id="order-fill">
+    {% if ordered.ordered_is_enable %}
+        <section class="right-two-span">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
-            {{ form.render }}
+            <form id="payment-form" action="/route/on/your/server" method="post">
+                {% csrf_token %}
+                <p>Payments are safely processed with <a href='https://www.braintreepayments.com/' target='_blank'>Braintree</a>.
+                </p>
+                {% if braintree_error %}
+                    <div class="alert alert-danger fade in">
+                        <button class="close" data-dismiss="alert">&times;</button>
+                        {{ braintree_error|safe }}
+                    </div>
+                {% endif %}
+                <div class="braintree-notifications"></div>
+                <div id="dropin-container"></div>
+                <input type="submit" class="btn btn-success" value="Payer"/>
+                <input type="hidden" id="nonce" name="payment_method_nonce"/>
+            </form>
         </section>
     {% endif %}
 {% endblock %}
+
+{% if ordered.ordered_is_enabled %}
+    {% block body_js %}
+        <script type="application/javascript">
+            const braintree_form = document.getElementById('payment-form');
+
+            braintree.dropin.create({
+                authorization: "{{ client_token }}",
+                container: '#dropin-container',
+                paypal: {
+                    flow: 'vault'
+                },
+                locale: 'fr_FR'
+            }, (error, dropinInstance) => {
+                if (error) {
+                    document.querySelector(".braintree-notifications").innerHTML('<p class="alert alert-danger">' + obj.message + '</p>');
+                    document.querySelector("#nonce[type=submit]").setAttribute('disabled', true);
+                    return
+                }
+
+                braintree_form.addEventListener('submit', event => {
+                    event.preventDefault();
+
+                    dropinInstance.requestPaymentMethod((error, payload) => {
+                        if (error) console.error(error);
+
+                        // Step four: when the user is ready to complete their
+                        //   transaction, use the dropinInstance to get a payment
+                        //   method nonce for the user's selected payment method, then add
+                        //   it a the hidden field before submitting the complete form to
+                        //   a server-side integration
+                        document.getElementById('nonce').value = payload.nonce;
+                        braintree_form.submit();
+                    });
+                });
+            });
+        </script>
+    {% endblock %}
+{% endif %}

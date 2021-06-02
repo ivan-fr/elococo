@@ -13,7 +13,8 @@ class BookingMiddleware:
             ordered_uuid = uuid.UUID(bytes=bytes(request.session.get(BOOKING_SESSION_KEY, None)))
             if not Ordered.objects.filter(pk=ordered_uuid).exists():
                 del request.session[BOOKING_SESSION_KEY]
-                del request.session[BOOKING_SESSION_FILL_KEY]
+                if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
+                    del request.session[BOOKING_SESSION_FILL_KEY]
                 request.session.modified = True
 
         response = self.get_response(request)

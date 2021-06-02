@@ -6,6 +6,13 @@ BOOKING_SESSION_KEY = "ordered_instance_pk"
 BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
 
 
+class CheckoutForm(forms.Form):
+    payment_method_nonce = forms.CharField(
+        max_length=1000,
+        widget=forms.widgets.HiddenInput,
+    )
+
+
 class OrderedInformation(forms.ModelForm):
     class Meta:
         model = Ordered

@@ -6,6 +6,8 @@
     <link rel="icon" href="{% static random_footer_logo %}"/>
     <meta charset="UTF-8">
     <title>{{ website_title }}</title>
+    {% block head_js %}
+    {% endblock %}
     <link rel="stylesheet" href="{% static "sass/bootstrap_custom.css" %}">
     <link rel="stylesheet" href="{% static "css/base.css" %}">
     <link rel="stylesheet" href="{% static "css/catalogue.css" %}">

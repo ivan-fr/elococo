@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+import braintree
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -9,9 +10,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
-from django.views.generic.edit import FormMixin
-from django.views.generic.edit import UpdateView, BaseFormView
-from paypal.standard.forms import PayPalPaymentsForm
+from django.views.generic.edit import UpdateView, BaseFormView, FormMixin
 
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
@@ -47,22 +46,6 @@ def get_object(self, queryset=None):
 
 class OrderedDetail(FormMixin, DetailView):
     model = Ordered
-    form_class = PayPalPaymentsForm
-
-    def get_initial(self):
-        return {
-            "business": settings.PAYPAL_RECEIVER_EMAIL,
-            "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
-            "currency_code": "EUR",
-            'item_name': 'Order #{}'.format(str(self.object.pk)),
-            "invoice": str(self.object.pk),
-            "notify_url": self.request.build_absolute_uri(reverse('paypal-ipn')),
-            "return_url": self.request.build_absolute_uri(reverse('sale:paypal_return', kwargs={"pk": self.object.pk})),
-            "cancel_return": self.request.build_absolute_uri(
-                reverse('sale:paypal_cancel', kwargs={"pk": self.object.pk})),
-            "lc": 'fr_FR',
-            "no_shipping": '1',
-        }
 
     def get_object(self, queryset=None):
         obj = get_object(self, queryset)
@@ -70,20 +53,89 @@ class OrderedDetail(FormMixin, DetailView):
             raise Http404()
         return obj
 
-    def get_form(self, form_class=None):
-        if self.object.payment_status:
-            return None
-        else:
-            return super(OrderedDetail, self).get_form(form_class)
-
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+            return HttpResponseBadRequest()
 
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
-        context = self.get_context_data(object=self.object)
+        client_token = settings.GATEWAY.client_token.generate({})
+
+        context = self.get_context_data(object=self.object, client_token=client_token)
         return self.render_to_response(context)
+
+    def get_success_url(self):
+        return reverse("sale:detail", kwargs={"pk": self.object.pk})
+
+    def form_valid(self, form):
+        customer_kwargs = {
+            "first_name": self.object.first_name,
+            "last_name": self.object.last_name,
+            "email": self.object.email,
+        }
+
+        result = braintree.Customer.create(customer_kwargs)
+        if not result.is_success:
+            context = self.get_context_data()
+            context.update({
+                'form': self.get_form(self.get_form_class()),
+                'braintree_error': u'{} {}'.format(
+                    result.message, 'Please get in contact.')
+            })
+            return self.render_to_response(context)
+
+        customer_id = result.customer.id
+
+        address_dict = {
+            "first_name": self.object.first_name,
+            "last_name": self.object.last_name,
+            "street_address": self.object.address,
+            "extended_address": self.object.address2,
+            "locality": self.object.city,
+            "postal_code": self.object.postal_code,
+            "country_name": 'France',
+            "country_code_numeric": '250',
+        }
+
+        result = braintree.Transaction.sale({
+            "customer_id": customer_id,
+            "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
+            "payment_method_nonce": form.cleaned_data['payment_method_nonce'],
+            "descriptor": {
+                "name": "COMPANY.*test",
+            },
+            "billing": address_dict,
+            "shipping": address_dict,
+            "options": {
+                'store_in_vault_on_success': True,
+                'submit_for_settlement': True,
+            },
+        })
+        if not result.is_success:
+            context = self.get_context_data()
+            context.update({
+                'form': self.get_form(self.get_form_class()),
+                'braintree_error':
+                    'Your payment could not be processed. Please check your'
+                    ' input or use another payment method and try again.'
+            })
+            return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        nonce_from_the_client = self.request.POST.get("payment_method_nonce", None)
+        if nonce_from_the_client is None:
+            return HttpResponseBadRequest()
+
+        self.object = self.get_object()
+
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class FillInformationOrdered(UpdateView):
