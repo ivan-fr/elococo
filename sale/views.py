@@ -41,7 +41,7 @@ def invoice_views(request, pk, secrets_):
 
 def render_invoice_pdf(order):
     template_path = "sale/invoice.html"
-    context = {"ordered": order, "tva": TVA_PERCENT}
+    context = {"ordered": order, "tva": TVA_PERCENT, "website_title": settings.WEBSITE_TITLE}
     pdf_response = HttpResponse(content_type='application/pdf')
     pdf_response['Content-Disposition'] = f'attachment; filename="invoice_{order.pk}.pdf"'
     template = get_template(template_path)

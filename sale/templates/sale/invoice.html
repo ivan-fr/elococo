@@ -10,8 +10,8 @@
             font-size: 1.5em;
         }
 
-        .mx-auto {
-            margin: 0 auto;
+        .text_right {
+            text-align: right;
         }
 
         table {
@@ -24,12 +24,12 @@
         thead, tbody, tfoot, tr, td, th {
             border-color: inherit;
             border-style: solid;
-            padding: 0.5em;
+            padding: 0.5rem 0.5rem;
         }
     </style>
 </head>
 <body>
-<div class="mx-auto">
+<div class="text_right">
     <p>Numéro de facture: {{ ordered.pk }}</p>
     <p>
         Envoyé à<br>
@@ -85,7 +85,7 @@
     <tr>
         <td colspan="4"></td>
         <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-        <td>€</td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum|deduce_tva|to_currency }}€</td>
     </tr>
     <tr>
         <td colspan="4"></td>
@@ -94,6 +94,10 @@
     </tr>
     </tbody>
 </table>
+
+<p>
+    {{ website_title }}
+</p>
 
 </body>
 </html>
