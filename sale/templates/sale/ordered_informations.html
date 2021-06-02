@@ -8,7 +8,8 @@
             Cette commande a été payé.
         </p>
         <p>
-            Vous pouvez retrouver un <strong>duplicata de votre facture <a href="">ICI</a></strong>.
+            Vous pouvez retrouver un <strong>duplicata de votre facture <a
+                href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
         </p>
         <p>
             Vous recevrez votre commande sous peu à l'adresse:
