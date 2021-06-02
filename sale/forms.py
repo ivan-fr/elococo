@@ -1,6 +1,6 @@
 from django import forms
 
-from sale.models import Ordered
+from sale.models import Ordered, ORDER_SECRET_LENGTH
 
 BOOKING_SESSION_KEY = "ordered_instance_pk"
 BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
@@ -13,6 +13,14 @@ class CheckoutForm(forms.Form):
     )
 
 
+class RetrieveOrderForm(forms.Form):
+    pk = forms.UUIDField(widget=forms.TextInput(attrs={"class": "form-control"}))
+    secrets = forms.CharField(
+        max_length=ORDER_SECRET_LENGTH,
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+
+
 class OrderedInformation(forms.ModelForm):
     class Meta:
         model = Ordered
@@ -21,7 +29,7 @@ class OrderedInformation(forms.ModelForm):
                    'price_exact_ttc_with_quantity_sum',
                    'price_exact_ht_with_quantity_sum',
                    'createdAt',
-                   'endOfLife')
+                   'endOfLife', 'secrets')
         widgets = {
             'first_name': forms.TextInput(attrs={"class": "form-control"}),
             'last_name': forms.TextInput(attrs={"class": "form-control"}),

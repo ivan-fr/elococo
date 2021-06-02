@@ -17,7 +17,8 @@ from catalogue.bdd_calculations import price_annotation_format, total_price_from
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm
+from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
+    RetrieveOrderForm
 from sale.models import Ordered, OrderedProduct, ORDER_SECRET_LENGTH
 
 KEY_PAYMENT_ERROR = "payment_error"
@@ -27,8 +28,8 @@ TWO_PLACES = Decimal(10) ** -2
 
 
 @csrf_exempt
-def payment_done(request, pk):
-    return render(request, 'sale/payment_done.html', {"pk": pk})
+def payment_done(request, pk, secrets):
+    return render(request, 'sale/payment_done.html', {"pk": pk, 'secrets': secrets})
 
 
 @csrf_exempt
@@ -42,18 +43,48 @@ def payment_canceled(request, pk):
     return render(request, 'sale/payment_cancelled.html', {"pk": pk, "type_error": type_error})
 
 
-def get_object(self, queryset=None):
+def get_object(self, queryset=None, extra_filter=None):
     if queryset is None:
         queryset = self.get_queryset()
 
-    pk = self.kwargs[self.pk_url_kwarg]
-    queryset = queryset.filter(pk=pk)
+    pk = self.kwargs.get(self.pk_url_kwarg, None)
+    if pk is not None:
+        queryset = queryset.filter(pk=pk)
+
+    if extra_filter is not None:
+        queryset = queryset.filter(**extra_filter)
 
     try:
         obj = queryset.annotate(**default_ordered_annotation_format()).get()
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
+
+
+class RetrieveOrderedDetail(FormMixin, DetailView):
+    model = Ordered
+    form_class = RetrieveOrderForm
+    template_name = "sale/retrieve_order.html"
+
+    def get_object(self, queryset=None):
+        return False
+
+    def form_valid(self, form):
+        """If the form is invalid, render the invalid form."""
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_object_form(self, form, queryset=None):
+        return get_object(self, queryset,
+                          {"pk": form.cleaned_data["pk"], "secrets": form.cleaned_data["secrets"]})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+
+        if form.is_valid():
+            self.object = self.get_object_form(form)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class OrderedDetail(FormMixin, DetailView):
@@ -89,7 +120,7 @@ class OrderedDetail(FormMixin, DetailView):
         return reverse("sale:paypal_cancel", kwargs={"pk": self.object.pk})
 
     def get_success_url(self):
-        return reverse("sale:paypal_return", kwargs={"pk": self.object.pk})
+        return reverse("sale:paypal_return", kwargs={"pk": self.object.pk, 'secrets': self.object.secrets})
 
     def form_valid(self, form):
         customer_kwargs = {
@@ -144,8 +175,9 @@ class OrderedDetail(FormMixin, DetailView):
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
             return HttpResponseRedirect(self.get_invalid_url())
 
-        self.object.payment_status = True
-        self.object.save()
+        with transaction.atomic():
+            self.object.payment_status = True
+            self.object.save()
 
         if self.request.session.get(BOOKING_SESSION_KEY, None) is not None:
             del self.request.session[BOOKING_SESSION_KEY]

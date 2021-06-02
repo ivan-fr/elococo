@@ -1,0 +1,39 @@
+{% extends 'elococo/base.html' %}
+
+{% block body_class %}
+    main_expand_left
+{% endblock %}
+
+{% block base_container %}
+    {% if ordered %}
+        <section>
+            <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+            <section>
+                <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
+                {% include "sale/ordered_recap.html" with ordered=ordered %}
+            </section>
+        </section>
+        <div class="covered_image">
+        </div>
+        {% include "sale/ordered_informations.html" with ordered=ordered %}
+    {% else %}
+        <section>
+            <h2 class="is_colored">Formulaire</h2>
+            <form class="w-50" action="{% url 'sale:retrieve' %}"
+                  method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.pk.errors }}
+                    <label for="{{ form.pk.id_for_label }}">UUID:</label>
+                    {{ form.pk }}
+                </div>
+                <div class="mb-3">
+                    {{ form.secrets.errors }}
+                    <label for="{{ form.secrets.id_for_label }}">Secret:</label>
+                    {{ form.secrets }}
+                </div>
+                <input type="submit" class="btn btn-success" value="Retrouver une commande"/>
+            </form>
+        </section>
+    {% endif %}
+{% endblock %}
