@@ -16,7 +16,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin
 from xhtml2pdf import pisa
 
-from catalogue.bdd_calculations import TVA
+from catalogue.bdd_calculations import TVA_PERCENT
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
@@ -41,9 +41,9 @@ def invoice_views(request, pk, secrets_):
 
 def render_invoice_pdf(order):
     template_path = "sale/invoice.html"
-    context = {"ordered": order, "tva": TVA}
+    context = {"ordered": order, "tva": TVA_PERCENT}
     pdf_response = HttpResponse(content_type='application/pdf')
-    pdf_response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+    pdf_response['Content-Disposition'] = f'attachment; filename="invoice_{order.pk}.pdf"'
     template = get_template(template_path)
     html = template.render(context)
 

@@ -9,6 +9,7 @@ from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
 
 TVA = Decimal(1.2)
+TVA_PERCENT = Decimal(20.)
 
 
 def reduction_from_bdd():

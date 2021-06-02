@@ -5,18 +5,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Invoice</title>
+    <style type="text/css">
+        body {
+            font-size: 1.5em;
+        }
+
+        .mx-auto {
+            margin: 0 auto;
+        }
+
+        table {
+            caption-side: bottom;
+            border-collapse: collapse;
+            border-color: black;
+            width: 100%;
+        }
+
+        thead, tbody, tfoot, tr, td, th {
+            border-color: inherit;
+            border-style: solid;
+            padding: 0.5em;
+        }
+    </style>
 </head>
 <body>
-<p>Numéro de facture {{ ordered.pk }}</p>
-<p>
-    Envoyé à<br>
-    <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
-    {{ ordered.address }}<br>
-    {{ ordered.address2 }}<br>
-    {{ ordered.postal_code }}, {{ ordered.city }}<br>
-    France<br>
-    Tél: {{ ordered.phone }}
-</p>
+<div class="mx-auto">
+    <p>Numéro de facture: {{ ordered.pk }}</p>
+    <p>
+        Envoyé à<br>
+        <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
+        {{ ordered.address }}<br>
+        {{ ordered.address2 }}<br>
+        {{ ordered.postal_code }}, {{ ordered.city }}<br>
+        France<br>
+        Tél: {{ ordered.phone }}
+    </p>
+</div>
+
 
 <table>
     <thead>
@@ -48,7 +73,6 @@
                 {{ orderedproduct.quantity }} unité(s)
             </td>
             <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
-            <td>{{ orderedproduct.price_exact_ttc_with_quantity|to_currency }}€</td>
         </tr>
     {% endfor %}
 
@@ -66,7 +90,7 @@
     <tr>
         <td colspan="4"></td>
         <td><strong>TOTAL (TTC)</strong></td>
-        <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
     </tr>
     </tbody>
 </table>
