@@ -29,7 +29,8 @@ TWO_PLACES = Decimal(10) ** -2
 
 @csrf_exempt
 def payment_done(request, pk, secrets):
-    return render(request, 'sale/payment_done.html', {"pk": pk, 'secrets': secrets})
+    return render(request, 'sale/payment_done.html',
+                  {"pk": pk, 'secrets': secrets})
 
 
 @csrf_exempt
@@ -84,6 +85,7 @@ class RetrieveOrderedDetail(FormMixin, DetailView):
             self.object = self.get_object_form(form)
             return self.form_valid(form)
         else:
+            self.object = self.get_object()
             return self.form_invalid(form)
 
 

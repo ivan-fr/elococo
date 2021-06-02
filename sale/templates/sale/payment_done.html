@@ -14,7 +14,7 @@
                 <span class="visually-hidden">Loading...</span>
             </div>
             <p>
-                Patientez quelques instants..(7secs) Vous allez être redirigé.
+                Patientez quelques instants..(10secs) Vous allez être redirigé.
             </p>
         </section>
     </section>
@@ -22,9 +22,35 @@
 
 {% block body_js %}
     <script type="application/javascript">
+        function post(path, params, method = 'post') {
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less verbose if you use one.
+            const form = document.createElement('form');
+            form.method = method;
+            form.action = path;
+
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    const hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = key;
+                    hiddenField.value = params[key];
+
+                    form.appendChild(hiddenField);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         window.setTimeout(function () {
-            // Move to a new location or you can do something else
-            window.location.href = "{% url "sale:detail" pk %}";
-        }, 7000);
+            post("{% url 'sale:retrieve' %}", {
+                secrets: "{{ secrets }}",
+                pk: "{{ pk }}",
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            });
+        }, 10000);
     </script>
 {% endblock %}
