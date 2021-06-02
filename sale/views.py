@@ -31,7 +31,7 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
-def payment_done(request, pk, secrets_):
+def invoice_views(request, pk, secrets_):
     try:
         order = Ordered.objects.filter(pk=pk, secrets=secrets_).get()
     except Ordered.DoesNotExist:
@@ -42,10 +42,8 @@ def payment_done(request, pk, secrets_):
 def render_invoice_pdf(order):
     template_path = "sale/invoice.html"
     context = {"ordered": order, "tva": TVA}
-    # Create a Django response object, and specify content_type as pdf
     pdf_response = HttpResponse(content_type='application/pdf')
     pdf_response['Content-Disposition'] = 'attachment; filename="report.pdf"'
-    # find the template and render it.
     template = get_template(template_path)
     html = template.render(context)
 

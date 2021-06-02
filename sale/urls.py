@@ -9,4 +9,5 @@ urlpatterns = [
     path('payment-done/<uuid:pk>/<str:secrets_>', sale.views.payment_done, name='paypal_return'),
     path('payment-cancelled/<uuid:pk>/', sale.views.payment_canceled, name='paypal_cancel'),
     path('retrieve/', sale.views.RetrieveOrderedDetail.as_view(), name='retrieve'),
+    path('invoice/<uuid:pk>/<str:secrets_>', sale.views.invoice_views, name='invoice'),
 ]
