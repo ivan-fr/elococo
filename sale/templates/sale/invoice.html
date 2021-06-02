@@ -1,0 +1,75 @@
+{% load currency %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+</head>
+<body>
+<p>Numéro de facture {{ ordered.pk }}</p>
+<p>
+    Envoyé à<br>
+    <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
+    {{ ordered.address }}<br>
+    {{ ordered.address2 }}<br>
+    {{ ordered.postal_code }}, {{ ordered.city }}<br>
+    France<br>
+    Tél: {{ ordered.phone }}
+</p>
+
+<table class="table table-bordered border-success table-striped">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nom du produit</th>
+        <th scope="col">Prix unitaire (HT)</th>
+        <th scope="col">Dont réduction (%)</th>
+        <th scope="col">Quantité</th>
+        <th scope="col">Sous Total (HT)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for orderedproduct in ordered.from_ordered.all %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>
+                <a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
+            </td>
+            <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
+            <td>
+                {% if orderedproduct.effective_reduction > 0 %}
+                    -{{ orderedproduct.effective_reduction }}%
+                {% else %}
+                    Pas de reduction.
+                {% endif %}
+            </td>
+            <td>
+                {{ orderedproduct.quantity }} unité(s)
+            </td>
+            <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
+            <td>{{ orderedproduct.price_exact_ttc_with_quantity|to_currency }}€</td>
+        </tr>
+    {% endfor %}
+
+    <tr>
+
+        <td colspan="4"></td>
+        <td><strong>Total (HT)</strong></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
+        <td>€</td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TOTAL (TTC)</strong></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

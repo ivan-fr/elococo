@@ -19,7 +19,7 @@
     {% else %}
         <section>
             <h2 class="is_colored">Formulaire</h2>
-            <form class="w-50" action="{% url 'sale:retrieve' %}"
+            <form class="w-50 mx-auto" action="{% url 'sale:retrieve' %}"
                   method="post">
                 {% csrf_token %}
                 <div class="mb-3">
