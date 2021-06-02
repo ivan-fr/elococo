@@ -19,6 +19,8 @@ from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOO
 from sale.models import Ordered, OrderedProduct
 
 KEY_PAYMENT_ERROR = "payment_error"
+PAYMENT_ERROR_NOT_PROCESS = 0
+PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
@@ -29,7 +31,13 @@ def payment_done(request, pk):
 
 @csrf_exempt
 def payment_canceled(request, pk):
-    return render(request, 'sale/payment_cancelled.html', {"pk": pk})
+    type_error = request.session.get(KEY_PAYMENT_ERROR, None)
+    if type_error is None:
+        return HttpResponseBadRequest()
+
+    del request.session[KEY_PAYMENT_ERROR]
+
+    return render(request, 'sale/payment_cancelled.html', {"pk": pk, "type_error": type_error})
 
 
 def get_object(self, queryset=None):
@@ -72,8 +80,11 @@ class OrderedDetail(FormMixin, DetailView):
 
         amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
         context = self.get_context_data(object=self.object, client_token=client_token,
-                                        amoun=amount.quantize(TWO_PLACES))
+                                        amount=str(amount.quantize(TWO_PLACES)))
         return self.render_to_response(context)
+
+    def get_invalid_url(self):
+        return reverse("sale:paypal_cancel", kwargs={"pk": self.object.pk})
 
     def get_success_url(self):
         return reverse("sale:paypal_return", kwargs={"pk": self.object.pk})
@@ -86,14 +97,14 @@ class OrderedDetail(FormMixin, DetailView):
             "phone": self.object.phone,
         }
 
+        if self.object.ordered_is_ready_to_delete:
+            self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_ORDER_NOT_ENABLED
+            return HttpResponseRedirect(self.get_invalid_url())
+
         result = settings.GATEWAY.customer.create(customer_kwargs)
         if not result.is_success:
-            context = self.get_context_data()
-            context.update({
-                'braintree_error': u'{} {}'.format(
-                    result.message, 'Please get in contact.'),
-            })
-            return self.render_to_response(context)
+            self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
+            return HttpResponseRedirect(self.get_invalid_url())
 
         customer_id = result.customer.id
 
@@ -126,12 +137,10 @@ class OrderedDetail(FormMixin, DetailView):
                 'submit_for_settlement': True,
             },
         })
+
         if not result.is_success:
-            context = self.get_context_data()
-            context.update({
-                'braintree_error': result.errors,
-            })
-            return self.render_to_response(context)
+            self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
+            return HttpResponseRedirect(self.get_invalid_url())
 
         self.object.payment_status = True
         self.object.save()

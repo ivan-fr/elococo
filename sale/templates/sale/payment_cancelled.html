@@ -12,18 +12,18 @@
             <div class="spinner-border text-success" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p>
-                Patientez quelques instants..(3secs) Vous allez être redirigé.
-            </p>
+            {% if type_error == 0 %}
+                <p>
+                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
+                    Si vous voulez réessayer votre paiement, rendez vous à l'adresse de la
+                    <a href="{% url "sale:detail" pk %}">commande</a>.
+                </p>
+            {% else %}
+                <p>
+                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
+                    Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour effectué votre achat.
+                </p>
+            {% endif %}
         </section>
     </section>
-{% endblock %}
-
-{% block body_js %}
-    <script type="application/javascript">
-        setTimeout(
-            function () {
-                window.location.href = "{% url "sale:detail" pk %}";
-            }, 3000)
-    </script>
 {% endblock %}

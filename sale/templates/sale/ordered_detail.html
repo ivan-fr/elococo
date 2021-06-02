@@ -1,7 +1,7 @@
 {% extends 'elococo/base.html' %}
 
 {% block head_js %}
-    {% if ordered.ordered_is_enabled and not ordered.payment_status %}
+    {% if  ordered.ordered_is_enable and not ordered.payment_status %}
         <script src="https://js.braintreegateway.com/web/dropin/1.29.0/js/dropin.min.js"></script>
     {% endif %}
 {% endblock %}
@@ -41,7 +41,7 @@
 {% endblock %}
 
 {% block body_js %}
-    {% if ordered.ordered_is_enabled and not ordered.payment_status %}
+    {% if ordered.ordered_is_enable and not ordered.payment_status %}
         <script type="application/javascript">
             const braintree_form = document.getElementById('payment-form');
 
@@ -49,8 +49,8 @@
                 authorization: "{{ client_token }}",
                 container: '#dropin-container',
                 paypal: {
-                    flow: 'vault',
-                    amount: {{ amount }},
+                    flow: 'checkout',
+                    amount: '{{ amount }}',
                     currency: 'EUR'
                 },
                 locale: 'fr_FR'
