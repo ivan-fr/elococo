@@ -1,3 +1,5 @@
+import secrets
+import string
 from decimal import Decimal
 
 from django.conf import settings
@@ -16,7 +18,7 @@ from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm
-from sale.models import Ordered, OrderedProduct
+from sale.models import Ordered, OrderedProduct, ORDER_SECRET_LENGTH
 
 KEY_PAYMENT_ERROR = "payment_error"
 PAYMENT_ERROR_NOT_PROCESS = 0
@@ -266,7 +268,8 @@ class BookingBasketView(BaseFormView):
                     ),
                     price_exact_ttc_with_quantity_sum=int(
                         aggregate["price_exact_ttc_with_quantity__sum"] * Decimal(100.)
-                    )
+                    ),
+                    secrets=''.join(secrets.choice(string.ascii_lowercase) for i in range(ORDER_SECRET_LENGTH))
                 )
 
                 ordered_product = []

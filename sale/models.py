@@ -13,7 +13,7 @@ from catalogue.models import Product
 
 TIME_ORDERED_LIFE_MINUTES = 45
 TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
-
+ORDER_SECRET_LENGTH = 30
 
 def phone_regex():
     return RegexValidator(regex="^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
@@ -31,6 +31,7 @@ class Ordered(models.Model):
     postal_code = models.PositiveIntegerField(_("code postal"), null=True)
     city = models.CharField(_("ville"), max_length=255, null=True)
     phone = models.CharField("téléphone", validators=(phone_regex(),), max_length=20)
+    secrets = models.CharField(max_length=ORDER_SECRET_LENGTH)
 
     products = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',

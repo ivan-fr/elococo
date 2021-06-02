@@ -3,35 +3,41 @@
 {% block base_container %}
     <section>
         <h2 class="is_colored">Boutique</h2>
-        {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+        {% if product_list %}
+            {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
 
-        <div id="boutique">
-            {% for product in product_list %}
-                <article>
-                    <h3>{{ product.name|title }}</h3>
-                    {% with product_image=product.productimage_set.first %}
-                        {% if product_image %}
-                            <figure class="hover_figure shadow-sm">
-                                <a href="{% url 'catalogue_product_detail' product.slug %}">
-                                    <img src="{{ product_image.image.url }}"
-                                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                                </a>
-                                {% if product.effective_reduction > 0 %}
-                                    <div class="info_reduction">
-                                        - {{ product.effective_reduction }}%
+            <div id="boutique">
+             {% for product in product_list %}
+                    <article>
+                        <h3>{{ product.name|title }}</h3>
+                        {% with product_image=product.productimage_set.first %}
+                            {% if product_image %}
+                                <figure class="hover_figure shadow-sm">
+                                    <a href="{% url 'catalogue_product_detail' product.slug %}">
+                                        <img src="{{ product_image.image.url }}"
+                                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                                    </a>
+                                    {% if product.effective_reduction > 0 %}
+                                        <div class="info_reduction">
+                                            - {{ product.effective_reduction }}%
+                                        </div>
+                                    {% endif %}
+                                    <div class="info_price">
+                                        {{ product.price_exact_ttc|floatformat:2 }} € TTC
                                     </div>
-                                {% endif %}
-                                <div class="info_price">
-                                    {{ product.price_exact_ttc|floatformat:2 }} € TTC
-                                </div>
-                                <figcaption>
-                                    {{ product.name|title }}
-                                </figcaption>
-                            </figure>
-                        {% endif %}
-                    {% endwith %}
-                </article>
-            {% endfor %}
-        </div>
+                                    <figcaption>
+                                        {{ product.name|title }}
+                                    </figcaption>
+                                </figure>
+                            {% endif %}
+                        {% endwith %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            Il n'y a plus de produits en stocks ! Revennez un autre jour.
+        {% endif %}
+
+
     </section>
 {% endblock %}
