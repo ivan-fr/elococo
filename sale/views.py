@@ -68,7 +68,7 @@ class OrderedDetail(FormMixin, DetailView):
         return self.render_to_response(context)
 
     def get_success_url(self):
-        return reverse("sale:detail", kwargs={"pk": self.object.pk})
+        return reverse("sale:paypal_return", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
         client_token = settings.GATEWAY.client_token.generate({})
@@ -120,13 +120,15 @@ class OrderedDetail(FormMixin, DetailView):
         if not result.is_success:
             context = self.get_context_data()
             context.update({
-                'form': self.get_form(self.get_form_class()),
                 'braintree_error':
                     'Your payment could not be processed. Please check your'
                     ' input or use another payment method and try again.',
                 "client_token": client_token
             })
             return self.render_to_response(context)
+
+        self.object.payment_status = True
+        self.object.save()
         return super(OrderedDetail, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
@@ -175,6 +177,9 @@ class FillInformationOrdered(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+
+        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+            return HttpResponseBadRequest()
 
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
