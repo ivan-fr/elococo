@@ -181,7 +181,7 @@ class OrderedDetail(FormMixin, DetailView):
         return reverse("sale:paypal_cancel", kwargs={"pk": self.object.pk})
 
     def get_success_url(self):
-        return reverse("sale:paypal_return", kwargs={"pk": self.object.pk, 'secrets': self.object.secrets})
+        return reverse("sale:paypal_return", kwargs={"pk": self.object.pk, 'secrets_': self.object.secrets})
 
     def form_valid(self, form):
         customer_kwargs = {
