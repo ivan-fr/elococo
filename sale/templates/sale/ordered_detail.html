@@ -24,7 +24,7 @@
     {% if ordered.ordered_is_enable %}
         <section class="right-two-span">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
-            <form id="payment-form" action="/route/on/your/server" method="post">
+            <form id="payment-form" action="{% url "sale:detail" ordered.pk %}" method="post">
                 {% csrf_token %}
                 <p>Payments are safely processed with <a href='https://www.braintreepayments.com/' target='_blank'>Braintree</a>.
                 </p>

@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-import braintree
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -16,7 +15,7 @@ from catalogue.bdd_calculations import price_annotation_format, total_price_from
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY
+from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm
 from sale.models import Ordered, OrderedProduct
 
 
@@ -46,6 +45,7 @@ def get_object(self, queryset=None):
 
 class OrderedDetail(FormMixin, DetailView):
     model = Ordered
+    form_class = CheckoutForm
 
     def get_object(self, queryset=None):
         obj = get_object(self, queryset)
@@ -71,19 +71,22 @@ class OrderedDetail(FormMixin, DetailView):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
+        client_token = settings.GATEWAY.client_token.generate({})
+
         customer_kwargs = {
             "first_name": self.object.first_name,
             "last_name": self.object.last_name,
             "email": self.object.email,
+            "phone": self.object.phone,
         }
 
-        result = braintree.Customer.create(customer_kwargs)
+        result = settings.GATEWAY.customer.create(customer_kwargs)
         if not result.is_success:
             context = self.get_context_data()
             context.update({
-                'form': self.get_form(self.get_form_class()),
                 'braintree_error': u'{} {}'.format(
-                    result.message, 'Please get in contact.')
+                    result.message, 'Please get in contact.'),
+                "client_token": client_token
             })
             return self.render_to_response(context)
 
@@ -100,12 +103,12 @@ class OrderedDetail(FormMixin, DetailView):
             "country_code_numeric": '250',
         }
 
-        result = braintree.Transaction.sale({
+        result = settings.GATEWAY.transaction.sale({
             "customer_id": customer_id,
             "amount": Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2),
             "payment_method_nonce": form.cleaned_data['payment_method_nonce'],
             "descriptor": {
-                "name": "COMPANY.*test",
+                "name": settings.WEBSITE_TITLE,
             },
             "billing": address_dict,
             "shipping": address_dict,
@@ -120,9 +123,11 @@ class OrderedDetail(FormMixin, DetailView):
                 'form': self.get_form(self.get_form_class()),
                 'braintree_error':
                     'Your payment could not be processed. Please check your'
-                    ' input or use another payment method and try again.'
+                    ' input or use another payment method and try again.',
+                "client_token": client_token
             })
             return self.render_to_response(context)
+        return super(OrderedDetail, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         nonce_from_the_client = self.request.POST.get("payment_method_nonce", None)
