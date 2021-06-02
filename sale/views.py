@@ -18,6 +18,7 @@ from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm
 from sale.models import Ordered, OrderedProduct
 
+KEY_PAYMENT_ERROR = "payment_error"
 TWO_PLACES = Decimal(10) ** -2
 
 
@@ -69,15 +70,15 @@ class OrderedDetail(FormMixin, DetailView):
         else:
             client_token = None
 
-        context = self.get_context_data(object=self.object, client_token=client_token)
+        amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+        context = self.get_context_data(object=self.object, client_token=client_token,
+                                        amoun=amount.quantize(TWO_PLACES))
         return self.render_to_response(context)
 
     def get_success_url(self):
         return reverse("sale:paypal_return", kwargs={"pk": self.object.pk})
 
     def form_valid(self, form):
-        client_token = settings.GATEWAY.client_token.generate({})
-
         customer_kwargs = {
             "first_name": self.object.first_name,
             "last_name": self.object.last_name,
@@ -91,7 +92,6 @@ class OrderedDetail(FormMixin, DetailView):
             context.update({
                 'braintree_error': u'{} {}'.format(
                     result.message, 'Please get in contact.'),
-                "client_token": client_token
             })
             return self.render_to_response(context)
 
@@ -130,7 +130,6 @@ class OrderedDetail(FormMixin, DetailView):
             context = self.get_context_data()
             context.update({
                 'braintree_error': result.errors,
-                "client_token": client_token
             })
             return self.render_to_response(context)
 

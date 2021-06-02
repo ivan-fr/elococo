@@ -18,13 +18,13 @@
             {% if index == category.slug %}
                 <li class="link is-active">
                     <a href="{% url 'catalogue_navigation_categories' category.slug %}">
-                        {{ category.category|title }} ({{ category.product__count }})
+                        {{ category.category|title }} ({{ category.products__count }})
                     </a>
                 </li>
             {% else %}
                 <li class="link">
                     <a href="{% url 'catalogue_navigation_categories' category.slug %}">
-                        {{ category.category|title }} ({{ category.product__count }})
+                        {{ category.category|title }} ({{ category.products__count }})
                     </a>
                 </li>
             {% endif %}

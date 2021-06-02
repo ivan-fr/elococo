@@ -37,7 +37,7 @@ class Product(models.Model):
 
     date = models.DateField(auto_now_add=True)
     dateUpdate = models.DateField(auto_now=True)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category, related_name="products")
     enable_comment = models.BooleanField(default=False)
     enable_sale = models.BooleanField(default=False)
 
