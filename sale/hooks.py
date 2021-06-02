@@ -1,5 +1,8 @@
+import logging
 import uuid
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 from django.conf import settings
 from paypal.standard.ipn.signals import valid_ipn_received
 from paypal.standard.models import ST_PP_COMPLETED
@@ -23,6 +26,8 @@ def show_me_the_money(sender, **kwargs):
                 order.save()
         except queryset.model.DoesNotExist:
             return
+    else:
+        logger.debug('Paypal payment status not completed: %s' % ipn_obj.payment_status)
 
 
 valid_ipn_received.connect(show_me_the_money)
