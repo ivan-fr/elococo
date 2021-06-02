@@ -68,18 +68,18 @@ def payment_done(request, pk, secrets_):
             email = EmailMessage(
                 f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{pk}",
                 f"""
-                <p>Bonjour {order.last_name.upper()} {order.first_name.capitalize()}</p>
+                <p>Bonjour {order.last_name.upper()} {order.first_name.capitalize()},</p>
                 <p>Tout d'abord, merci pour votre achat ;)</p>
                 <p>Dans ce mail vous trouverez plusieurs informations.<p>
                 <p>
                     <strong>Pour retrouver la commande sur le site:</strong><br>
-                    UUID: {str(order.pk)}<br>
-                    SECRET: {order.secrets}
+                    <strong>UUID</strong>: {str(order.pk)}<br>
+                    <strong>SECRET</strong>: {order.secrets}
                 </p>
                 <p>
                     <strong>Et votre facture en pièce jointe</strong> au format PDF.
                 </p>
-                <p>Cordialement, {settings.WEBSITE_TITLE}</p>
+                <p>Cordialement, {settings.WEBSITE_TITLE}.</p>
                 """,
                 settings.EMAIL_HOST_USER,
                 [order.email]
