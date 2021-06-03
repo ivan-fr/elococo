@@ -12,7 +12,9 @@
         Envoyé à<br>
         <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
         {{ ordered.address }}<br>
-        {{ ordered.address2 }}<br>
+        {% if ordered.address2 %}
+        {{ ordered.address2 }}<br>        
+        {% endif %}
         {{ ordered.postal_code }}, {{ ordered.city }}<br>
         France<br>
         Tél: {{ ordered.phone }}
