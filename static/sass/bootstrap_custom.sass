@@ -6,6 +6,11 @@
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../scss/variables"
+
+$custom-colors: ("primary": $orange-200, "secondary": $orange-400, "success": $success, "info": $orange-600, "warning": $orange-700, "danger": $danger, "light": $light, "dark": $orange-900)
+$theme-colors: map-merge($theme-colors, $custom-colors)
+
+
 @import "../scss/mixins"
 
 @import "../scss/utilities"

@@ -18,7 +18,10 @@
         {% include "sale/ordered_informations.html" with ordered=ordered %}
     {% else %}
         <section>
-            <h2 class="is_colored">Formulaire</h2>
+            <h2 class="is_colored">Retrouver une commande</h2>
+            <div class="w-50 alert alert-primary mx-auto">
+                Ses informations sont disponible dans l'email contenant votre facture.
+            </div>
             <form class="w-50 mx-auto" action="{% url 'sale:retrieve' %}"
                   method="post">
                 {% csrf_token %}

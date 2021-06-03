@@ -18,7 +18,7 @@
             <div class="image_produits">
                 {% for product_image in product.productimage_set.all %}
 
-                    <figure class="hover_figure grid shadow-sm">
+                    <figure class="hover_figure grid">
                         <img src="{{ product_image.image.url }}"
                              alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                         <figcaption>
@@ -77,7 +77,8 @@
                             {% endif %}
 
                             <div class="quantity">
-                                <label class="form-label" for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                <label class="form-label"
+                                       for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1"><i
                                             class="bi-sort-numeric-down"></i></span>

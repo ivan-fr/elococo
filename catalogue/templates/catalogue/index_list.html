@@ -12,9 +12,9 @@
                         <h3>{{ product.name|title }}</h3>
                         {% with product_image=product.productimage_set.first %}
                             {% if product_image %}
-                                <figure class="hover_figure shadow-sm">
+                                <figure class="hover_figure">
                                     <a href="{% url 'catalogue_product_detail' product.slug %}">
-                                        <img src="{{ product_image.image.url }}"
+                                        <img class="rounded" src="{{ product_image.image.url }}"
                                              alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                                     </a>
                                     {% if product.effective_reduction > 0 %}
