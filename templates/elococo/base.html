@@ -299,6 +299,11 @@
                     let modal_form_container_footer = modal_footer_clone.cloneNode(true);
                     modal_form_container.appendChild(modal_form_container_footer);
 
+                    let btn_spinner = document.createElement("button");
+                    btn_spinner.classList.add("btn", "btn-primary");
+                    btn_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
+                    modal_form_container_footer.appendChild(btn_spinner);
+
                     setTimeout(function () {
                         let form = create_form_csrf(data["csrf_token"], url_get_booking);
                         let button_validation = document.createElement("button");
@@ -308,6 +313,7 @@
                         button_validation.appendChild(text);
                         form.appendChild(button_validation);
                         form.addEventListener("submit", post_booking);
+                        modal_form_container_footer.removeChild(btn_spinner);
 
                         if (data.hasOwnProperty("form_errors")) {
                             form.insertAdjacentHTML("afterbegin", data["form_errors"]);
