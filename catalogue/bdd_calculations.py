@@ -83,7 +83,6 @@ def total_price_from_all_product():
 
 
 def filled_category(limit):
-    return {
-        'filled_category': Category.objects.filter(products__stock__gt=0, products__enable_sale=True).annotate(
-            Count('products', distinct=True)).filter(products__count__gt=0).order_by('-products__count', 'category')[
-                           :limit]}
+    return {'filled_category': Category.objects.filter(products__stock__gt=0, products__enable_sale=True).annotate(
+        Count('products', distinct=True)).filter(products__count__gt=0).order_by(
+        '-products__count', 'category')[:limit]}

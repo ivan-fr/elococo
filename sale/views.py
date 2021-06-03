@@ -9,6 +9,8 @@ from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import render
+from django.template import Context
+from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -60,36 +62,26 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
         return super(PaymentDoneView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        try:
-            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
-        except Ordered.DoesNotExist:
-            raise Http404()
-
         if request.session.get(BOOKING_SESSION_KEY, None) is not None:
             del request.session[BOOKING_SESSION_KEY]
             if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
                 del request.session[BOOKING_SESSION_FILL_KEY]
+                try:
+                    order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
+                                                   payment_status=True).get()
+                except Ordered.DoesNotExist:
+                    raise Http404()
 
-                pdf_response = self.render_to_response({"ordered": order,
-                                                        "tva": TVA_PERCENT,
-                                                        "website_title": settings.WEBSITE_TITLE})
-
+                htmly = get_template('sale/')
+                context_dict = {"ordered": order,
+                                "tva": TVA_PERCENT,
+                                "website_title": settings.WEBSITE_TITLE}
+                pdf_response = self.render_to_response(context_dict)
+                context = Context(context_dict)
+                html_content = htmly.render(context)
                 email = EmailMessage(
                     f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-                    f"""
-                    <p>Bonjour {order.last_name.upper()} {order.first_name.capitalize()},</p>
-                    <p>Tout d'abord, merci pour votre achat ;)</p>
-                    <p>Dans ce mail vous trouverez plusieurs informations.<p>
-                    <p>
-                        <strong>Pour retrouver la commande sur le site:</strong><br>
-                        <strong>UUID</strong>: {str(order.pk)}<br>
-                        <strong>SECRET</strong>: {order.secrets}
-                    </p>
-                    <p>
-                        <strong>Et votre facture en pièce jointe</strong> au format PDF.
-                    </p>
-                    <p>Cordialement, {settings.WEBSITE_TITLE}.</p>
-                    """,
+                    html_content,
                     settings.EMAIL_HOST_USER,
                     [order.email]
                 )
@@ -97,7 +89,8 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
                 email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
                 email.send()
 
-        return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
+                return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
+        raise Http404()
 
 
 @csrf_exempt
