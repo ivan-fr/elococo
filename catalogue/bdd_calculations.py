@@ -8,8 +8,9 @@ from django.utils.timezone import now
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
 
-TVA = Decimal(1.2)
 TVA_PERCENT = Decimal(20.)
+BACK_TWO_PLACES = Decimal(10) ** -2
+TVA = Decimal(120) * BACK_TWO_PLACES
 
 
 def reduction_from_bdd():
@@ -22,9 +23,9 @@ def reduction_from_bdd():
 def price_exact(with_reduction=True):
     decimal_price = Cast(F('price'), DecimalField())
     if with_reduction:
-        reduction_percentage = Decimal(1.) - Cast(reduction_from_bdd(), DecimalField()) * Decimal(1e-2)
-        return Ceil(decimal_price * reduction_percentage) * Decimal(1e-2)
-    return decimal_price / Decimal(100.)
+        reduction_percentage = Decimal(1.) - Cast(reduction_from_bdd(), DecimalField()) * BACK_TWO_PLACES
+        return Ceil(decimal_price * reduction_percentage) * BACK_TWO_PLACES
+    return decimal_price * BACK_TWO_PLACES
 
 
 def price_exact_ht(with_reduction=True):
