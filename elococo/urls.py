@@ -25,4 +25,8 @@ urlpatterns = [
                   path('boutique/', include('catalogue.urls')),
                   path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
                   path('', IndexRedirectionView.as_view()),
-              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+              ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

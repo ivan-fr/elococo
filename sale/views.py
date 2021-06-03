@@ -6,16 +6,16 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import render
-from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
-from django.views.generic.edit import UpdateView, BaseFormView, FormMixin
-from xhtml2pdf import pisa
+from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
+from django_weasyprint.views import WeasyTemplateView, WeasyTemplateResponseMixin
 
 from catalogue.bdd_calculations import TVA_PERCENT
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
@@ -32,65 +32,72 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
-def invoice_views(request, pk, secrets_):
-    try:
-        order = Ordered.objects.filter(pk=pk, secrets=secrets_).get()
-    except Ordered.DoesNotExist:
-        raise Http404()
-    return render_invoice_pdf(order)
+class InvoiceView(WeasyTemplateView):
+    template_name = "sale/invoice.html"
+    pdf_stylesheets = [
+        settings.STATICFILES_DIRS[0] / 'css/invoice.css',
+    ]
+
+    def get_context_data(self, **kwargs):
+        try:
+            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
+            self.pdf_filename = f"invoice_{order.pk}"
+            return super(InvoiceView, self).get_context_data(**{"ordered": order,
+                                                                "tva": TVA_PERCENT,
+                                                                "website_title": settings.WEBSITE_TITLE})
+        except Ordered.DoesNotExist:
+            raise Http404()
 
 
-def render_invoice_pdf(order):
-    template_path = "sale/invoice.html"
-    context = {"ordered": order, "tva": TVA_PERCENT, "website_title": settings.WEBSITE_TITLE}
-    pdf_response = HttpResponse(content_type='application/pdf')
-    pdf_response['Content-Disposition'] = f'attachment; filename="invoice_{order.pk}.pdf"'
-    template = get_template(template_path)
-    html = template.render(context)
+class PaymentDoneView(WeasyTemplateResponseMixin, View):
+    template_name = "sale/invoice.html"
+    pdf_stylesheets = [
+        settings.STATICFILES_DIRS[0] / 'css/invoice.css',
+    ]
 
-    _ = pisa.CreatePDF(html, dest=pdf_response)
-    return pdf_response
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PaymentDoneView, self).dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
+        except Ordered.DoesNotExist:
+            raise Http404()
 
-@csrf_exempt
-def payment_done(request, pk, secrets_):
-    if request.session.get(BOOKING_SESSION_KEY, None) is not None:
-        del request.session[BOOKING_SESSION_KEY]
-        if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
-            del request.session[BOOKING_SESSION_FILL_KEY]
+        if request.session.get(BOOKING_SESSION_KEY, None) is not None:
+            del request.session[BOOKING_SESSION_KEY]
+            if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
+                del request.session[BOOKING_SESSION_FILL_KEY]
 
-            try:
-                order = Ordered.objects.filter(pk=pk, secrets=secrets_).get()
-            except Ordered.DoesNotExist:
-                raise Http404()
+                pdf_response = self.render_to_response({"ordered": order,
+                                                        "tva": TVA_PERCENT,
+                                                        "website_title": settings.WEBSITE_TITLE})
 
-            pdf_response = render_invoice_pdf(order)
+                email = EmailMessage(
+                    f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+                    f"""
+                    <p>Bonjour {order.last_name.upper()} {order.first_name.capitalize()},</p>
+                    <p>Tout d'abord, merci pour votre achat ;)</p>
+                    <p>Dans ce mail vous trouverez plusieurs informations.<p>
+                    <p>
+                        <strong>Pour retrouver la commande sur le site:</strong><br>
+                        <strong>UUID</strong>: {str(order.pk)}<br>
+                        <strong>SECRET</strong>: {order.secrets}
+                    </p>
+                    <p>
+                        <strong>Et votre facture en pièce jointe</strong> au format PDF.
+                    </p>
+                    <p>Cordialement, {settings.WEBSITE_TITLE}.</p>
+                    """,
+                    settings.EMAIL_HOST_USER,
+                    [order.email]
+                )
+                email.content_subtype = "html"
+                email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
+                email.send()
 
-            email = EmailMessage(
-                f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{pk}",
-                f"""
-                <p>Bonjour {order.last_name.upper()} {order.first_name.capitalize()},</p>
-                <p>Tout d'abord, merci pour votre achat ;)</p>
-                <p>Dans ce mail vous trouverez plusieurs informations.<p>
-                <p>
-                    <strong>Pour retrouver la commande sur le site:</strong><br>
-                    <strong>UUID</strong>: {str(order.pk)}<br>
-                    <strong>SECRET</strong>: {order.secrets}
-                </p>
-                <p>
-                    <strong>Et votre facture en pièce jointe</strong> au format PDF.
-                </p>
-                <p>Cordialement, {settings.WEBSITE_TITLE}.</p>
-                """,
-                settings.EMAIL_HOST_USER,
-                [order.email]
-            )
-            email.content_subtype = "html"
-            email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
-            email.send()
-
-        return render(request, 'sale/payment_done.html',
-                      {"pk": pk, 'secrets': secrets_})
+        return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
 
 
 @csrf_exempt
