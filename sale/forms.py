@@ -29,7 +29,7 @@ class OrderedInformation(forms.ModelForm):
                    'price_exact_ttc_with_quantity_sum',
                    'price_exact_ht_with_quantity_sum',
                    'createdAt',
-                   'endOfLife', 'secrets')
+                   'endOfLife', 'secrets', 'invoice_date')
         widgets = {
             'first_name': forms.TextInput(attrs={"class": "form-control"}),
             'last_name': forms.TextInput(attrs={"class": "form-control"}),

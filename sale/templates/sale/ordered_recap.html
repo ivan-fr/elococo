@@ -18,7 +18,11 @@
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
             <td>
-                <a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
+                {% if orderedproduct.to_product %}
+                    <a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
+                {% else %}
+                    {{ orderedproduct.product_name }}
+                {% endif %}
             </td>
             <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
             <td>{{ orderedproduct.price_exact_ttc|to_currency }}€</td>

@@ -72,13 +72,12 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
                 except Ordered.DoesNotExist:
                     raise Http404()
 
-                htmly = get_template('sale/')
+                htmly = get_template('sale/email_invoice.html')
                 context_dict = {"ordered": order,
                                 "tva": TVA_PERCENT,
                                 "website_title": settings.WEBSITE_TITLE}
-                pdf_response = self.render_to_response(context_dict)
-                context = Context(context_dict)
-                html_content = htmly.render(context)
+                pdf_response = self.render_to_response(context_dict).render()
+                html_content = htmly.render(context_dict)
                 email = EmailMessage(
                     f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
                     html_content,
