@@ -6,6 +6,10 @@
     <meta charset="UTF-8">
     <title>Invoice</title>
     <style type="text/css">
+        html {
+            -webkit-print-color-adjust: exact;
+        }
+
         body {
             font-family: "Gill Sans", sans-serif;
             font-size: 1em;
@@ -17,10 +21,10 @@
         }
 
         table {
-            caption-side: bottom;
+            table-layout: fixed;
             border-collapse: collapse;
-            border-color: black;
-            width: 100%;
+            border: 1px solid black;
+            margin-bottom: 3em;
         }
 
         thead, tbody, tfoot, tr, td, th {
@@ -28,11 +32,22 @@
             border-style: solid;
             padding: 0.5rem 0.5rem;
         }
+
+        tfoot {
+            background: #bdbdbd;
+        }
+
+        tbody tr:nth-child(odd) {
+            background: #ffe6dc;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #ffcfbe;
+        }
     </style>
 </head>
 <body>
 <div class="text_right">
-    <p>Numéro de facture: {{ ordered.pk }}</p>
     <p>
         Envoyé à<br>
         <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
@@ -44,6 +59,30 @@
     </p>
 </div>
 
+<table>
+    <thead>
+    <tr>
+        <th scope="col">Facture</th>
+        <th scope="col" colspan="1"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>N° de facture</td>
+        <td>{{ ordered.pk }}</td>
+    </tr>
+    <tr>
+        <td>Date de facture</td>
+        <td>{{ ordered.invoice_date }}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td><strong>À payer EUR</strong></td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+    </tr>
+    </tfoot>
+</table>
 
 <table>
     <thead>
@@ -77,7 +116,8 @@
             <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
         </tr>
     {% endfor %}
-
+    </tbody>
+    <tfoot>
     <tr>
 
         <td colspan="4"></td>
@@ -94,7 +134,7 @@
         <td><strong>TOTAL (TTC)</strong></td>
         <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
     </tr>
-    </tbody>
+    </tfoot>
 </table>
 
 <p>

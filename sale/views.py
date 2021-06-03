@@ -11,6 +11,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.urls import reverse
+from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin
@@ -238,6 +239,7 @@ class OrderedDetail(FormMixin, DetailView):
 
         with transaction.atomic():
             self.object.payment_status = True
+            self.object.invoice_date = now()
             self.object.save()
 
         return super(OrderedDetail, self).form_valid(form)

@@ -15,6 +15,7 @@ TIME_ORDERED_LIFE_MINUTES = 45
 TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
 ORDER_SECRET_LENGTH = 30
 
+
 def phone_regex():
     return RegexValidator(regex="^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
                           message="Le numéro ne respecte pas le bon format.")
@@ -38,6 +39,7 @@ class Ordered(models.Model):
                                       through_fields=('from_ordered',
                                                       'to_product'))
     payment_status = models.BooleanField(default=False)
+    invoice_date = models.DateTimeField(null=True)
 
     price_exact_ttc_with_quantity_sum = models.PositiveIntegerField()
     price_exact_ht_with_quantity_sum = models.PositiveIntegerField()
