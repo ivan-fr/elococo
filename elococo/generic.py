@@ -1,12 +1,14 @@
 from django.forms.formsets import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponseRedirect
-from django.views.generic.base import ContextMixin, View
+from django.views.generic.base import ContextMixin, TemplateResponseMixin, View
 from django.views.generic.detail import (
     SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
 )
 from django.views.generic.list import (
     MultipleObjectMixin,
+    MultipleObjectTemplateResponseMixin,
 )
 
 
@@ -248,4 +250,51 @@ class ProcessFormSetView(View):
 class BaseFormSetView(FormSetMixin, ProcessFormSetView):
     """
     A base view for displaying a formset
+    """
+
+
+class FormSetView(TemplateResponseMixin, BaseFormSetView):
+    """
+    A view for displaying a formset, and rendering a template response
+    """
+
+
+class BaseModelFormSetView(ModelFormSetMixin, ProcessFormSetView):
+    """
+    A base view for displaying a model formset
+    """
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        return super().post(request, *args, **kwargs)
+
+
+class ModelFormSetView(MultipleObjectTemplateResponseMixin, BaseModelFormSetView):
+    """
+    A view for displaying a model formset, and rendering a template response
+    """
+
+
+class BaseInlineFormSetView(InlineFormSetMixin, ProcessFormSetView):
+    """
+    A base view for displaying an inline formset for a queryset belonging to
+    a parent model
+    """
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+
+class InlineFormSetView(SingleObjectTemplateResponseMixin, BaseInlineFormSetView):
+    """
+    A view for displaying an inline formset for a queryset belonging to a parent model
     """
