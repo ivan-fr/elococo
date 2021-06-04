@@ -9,7 +9,6 @@ from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import render
-from django.template import Context
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.decorators import method_decorator
