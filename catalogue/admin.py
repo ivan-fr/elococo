@@ -30,13 +30,13 @@ def price_exact_ttc(obj):
     return "{:.2f} euros".format(obj.price_exact_ttc)
 
 
-def price_base_ttc(obj):
-    return "{:.2f} euros".format(obj.price_base_ttc)
+def price_exact_ht(obj):
+    return "{:.2f} euros".format(obj.price_exact_ht)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dateUpdate', 'stock', reductions, price_base_ttc,
+    list_display = ('name', 'dateUpdate', 'stock', reductions, price_exact_ht,
                     price_exact_ttc, categories, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', 'stock')
     inlines = (ProductImageAdmin,)
