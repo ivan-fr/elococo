@@ -12,7 +12,7 @@ from django.views.generic.list import BaseListView
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
     MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
-from catalogue.generic import FormSetMixin
+from elococo.generic import FormSetMixin
 from catalogue.models import Product
 
 
