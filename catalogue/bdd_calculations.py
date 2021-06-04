@@ -74,7 +74,7 @@ def price_annotation_format(basket=None):
     if basket is not None and bool(basket):
         my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ttc_)
         my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ht_)
-        my_dict["effective_quantity"] = effective_quantity_per_product_from_basket(basket)
+        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(basket)
 
     return my_dict
 

@@ -425,7 +425,7 @@ class BookingBasketView(BaseFormView):
 
                 ordered_product = []
                 for product in self.product_list:
-                    if product.effective_quantity != basket[product.slug]["quantity"]:
+                    if product.effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
 
                     product.stock -= basket[product.slug]["quantity"]

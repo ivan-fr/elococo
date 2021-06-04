@@ -92,11 +92,11 @@ class BasketView(FormSetMixin, BaseListView):
                 self.request.session.modified = True
 
             for product in self.object_list:
-                if product.effective_quantity != basket[product.slug]["quantity"]:
-                    if product.effective_quantity <= 0:
+                if product.effective_basket_quantity != basket[product.slug]["quantity"]:
+                    if product.effective_basket_quantity <= 0:
                         del basket[product.slug]
                     else:
-                        basket[product.slug]["quantity"] = product.effective_quantity
+                        basket[product.slug]["quantity"] = product.effective_basket_quantity
                     self.request.session.modified = True
 
             self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
