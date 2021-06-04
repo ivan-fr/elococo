@@ -62,40 +62,41 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
         return super(PaymentDoneView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if request.session.get(BOOKING_SESSION_KEY, None) is not None:
-            try:
-                order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
-                                               payment_status=True).get()
-            except Ordered.DoesNotExist:
-                raise Http404()
+        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+            raise Http404()
 
-            if order.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
-                return HttpResponseBadRequest()
+        try:
+            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
+                                           payment_status=True).get()
+        except Ordered.DoesNotExist:
+            raise Http404()
 
-            del request.session[BOOKING_SESSION_KEY]
-            if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
-                del request.session[BOOKING_SESSION_FILL_KEY]
-            if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
-                del request.session[BOOKING_SESSION_FILL_2_KEY]
+        if order.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()
 
-            htmly = get_template('sale/email_invoice.html')
-            context_dict = {"ordered": order,
-                            "tva": TVA_PERCENT,
-                            "website_title": settings.WEBSITE_TITLE}
-            pdf_response = self.render_to_response(context_dict).render()
-            html_content = htmly.render(context_dict)
-            email = EmailMessage(
-                f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-                html_content,
-                settings.EMAIL_HOST_USER,
-                [order.email]
-            )
-            email.content_subtype = "html"
-            email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
-            email.send()
+        del request.session[BOOKING_SESSION_KEY]
+        if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
+            del request.session[BOOKING_SESSION_FILL_KEY]
+        if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
+            del request.session[BOOKING_SESSION_FILL_2_KEY]
 
-            return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
-        raise Http404()
+        htmly = get_template('sale/email_invoice.html')
+        context_dict = {"ordered": order,
+                        "tva": TVA_PERCENT,
+                        "website_title": settings.WEBSITE_TITLE}
+        pdf_response = self.render_to_response(context_dict).render()
+        html_content = htmly.render(context_dict)
+        email = EmailMessage(
+            f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+            html_content,
+            settings.EMAIL_HOST_USER,
+            [order.email]
+        )
+        email.content_subtype = "html"
+        email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
+        email.send()
+
+        return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
 
 
 @csrf_exempt
