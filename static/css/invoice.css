@@ -34,5 +34,5 @@ tbody tr:nth-child(odd) {
 }
 
 tbody tr:nth-child(even) {
-    background: #ffcfbe;
+    background: #fff4f4;
 }

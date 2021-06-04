@@ -33,7 +33,7 @@
                 {% endif %}
                 <div class="braintree-notifications"></div>
                 <div id="dropin-container"></div>
-                <input type="submit" class="btn btn-success" value="Payer"/>
+                <input type="submit" class="btn btn-success" value="Payer {{ amount }} EUR"/>
                 <input type="hidden" id="nonce" name="payment_method_nonce"/>
             </form>
         </section>
@@ -58,10 +58,15 @@
                 if (error) console.error(error);
 
                 braintree_form.addEventListener('submit', event => {
+                    let button = event.currentTarget.querySelector(":scope input[type=submit]")
+                    button.setAttribute("disabled", "true");
                     event.preventDefault();
 
                     dropinInstance.requestPaymentMethod((error, payload) => {
-                        if (error) console.error(error);
+                        if (error) {
+                            alert(error.message);
+                            button.removeAttribute("disabled");
+                        }
 
                         // Step four: when the user is ready to complete their
                         //   transaction, use the dropinInstance to get a payment
