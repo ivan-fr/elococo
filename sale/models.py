@@ -25,12 +25,6 @@ class Ordered(models.Model):
     order_number = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     email = models.EmailField(null=True)
-    first_name = models.CharField(_("prénom"), null=True, max_length=255)
-    last_name = models.CharField(_("nom de famille"), null=True, max_length=255)
-    address = models.CharField(_("ligne adresse 1"), max_length=255, null=True)
-    address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True, blank=True)
-    postal_code = models.PositiveIntegerField(_("code postal"), null=True)
-    city = models.CharField(_("ville"), max_length=255, null=True)
     phone = models.CharField("téléphone", validators=(phone_regex(),), max_length=20)
     secrets = models.CharField(max_length=ORDER_SECRET_LENGTH)
 
@@ -51,6 +45,16 @@ class Ordered(models.Model):
         self.createdAt = now()
         self.endOfLife = self.createdAt + datetime.timedelta(minutes=TIME_ORDERED_LIFE_MINUTES)
         super().save(*args, **kwargs)
+
+
+class Address(models.Model):
+    order = models.ForeignKey(Ordered, on_delete=models.CASCADE, related_name="order_address")
+    first_name = models.CharField(_("prénom"), null=True, max_length=255)
+    last_name = models.CharField(_("nom de famille"), null=True, max_length=255)
+    address = models.CharField(_("ligne adresse 1"), max_length=255, null=True)
+    address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True, blank=True)
+    postal_code = models.PositiveIntegerField(_("code postal"), null=True)
+    city = models.CharField(_("ville"), max_length=255, null=True)
 
 
 class OrderedProduct(models.Model):

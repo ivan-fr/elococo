@@ -1,6 +1,6 @@
 import uuid
 
-from sale.forms import BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY
+from sale.forms import BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, BOOKING_SESSION_FILL_2_KEY
 from sale.models import Ordered
 
 
@@ -15,6 +15,8 @@ class BookingMiddleware:
                 del request.session[BOOKING_SESSION_KEY]
                 if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
                     del request.session[BOOKING_SESSION_FILL_KEY]
+                if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
+                    del request.session[BOOKING_SESSION_FILL_2_KEY]
                 request.session.modified = True
 
         response = self.get_response(request)

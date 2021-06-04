@@ -8,17 +8,28 @@
 </head>
 <body>
 <div class="text_right">
-    <p>
-        Envoyé à<br>
-        <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
-        {{ ordered.address }}<br>
-        {% if ordered.address2 %}
-        {{ ordered.address2 }}<br>        
+    {% for order_adress in ordered.order_adress %}
+        {% if forloop.counter0 == 0 %}
+            <p>
+                <strong>Adresse de livraison</strong>
+            </p>
+        {% else %}
+            <p>
+                <strong>Adresse de facturation</strong>
+            </p>
         {% endif %}
-        {{ ordered.postal_code }}, {{ ordered.city }}<br>
-        France<br>
-        Tél: {{ ordered.phone }}
-    </p>
+        <p>
+            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+            {{ order_adress.address }}<br>
+            {% if order_adress.address2 %}
+                {{ order_adress.address2 }}<br>
+            {% endif %}
+            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+            France<br>
+        </p>
+    {% endfor %}
+
+    <p>Tél: {{ ordered.phone }}</p>
 </div>
 
 <table>

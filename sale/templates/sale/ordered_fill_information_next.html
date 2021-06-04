@@ -17,21 +17,18 @@
     {% include "sale/ordered_informations.html" with ordered=ordered %}
     {% if ordered.ordered_is_enable %}
         <section class="right-two-span" id="order-fill">
-            <h2 class="no-flex is_colored">Formulaire d'informations générales</h2>
-            <form action="{% url 'sale:fill' ordered.pk %}"
+            <h2 class="no-flex is_colored">Pour passer au
+                paiement, il vous faut remplir vos coordonnées</h2>
+            <form action="{% url 'sale:fill_next' ordered.pk %}"
                   method="post">
                 {% csrf_token %}
-                <div>
-                    {{ form.email.errors }}
-                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-                    {{ form.email }}
-                </div>
-                <div>
-                    {{ form.phone.errors }}
-                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
-                    {{ form.phone }}
-                </div>
-                <input type="submit" class="btn btn-success" value="Suivant"/>
+                {{ formset.management_form }}
+                <table>
+                    {% for form in formset %}
+                        {{ form }}
+                    {% endfor %}
+                </table>
+                <input type="submit" class="btn btn-success" value="Envoyer mes coordonnées"/>
             </form>
         </section>
     {% endif %}

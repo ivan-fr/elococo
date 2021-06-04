@@ -6,31 +6,41 @@
     {% if ordered.payment_status %}
         <p>
             <stong>
-                Cette commande a été payé.
+                Cette commande a été payée.
             </stong>
         </p>
         <p>
             Vous pouvez retrouver un <strong>duplicata de votre facture <a
                 href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
         </p>
-        <p>
-            Vous recevrez votre commande sous peu à l'adresse:
-        </p>
-        <p>
-            <strong>{{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }}</strong><br>
-            {{ ordered.address }}<br>
-            {% if ordered.address2 %}
-               {{ ordered.address2 }}<br>  
+        {% for order_adress in ordered.order_adress %}
+            {% if forloop.counter0 == 0 %}
+                <p>
+                    <strong>Adresse de livraison</strong>
+                </p>
+            {% else %}
+                <p>
+                    <strong>Adresse de facturation</strong>
+                </p>
             {% endif %}
-            {{ ordered.postal_code }}, {{ ordered.city }}<br>
-            France<br>
-            Tél: {{ ordered.phone }}
-        </p>
+            <p>
+                <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+                {{ order_adress.address }}<br>
+                {% if order_adress.address2 %}
+                    {{ order_adress.address2 }}<br>
+                {% endif %}
+                {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+                France<br>
+            </p>
+        {% endfor %}
+
+        <p>Tél: {{ ordered.phone }}</p>
+
     {% else %}
         <p>
             Notre site e-commerce prend en considération un stock disponible.<br>
             Nous ne vendons pas un produit qui n'est pas en stock.<br>
-            Vos quantités réservés seront donc disponible pendant un temps restreint.<br>
+            Vos quantités réservées seront donc disponible pendant un temps restreint.<br>
             Si le paiement de la reservation est effective, la reservation sera permanent.
         </p>
         {% if ordered.ordered_is_enable %}
@@ -53,7 +63,7 @@
             </p>
             <p>
                 Vous ne pouvez plus procéder au paiement ni renseigner vos coordonnées.<br>
-                Les quantités réservés ont été restitués en boutique.
+                Les quantités réservées ont été restitués en boutique.
             </p>
             <p>
                 Vous pourrez <strong>refaire une autre réservation dans au plus 25 minutes.</strong><br>

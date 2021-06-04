@@ -4,6 +4,7 @@ from sale.models import Ordered, ORDER_SECRET_LENGTH
 
 BOOKING_SESSION_KEY = "ordered_instance_pk"
 BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
+BOOKING_SESSION_FILL_2_KEY = "ordered_is_filled_next"
 
 
 class CheckoutForm(forms.Form):
@@ -21,6 +22,16 @@ class RetrieveOrderForm(forms.Form):
     )
 
 
+"""
+            'first_name': forms.TextInput(attrs={"class": "form-control"}),
+            'last_name': forms.TextInput(attrs={"class": "form-control"}),
+            'address': forms.TextInput(attrs={"class": "form-control"}),
+            'address2': forms.TextInput(attrs={"class": "form-control"}),
+            'postal_code': forms.TextInput(attrs={"class": "form-control"}),
+            'city': forms.TextInput(attrs={"class": "form-control"}),
+"""
+
+
 class OrderedInformation(forms.ModelForm):
     class Meta:
         model = Ordered
@@ -31,14 +42,8 @@ class OrderedInformation(forms.ModelForm):
                    'createdAt',
                    'endOfLife', 'secrets', 'invoice_date')
         widgets = {
-            'first_name': forms.TextInput(attrs={"class": "form-control"}),
-            'last_name': forms.TextInput(attrs={"class": "form-control"}),
-            'email': forms.EmailInput(attrs={"class": "form-control"}),
-            'address': forms.TextInput(attrs={"class": "form-control"}),
-            'address2': forms.TextInput(attrs={"class": "form-control"}),
-            'postal_code': forms.TextInput(attrs={"class": "form-control"}),
-            'city': forms.TextInput(attrs={"class": "form-control"}),
             'phone': forms.TextInput(attrs={"class": "form-control"}),
+            'email': forms.EmailInput(attrs={"class": "form-control"}),
         }
 
 

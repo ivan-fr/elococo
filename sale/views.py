@@ -22,10 +22,11 @@ from catalogue.bdd_calculations import TVA_PERCENT
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
+from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
-    RetrieveOrderForm
-from sale.models import Ordered, OrderedProduct, ORDER_SECRET_LENGTH
+    RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY
+from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
 
 KEY_PAYMENT_ERROR = "payment_error"
 PAYMENT_ERROR_NOT_PROCESS = 0
@@ -62,32 +63,38 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.session.get(BOOKING_SESSION_KEY, None) is not None:
+            try:
+                order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
+                                               payment_status=True).get()
+            except Ordered.DoesNotExist:
+                raise Http404()
+
+            if order.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+                return HttpResponseBadRequest()
+
             del request.session[BOOKING_SESSION_KEY]
             if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
                 del request.session[BOOKING_SESSION_FILL_KEY]
-                try:
-                    order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
-                                                   payment_status=True).get()
-                except Ordered.DoesNotExist:
-                    raise Http404()
+            if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
+                del request.session[BOOKING_SESSION_FILL_2_KEY]
 
-                htmly = get_template('sale/email_invoice.html')
-                context_dict = {"ordered": order,
-                                "tva": TVA_PERCENT,
-                                "website_title": settings.WEBSITE_TITLE}
-                pdf_response = self.render_to_response(context_dict).render()
-                html_content = htmly.render(context_dict)
-                email = EmailMessage(
-                    f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-                    html_content,
-                    settings.EMAIL_HOST_USER,
-                    [order.email]
-                )
-                email.content_subtype = "html"
-                email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
-                email.send()
+            htmly = get_template('sale/email_invoice.html')
+            context_dict = {"ordered": order,
+                            "tva": TVA_PERCENT,
+                            "website_title": settings.WEBSITE_TITLE}
+            pdf_response = self.render_to_response(context_dict).render()
+            html_content = htmly.render(context_dict)
+            email = EmailMessage(
+                f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+                html_content,
+                settings.EMAIL_HOST_USER,
+                [order.email]
+            )
+            email.content_subtype = "html"
+            email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
+            email.send()
 
-                return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
+            return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
         raise Http404()
 
 
@@ -114,7 +121,7 @@ def get_object(self, queryset=None, extra_filter=None):
         queryset = queryset.filter(**extra_filter)
 
     try:
-        obj = queryset.annotate(**default_ordered_annotation_format()).get()
+        obj = queryset.annotate(**default_ordered_annotation_format()).prefetch_related("order_address").get()
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
@@ -256,6 +263,61 @@ class OrderedDetail(FormMixin, DetailView):
             return self.form_invalid(form)
 
 
+class FillAddressInformationOrdered(ModelFormSetView):
+    model = Address
+    pk_url_kwarg = "pk"
+    fields = ("fist_name", "last_name", "address", "address2", "postal_code", "city")
+    factory_kwargs = {'extra': 1,
+                      'absolute_max': 2,
+                      'max_num': 2, 'validate_max': True,
+                      'min_num': 1, 'validate_min': True,
+                      'can_order': False,
+                      'can_delete': False}
+    template_name = "sale/ordered_fill_information_next.html"
+
+    def get_object(self, queryset=None):
+        return get_object(self, queryset)
+
+    def get_success_url(self):
+        return reverse("sale:detail", kwargs={"pk": self.object.pk})
+
+    def formset_invalid(self, formset):
+        return self.render_to_response(self.get_context_data(formset=formset, ordered=self.object))
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.object.ordered_is_enable:
+            return HttpResponseRedirect(reverse("sale:fill_next", self.object.pk))
+
+        self.object_list = self.object.order_address
+        formset = self.construct_formset()
+        if formset.is_valid():
+            self.request.session[BOOKING_SESSION_FILL_2_KEY] = True
+            return self.formset_valid(formset)
+        else:
+            return self.formset_invalid(formset)
+
+    def get_context_data(self, **kwargs):
+        """Insert the form into the context dict."""
+        if 'formset' in kwargs and not self.object.ordered_is_enable:
+            del kwargs['formset']
+        return super().get_context_data(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+            return HttpResponseBadRequest()
+
+        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()
+
+        self.object_list = self.object.order_address
+        formset = self.construct_formset()
+        return self.render_to_response(self.get_context_data(formset=formset, ordered=self.object))
+
+
 class FillInformationOrdered(UpdateView):
     form_class = OrderedInformation
     model = Ordered
@@ -265,7 +327,7 @@ class FillInformationOrdered(UpdateView):
         return get_object(self, queryset)
 
     def get_success_url(self):
-        return reverse("sale:detail", kwargs={"pk": self.object.pk})
+        return reverse("sale:fill_next", kwargs={"pk": self.object.pk})
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
