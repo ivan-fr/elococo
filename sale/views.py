@@ -166,6 +166,15 @@ class OrderedDetail(FormMixin, DetailView):
         return obj
 
     def get(self, request, *args, **kwargs):
+        if request.session.get(BOOKING_SESSION_FILL_KEY, None) is None:
+            return HttpResponseBadRequest()
+
+        if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is None:
+            return HttpResponseBadRequest()
+
+        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()        
+        
         self.object = self.get_object()
 
         if request.session.get(BOOKING_SESSION_KEY, None) is None:
