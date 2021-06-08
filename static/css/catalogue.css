@@ -1,11 +1,19 @@
-form.horizontale .form-control {
-    width: 70%;
-}
-
-form.horizontale div {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+.form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
 main .navbar ul > li {
@@ -60,7 +68,7 @@ main h2.is_colored {
     font-weight: bold;
 }
 
-#boutique figure.hover_figure figcaption {
+figure.hover_figure.border figcaption, #boutique figure.hover_figure figcaption {
     left: 1px;
 }
 
@@ -90,7 +98,7 @@ main h2.is_colored {
     grid-template-rows: 20em;
 }
 
-#boutique figure.hover_figure img {
+#boutique figure.hover_figure img, figure.hover_figure.border img {
     border: solid black 1px;
 }
 
@@ -111,4 +119,12 @@ main h2.is_colored {
 
 #detail div > .box:not(:last-child) {
     border-bottom: unset;
+}
+
+.info_description *:first-child {
+    margin-top: 0;
+}
+
+.info_description *:last-child {
+    margin-bottom: 0;
 }

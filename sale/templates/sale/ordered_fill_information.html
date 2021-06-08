@@ -19,22 +19,22 @@ main_expand_left
 {% include "sale/ordered_informations.html" with ordered=ordered %}
 {% if ordered.ordered_is_enable %}
 <section class="start_4 end_6">
-    <h2 class="no-flex is_colored">Formulaire d'informations générales</h2>
-    <form class="horizontale" action="{% url 'sale:fill' ordered.pk %}" method="post">
+    <h2 class="is_colored">Formulaire d'informations générales</h2>
+    <form class="grid" action="{% url 'sale:fill' ordered.pk %}" method="post">
         {% csrf_token %}
-        <div>
+        <div class="start_1 end_5">
             {{ form.email.errors }}
             <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
             {{ form.email }}
         </div>
 
-        <div>
+        <div class="start_1 end_5">
             {{ form.phone.errors }}
             <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
             {{ form.phone }}
         </div>
 
-        <input type="submit" class="btn btn-success" value="Suivant" />
+        <input type="submit" class="btn btn-success start_1 end_3" value="Suivant" />
     </form>
 </section>
 {% endif %}

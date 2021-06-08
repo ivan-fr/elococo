@@ -19,7 +19,7 @@
 
 {% if messages %}
     {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        <div class="start_1 end_6 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
             {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
             {{ message }}
         </div>
