@@ -52,7 +52,7 @@ class Address(models.Model):
     first_name = models.CharField(_("prénom"), max_length=255)
     last_name = models.CharField(_("nom de famille"), max_length=255)
     address = models.CharField(_("ligne adresse 1"), max_length=255)
-    address2 = models.CharField(_("ligne adresse 2"), max_length=255)
+    address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True, blank=True)
     postal_code = models.PositiveIntegerField(_("code postal"))
     city = models.CharField(_("ville"), max_length=255)
 
