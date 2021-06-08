@@ -2,7 +2,8 @@
 
 {% block head_js %}
     {% if  ordered.ordered_is_enable and not ordered.payment_status %}
-        <script src="https://js.braintreegateway.com/web/dropin/1.29.0/js/dropin.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="https://js.stripe.com/v3/"></script>
     {% endif %}
 {% endblock %}
 
@@ -20,7 +21,7 @@
     {% if ordered.ordered_is_enable and not ordered.payment_status %}
         <section class="start_4 end_6">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
-            <input type="button" class="btn btn-success" value="Payer {{ amount }} EUR"/>
+            <input type="button"id="checkout-button" class="btn btn-success" value="Payer {{ amount }} EUR"/>
         </section>
     {% endif %}
 {% endblock %}
@@ -33,11 +34,11 @@
     var checkoutButton = document.getElementById("checkout-button");
 
     const headers = new Headers({
-        'X-CSRF-TOKEN': "{% csrf_token %}"
-    });
+        'X-CSRFToken': "{{ csrf_token }}"
+    })
 
     checkoutButton.addEventListener("click", function () {
-      fetch("/create-checkout-session", {
+      fetch("{% url "sale:detail" ordered.pk %}", {
         method: "POST",
         headers,
       })

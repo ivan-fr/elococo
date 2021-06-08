@@ -43,7 +43,8 @@ class InvoiceView(WeasyTemplateView):
 
     def get_context_data(self, **kwargs):
         try:
-            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
+            order = Ordered.objects.filter(
+                pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
             self.pdf_filename = f"invoice_{order.pk}"
             return super(InvoiceView, self).get_context_data(**{"ordered": order,
                                                                 "tva": TVA_PERCENT,
@@ -99,7 +100,8 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
             [order.email]
         )
         email.content_subtype = "html"
-        email.attach(f"invoice_#{order.pk}", pdf_response.getvalue(), 'application/pdf')
+        email.attach(f"invoice_#{order.pk}",
+                     pdf_response.getvalue(), 'application/pdf')
         email.send()
 
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
@@ -128,7 +130,8 @@ def get_object(self, queryset=None, extra_filter=None):
         queryset = queryset.filter(**extra_filter)
 
     try:
-        obj = queryset.annotate(**default_ordered_annotation_format()).prefetch_related("order_address").get()
+        obj = queryset.annotate(
+            **default_ordered_annotation_format()).prefetch_related("order_address").get()
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
@@ -194,7 +197,8 @@ class OrderedDetail(FormMixin, DetailView):
         else:
             public_api_key = None
 
-        amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+        amount = Decimal(
+            self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
         context = self.get_context_data(object=self.object, public_api_key=public_api_key,
                                         amount=str(amount.quantize(TWO_PLACES)))
         return self.render_to_response(context)
@@ -222,7 +226,8 @@ class OrderedDetail(FormMixin, DetailView):
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
             return HttpResponseRedirect(self.get_invalid_url())
 
-        amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+        amount = Decimal(
+            self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -240,21 +245,17 @@ class OrderedDetail(FormMixin, DetailView):
                     },
                 ],
                 mode='payment',
-                success_url=self.request.build_absolute_uri(self.get_success_url()),
-                cancel_url=self.request.build_absolute_uri(self.get_invalid_url()),
+                success_url=self.request.build_absolute_uri(
+                    self.get_success_url()),
+                cancel_url=self.request.build_absolute_uri(
+                    self.get_invalid_url()),
             )
-            
+
             JsonResponse({'id': checkout_session.id})
         except Exception as e:
-            self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
             return JsonResponse({"error": str(e)})
 
-
     def post(self, request, *args, **kwargs):
-        nonce_from_the_client = self.request.POST.get("payment_method_nonce", None)
-        if nonce_from_the_client is None:
-            return HttpResponseBadRequest()
-
         self.object = self.get_object()
 
         form = self.get_form()
@@ -269,7 +270,8 @@ class FillAddressInformationOrdered(ModelFormSetView):
     formset_class = AddressFormSet
     form_class = AddressForm
     pk_url_kwarg = "pk"
-    fields = ("first_name", "last_name", "address", "address2", "postal_code", "city")
+    fields = ("first_name", "last_name", "address",
+              "address2", "postal_code", "city")
     factory_kwargs = {'extra': 1,
                       'absolute_max': 2,
                       'max_num': 2, 'validate_max': True,
@@ -280,7 +282,8 @@ class FillAddressInformationOrdered(ModelFormSetView):
 
     def get_formset_kwargs(self):
         kwargs = super().get_formset_kwargs()
-        kwargs.update({"queryset":self.object_list, "ordered_queryset": self.object})
+        kwargs.update({"queryset": self.object_list,
+                      "ordered_queryset": self.object})
         return kwargs
 
     def get_factory_kwargs(self):
@@ -383,7 +386,8 @@ class BookingBasketView(BaseFormView):
         if bool(basket):
             queryset = Product.objects.select_for_update().filter(enable_sale=True)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
-            queryset = queryset.annotate(**price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
+            queryset = queryset.annotate(
+                **price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
         else:
             queryset = None
 
@@ -427,12 +431,15 @@ class BookingBasketView(BaseFormView):
             with transaction.atomic():
                 self.ordered = Ordered.objects.create(
                     price_exact_ht_with_quantity_sum=int(
-                        aggregate["price_exact_ht_with_quantity__sum"] * Decimal(100.)
+                        aggregate["price_exact_ht_with_quantity__sum"] *
+                        Decimal(100.)
                     ),
                     price_exact_ttc_with_quantity_sum=int(
-                        aggregate["price_exact_ttc_with_quantity__sum"] * Decimal(100.)
+                        aggregate["price_exact_ttc_with_quantity__sum"] *
+                        Decimal(100.)
                     ),
-                    secrets=''.join(secrets.choice(string.ascii_lowercase) for i in range(ORDER_SECRET_LENGTH))
+                    secrets=''.join(secrets.choice(string.ascii_lowercase)
+                                    for i in range(ORDER_SECRET_LENGTH))
                 )
 
                 ordered_product = []
@@ -447,9 +454,12 @@ class BookingBasketView(BaseFormView):
                             to_product=product,
                             product_name=product.name,
                             effective_reduction=product.effective_reduction,
-                            price_exact_ht=int(product.price_exact_ht * Decimal(100.)),
-                            price_exact_ttc=int(product.price_exact_ttc * Decimal(100.)),
-                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * Decimal(100.)),
+                            price_exact_ht=int(
+                                product.price_exact_ht * Decimal(100.)),
+                            price_exact_ttc=int(
+                                product.price_exact_ttc * Decimal(100.)),
+                            price_exact_ht_with_quantity=int(
+                                product.price_exact_ht_with_quantity * Decimal(100.)),
                             price_exact_ttc_with_quantity=int(
                                 product.price_exact_ttc_with_quantity * Decimal(100.)),
                             quantity=basket[product.slug]["quantity"]
@@ -459,12 +469,14 @@ class BookingBasketView(BaseFormView):
                 OrderedProduct.objects.bulk_create(ordered_product)
 
             del self.request.session[BASKET_SESSION_KEY]
-            self.request.session[BOOKING_SESSION_KEY] = list(self.ordered.pk.bytes)
+            self.request.session[BOOKING_SESSION_KEY] = list(
+                self.ordered.pk.bytes)
             self.request.session.modified = True
         except ValueError:
             return HttpResponseBadRequest()
 
-        messages.success(self.request, 'Votre panier a été correctement réservé.')
+        messages.success(
+            self.request, 'Votre panier a été correctement réservé.')
         return JsonResponse({"redirect": self.get_success_url()})
 
     def form_invalid(self, form):
