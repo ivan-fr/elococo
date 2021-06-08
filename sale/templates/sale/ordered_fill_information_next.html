@@ -1,12 +1,12 @@
 {% extends 'elococo/base.html' %}
-
+{% load static %}
 {% block body_class %}
     main_expand_left
 {% endblock %}
 
 {% block base_container %}
-    <section>
-        <h2 class="is_colored start_1 end_5">Commande #{{ ordered.order_number }}</h2>
+    <section  class="start_1 end_5">
+        <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
         <section>
             <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
             {% include "sale/ordered_recap.html" with ordered=ordered %}
@@ -17,21 +17,97 @@
     <div class="covered_image start_1">
     </div>
     {% include "sale/ordered_informations.html" with ordered=ordered %}
-    {% if ordered.ordered_is_enable %}
+    {% if formset %}
         <section class="start_4 end_6" id="order-fill">
             <h2 class="no-flex is_colored">Pour passer au
                 paiement, il vous faut remplir vos coordonnées</h2>
-            <form action="{% url 'sale:fill_next' ordered.pk %}"
-                  method="post">
+            <form action="{% url 'sale:fill_next' ordered.pk %}" class="border-start  border-primary border-2 ps-3" method="post">
                 {% csrf_token %}
                 {{ formset.management_form }}
-                <table>
-                    {% for form in formset %}
-                        {{ form }}
-                    {% endfor %}
-                </table>
-                <input type="submit" class="btn btn-success" value="Envoyer mes coordonnées"/>
+                {% for form in formset %}
+                    {% if forloop.counter0 == 0 %}
+                    <section id="delivery_address" class="grid">
+                    <h3 class="start_1 end_6">Adresse de livraison</h3>
+                        <div class="start_1 end_3">
+                            {{ form.first_name.errors }}
+                            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} : </label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="start_4 end_6">
+                            {{ form.last_name.errors }}
+                            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }} : </label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="start_1 end_3">
+                            {{ form.address.errors }}
+                            <label for="{{ form.address.id_for_label }}">{{ form.address.label }} : </label>
+                            {{ form.address }}
+                        </div>
+                        <div class="start_4 end_6">
+                            {{ form.address2.errors }}
+                            <label for="{{ form.email.id_for_label }}">{{ form.address2.label }} : </label>
+                            {{ form.address2 }}
+                        </div>                        
+                        <div class="start_1 end_3">
+                            {{ form.postal_code.errors }}
+                            <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }} : </label>
+                            {{ form.postal_code }}
+                        </div>                       
+                        <div class="start_1 end_3">
+                            {{ form.city.errors }}
+                            <label for="{{ form.city.id_for_label }}">{{ form.city.label }} : </label>
+                            {{ form.city }}
+                        </div>
+                    </section>
+                    <hr class="my-3">
+                    {% else %}
+                    <section id="facturation_address" class="grid">                    
+                        <h3 class="start_1 end_6">Adresse de facturation</h3>
+
+                        <div class="start_1 end_3">
+                            {{ form.first_name.errors }}
+                            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} : </label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="start_4 end_6">
+                            {{ form.last_name.errors }}
+                            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }} : </label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="start_1 end_3">
+                            {{ form.address.errors }}
+                            <label for="{{ form.address.id_for_label }}">{{ form.address.label }} : </label>
+                            {{ form.address }}
+                        </div>
+                        <div class="start_4 end_6">
+                            {{ form.address2.errors }}
+                            <label for="{{ form.email.id_for_label }}">{{ form.address2.label }} : </label>
+                            {{ form.address2 }}
+                        </div>                        
+                        <div class="start_1 end_3">
+                            {{ form.postal_code.errors }}
+                            <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }} : </label>
+                            {{ form.postal_code }}
+                        </div>                       
+                        <div class="start_1 end_3">
+                            {{ form.city.errors }}
+                            <label for="{{ form.city.id_for_label }}">{{ form.city.label }} : </label>
+                            {{ form.city }}
+                        </div>
+                    </section>
+                    {% endif %}
+                {% endfor %}
+                <div class="btn-group mt-3" role="group" aria-label="Basic mixed styles example">
+                    <button type="button" id="fill_next_config" class="btn btn-warning">Facturation identique à la livraison</button>
+                    <input type="submit" class="btn btn-success" value="Envoyer mes coordonnées"/>
+                </div>
             </form>
         </section>
+    {% endif %}
+{% endblock %}
+
+{% block body_js %}
+    {% if formset %}
+        <script src="{% static 'js/fill_next_order.js' %}"></script>
     {% endif %}
 {% endblock %}

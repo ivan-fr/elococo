@@ -25,7 +25,7 @@ from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format
 from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
-    RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY
+    RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY, WIDGETS_FILL_NEXT, AddressFormSet
 from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
 
 KEY_PAYMENT_ERROR = "payment_error"
@@ -275,8 +275,9 @@ class OrderedDetail(FormMixin, DetailView):
 
 class FillAddressInformationOrdered(ModelFormSetView):
     model = Address
+    formset_class = AddressFormSet
     pk_url_kwarg = "pk"
-    fields = ("fist_name", "last_name", "address", "address2", "postal_code", "city")
+    fields = ("first_name", "last_name", "address", "address2", "postal_code", "city")
     factory_kwargs = {'extra': 1,
                       'absolute_max': 2,
                       'max_num': 2, 'validate_max': True,
@@ -285,8 +286,18 @@ class FillAddressInformationOrdered(ModelFormSetView):
                       'can_delete': False}
     template_name = "sale/ordered_fill_information_next.html"
 
+    def get_formset_kwargs(self):
+        kwargs = super().get_formset_kwargs()
+        kwargs.update({"queryset":self.object_list, "ordered_queryset": self.object})
+        return kwargs
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.setdefault("widgets", WIDGETS_FILL_NEXT)
+        return kwargs
+
     def get_object(self, queryset=None):
-        return get_object(self, queryset)
+        return get_object(self, queryset=Ordered.objects)
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
@@ -300,7 +311,7 @@ class FillAddressInformationOrdered(ModelFormSetView):
         if not self.object.ordered_is_enable:
             return HttpResponseRedirect(reverse("sale:fill_next", self.object.pk))
 
-        self.object_list = self.object.order_address
+        self.object_list = self.object.order_address.all()
         formset = self.construct_formset()
         if formset.is_valid():
             self.request.session[BOOKING_SESSION_FILL_2_KEY] = True
@@ -323,7 +334,7 @@ class FillAddressInformationOrdered(ModelFormSetView):
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
-        self.object_list = self.object.order_address
+        self.object_list = self.object.order_address.all()
         formset = self.construct_formset()
         return self.render_to_response(self.get_context_data(formset=formset, ordered=self.object))
 
