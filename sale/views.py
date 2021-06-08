@@ -30,7 +30,6 @@ from sale.forms import AddressForm, OrderedForm, OrderedInformation, BOOKING_SES
 from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
 
 KEY_PAYMENT_ERROR = "payment_error"
-PAYMENT_ERROR_NOT_PROCESS = 0
 PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
@@ -69,7 +68,7 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
 
         try:
             order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
-                                           payment_status=True).get()
+                                           payment_status=False).get()
         except Ordered.DoesNotExist:
             raise Http404()
 
@@ -83,9 +82,9 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
             del request.session[BOOKING_SESSION_FILL_2_KEY]
 
         with transaction.atomic():
-            self.object.payment_status = True
-            self.object.invoice_date = now()
-            self.object.save()
+            order.payment_status = True
+            order.invoice_date = now()
+            order.save()
 
         htmly = get_template('sale/email_invoice.html')
         context_dict = {"ordered": order,
@@ -110,10 +109,8 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
 @csrf_exempt
 def payment_canceled(request, pk):
     type_error = request.session.get(KEY_PAYMENT_ERROR, None)
-    if type_error is None:
-        return HttpResponseBadRequest()
-
-    del request.session[KEY_PAYMENT_ERROR]
+    if type_error is not None:
+        del request.session[KEY_PAYMENT_ERROR]
 
     return render(request, 'sale/payment_cancelled.html', {"pk": pk, "type_error": type_error})
 
@@ -189,10 +186,7 @@ class OrderedDetail(FormMixin, DetailView):
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
-        if not self.object.ordered_is_enable:
-            return HttpResponseBadRequest()
-
-        if not self.object.payment_status:
+        if not self.object.payment_status and self.object.ordered_is_enable:
             public_api_key = settings.STRIPE_PUBLIC_KEY
         else:
             public_api_key = None
@@ -215,7 +209,7 @@ class OrderedDetail(FormMixin, DetailView):
             return JsonResponse({"redirect":self.get_invalid_url()})
 
         amount = Decimal(
-            self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+            self.object.price_exact_ttc_with_quantity_sum)
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -224,7 +218,7 @@ class OrderedDetail(FormMixin, DetailView):
                     {
                         'price_data': {
                             'currency': 'eur',
-                            'unit_amount': amount.quantize(TWO_PLACES),
+                            'unit_amount_decimal': amount.quantize(TWO_PLACES),
                             'product_data': {
                                 'name': f'Order #{self.object.pk}',
                             },
@@ -239,7 +233,7 @@ class OrderedDetail(FormMixin, DetailView):
                     self.get_invalid_url()),
             )
 
-            return JsonResponse({'id': checkout_session.id})
+            return JsonResponse({"id": checkout_session.id})
         except Exception as e:
             return JsonResponse({"error": str(e)})
 
@@ -250,7 +244,7 @@ class OrderedDetail(FormMixin, DetailView):
         if form.is_valid():
             return self.form_valid(form)
         else:
-            return self.form_invalid(form)
+            return JsonResponse({"error": list(form.errors)})
 
 
 class FillAddressInformationOrdered(ModelFormSetView):

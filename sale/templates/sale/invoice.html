@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="text_right">
-    {% for order_adress in ordered.order_adress %}
+    {% for order_adress in ordered.order_address.all %}
         {% if forloop.counter0 == 0 %}
             <p>
                 <strong>Adresse de livraison</strong>

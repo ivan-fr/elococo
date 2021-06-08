@@ -20,10 +20,7 @@ class AddressFormSet(forms.BaseModelFormSet):
 
 
 class CheckoutForm(forms.Form):
-    payment_method_nonce = forms.CharField(
-        max_length=1000,
-        widget=forms.widgets.HiddenInput,
-    )
+    pass
 
 
 class RetrieveOrderForm(forms.Form):

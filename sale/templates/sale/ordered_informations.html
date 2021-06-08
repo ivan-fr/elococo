@@ -13,7 +13,7 @@
             Vous pouvez retrouver un <strong>duplicata de votre facture <a
                 href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
         </p>
-        {% for order_adress in ordered.order_adress %}
+        {% for order_adress in ordered.order_address.all %}
             {% if forloop.counter0 == 0 %}
                 <p>
                     <strong>Adresse de livraison</strong>

@@ -44,8 +44,8 @@
       })
         .then(function (response) {
           response_json = response.json();
-          if (data.hasOwnProperty("redirect")) {
-                window.location.href = data["redirect"];
+          if (response_json.hasOwnProperty("redirect")) {
+                window.location.href = response_json["redirect"];
             }
           return response_json;
         })

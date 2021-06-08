@@ -5,23 +5,21 @@
 {% endblock %}
 
 {% block base_container %}
-    <section>
+    <section class="start_2 end_5">
         <h2 class="is_colored">Commande #{{ pk }}</h2>
         <section>
             <h3>Mauvaise nouvelle ! Paiement annulé !</h3>
-            <div class="spinner-border text-success" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            {% if type_error == 0 %}
+            {% if type_error == 1 %}
+                <p>
+                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
+                    Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour pouvoir effectuer votre achat.
+                </p>
+
+            {% else %}
                 <p>
                     Votre paiement a échoué, vous n'avez pas été décrédité.<br>
                     Si vous voulez réessayer votre paiement, rendez vous à l'adresse de la
                     <a href="{% url "sale:detail" pk %}">commande</a>.
-                </p>
-            {% else %}
-                <p>
-                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
-                    Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour pouvoir effectuer votre achat.
                 </p>
             {% endif %}
         </section>
