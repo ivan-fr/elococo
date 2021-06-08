@@ -18,7 +18,7 @@
     <div class="covered_image image2 start_6"></div>
     <div class="covered_image start_1"></div>
     {% include "sale/ordered_informations.html" with ordered=ordered %}
-    {% if ordered.ordered_is_enable and not ordered.payment_status %}
+    {% if public_api_key %}
         <section class="start_4 end_6">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
             <input type="button"id="checkout-button" class="btn btn-success" value="Payer {{ amount }} EUR"/>
