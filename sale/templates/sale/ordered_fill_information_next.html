@@ -25,6 +25,9 @@
                 {% csrf_token %}
                 {{ formset.management_form }}
                 {% for form in formset %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     {% if forloop.counter0 == 0 %}
                     <section id="delivery_address" class="grid">
                     <h3 class="start_1 end_6">Adresse de livraison</h3>
