@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block base_container %}
-    <section id="catalogue">
+    <section id="catalogue" class="start_1 end_5">
         <h2 class="is_colored">{{ product.name|title }}</h2>
         <article id="detail">
             <h3 class="is-hidden">Details</h3>
@@ -15,17 +15,15 @@
                 <div class="spinner-border text-info" role="status"></div>
             </div>
 
-            <div class="image_produits">
+            <div class="image_produits grid">
                 {% for product_image in product.productimage_set.all %}
-
-                    <figure class="hover_figure grid">
+                    <figure class="hover_figure span_3">
                         <img src="{{ product_image.image.url }}"
                              alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                         <figcaption>
                             Image du produit n°{{ forloop.counter }}
                         </figcaption>
                     </figure>
-
                 {% endfor %}
             </div>
 

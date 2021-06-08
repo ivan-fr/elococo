@@ -1,15 +1,16 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <section>
+    <div class="covered_image image1"></div>
+    <section class="start_2 end_6">
         <h2 class="is_colored">Boutique</h2>
         {% if product_list %}
             {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
 
-            <div id="boutique">
+            <div id="boutique" class="grid">
              {% for product in product_list %}
                     <article>
-                        <h3>{{ product.name|title }}</h3>
+                        <h3 class="is-hidden">{{ product.name|title }}</h3>
                         {% with product_image=product.productimage_set.first %}
                             {% if product_image %}
                                 <figure class="hover_figure">

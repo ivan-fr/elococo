@@ -5,6 +5,10 @@
     grid-template-columns: repeat(6, 1fr);
 }
 
+.span_3 {
+    grid-column: 3 span;
+}
+
 .start_1 {
     grid-column-start: 1;
 }
@@ -77,6 +81,14 @@ body {
     font-family: \"Gill Sans\", sans-serif;
  font-size: 1em;
     font-weight: 400;
+}
+
+div.covered_image.image1 {
+    background-image: url("../images/paris.jpg");
+}
+
+div.covered_image.image2 {
+    background-image: url("../images/paris2.jpg");
 }
 
 div.covered_image {

@@ -46,9 +46,9 @@ main h2.is_colored {
     display: none;
 }
 
-#boutique > article figure.hover_figure .info_price {
-    right: 0;
-    top: 0;
+#boutique article figure.hover_figure .info_price {
+    right: -1px;
+    top: 1px;
     position: absolute;
     display: none;
     border-top-right-radius: 0.25em;
@@ -60,9 +60,13 @@ main h2.is_colored {
     font-weight: bold;
 }
 
-#boutique > article figure.hover_figure .info_reduction {
-    left: 0;
-    top: 0;
+#boutique figure.hover_figure figcaption {
+    left: 1px;
+}
+
+#boutique article figure.hover_figure .info_reduction {
+    left: 1px;
+    top: 1px;
     position: absolute;
     display: block;
     border-top-left-radius: 0.25em;
@@ -83,7 +87,11 @@ main h2.is_colored {
 }
 
 #boutique {
-    grid-auto-rows: 23em;
+    grid-template-rows: 20em;
+}
+
+#boutique figure.hover_figure img {
+    border: solid black 1px;
 }
 
 #detail .box .content {
