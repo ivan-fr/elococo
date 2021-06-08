@@ -1,5 +1,6 @@
 import secrets
 import string
+import stripe
 from decimal import Decimal
 
 from django.conf import settings
@@ -79,6 +80,11 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
             del request.session[BOOKING_SESSION_FILL_KEY]
         if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
             del request.session[BOOKING_SESSION_FILL_2_KEY]
+
+        with transaction.atomic():
+            self.object.payment_status = True
+            self.object.invoice_date = now()
+            self.object.save()
 
         htmly = get_template('sale/email_invoice.html')
         context_dict = {"ordered": order,
@@ -178,18 +184,18 @@ class OrderedDetail(FormMixin, DetailView):
         self.object = self.get_object()
 
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
-            return HttpResponseBadRequest()        
+            return HttpResponseBadRequest()
 
-        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+        if not self.object.ordered_is_enable:
             return HttpResponseBadRequest()
 
         if not self.object.payment_status:
-            client_token = settings.GATEWAY.client_token.generate({})
+            public_api_key = settings.STRIPE_PUBLIC_KEY
         else:
-            client_token = None
+            public_api_key = None
 
         amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
-        context = self.get_context_data(object=self.object, client_token=client_token,
+        context = self.get_context_data(object=self.object, public_api_key=public_api_key,
                                         amount=str(amount.quantize(TWO_PLACES)))
         return self.render_to_response(context)
 
@@ -216,48 +222,33 @@ class OrderedDetail(FormMixin, DetailView):
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
             return HttpResponseRedirect(self.get_invalid_url())
 
-        customer_id = result.customer.id
-
-        address_dict = {
-            "first_name": self.object.first_name,
-            "last_name": self.object.last_name,
-            "street_address": self.object.address,
-            "extended_address": self.object.address2,
-            "locality": self.object.city,
-            "postal_code": self.object.postal_code,
-            "country_name": 'France',
-            "country_code_numeric": '250',
-        }
-
         amount = Decimal(self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
 
-        result = settings.GATEWAY.transaction.sale({
-            "customer_id": customer_id,
-            "amount": amount.quantize(TWO_PLACES),
-            "payment_method_nonce": form.cleaned_data['payment_method_nonce'],
-            "descriptor": {
-                "name": "company*my product",
-                "phone": "0637728273",
-                "url": "elococo.fr",
-            },
-            "billing": address_dict,
-            "shipping": address_dict,
-            "options": {
-                'store_in_vault_on_success': True,
-                'submit_for_settlement': True,
-            },
-        })
-
-        if not result.is_success:
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': 'eur',
+                            'unit_amount': amount.quantize(TWO_PLACES),
+                            'product_data': {
+                                'name': f'Order #{self.object.pk}',
+                            },
+                        },
+                        'quantity': 1,
+                    },
+                ],
+                mode='payment',
+                success_url=self.request.build_absolute_uri(self.get_success_url()),
+                cancel_url=self.request.build_absolute_uri(self.get_invalid_url()),
+            )
+            
+            JsonResponse({'id': checkout_session.id})
+        except Exception as e:
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
-            return HttpResponseRedirect(self.get_invalid_url())
+            return JsonResponse({"error": str(e)})
 
-        with transaction.atomic():
-            self.object.payment_status = True
-            self.object.invoice_date = now()
-            self.object.save()
-
-        return super(OrderedDetail, self).form_valid(form)
 
     def post(self, request, *args, **kwargs):
         nonce_from_the_client = self.request.POST.get("payment_method_nonce", None)

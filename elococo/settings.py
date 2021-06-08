@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import json
 from pathlib import Path
 
-import braintree
+import stripe
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -139,11 +139,8 @@ WEBSITE_TITLE = "Carla's Cosmetic"
 # MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-GATEWAY = braintree.BraintreeGateway(
-    braintree.Configuration(
-        braintree.Environment.Sandbox, **secrets['braintree']
-    )
-)
+stripe.api_key = secrets["stripe"]["private_key"]
+STRIPE_PUBLIC_KEY = secrets["stripe"]["public_key"]
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
