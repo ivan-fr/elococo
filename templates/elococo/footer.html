@@ -1,7 +1,7 @@
 {% load static %}
 
 <footer class="footer grid start_1 end_6">
-    <section class="logos start_1 end_2">
+    <section class="start_1 end_2">
         <h3>Logos Et Certifications</h3>
         <div class="grid">
             <figure class="fig1 start_1 end_2">
@@ -11,19 +11,19 @@
                 </figcaption>
             </figure>
             <div class="grid start_3 end_6">
-                <figure class="fig2 start_1 end_3">
+                <figure class="start_1 end_3">
                     <img src="{% static "images/Valid_css.svg" %}" alt="CSS Valide !" />
                     <figcaption>
                         CSS valide
                     </figcaption>
                 </figure>
-                <figure class="fig3 start_4 end_6">
+                <figure class="start_4 end_6">
                     <img src="{% static "images/html5-validator-badge-blue.svg" %}" alt="html_valide" />
                     <figcaption>
                         HTML valide
                     </figcaption>
                 </figure>
-                <figure class="fig4 start_1 end_6">
+                <figure class="start_1 end_6">
                     <img src="{% static "images/django.jpg" %}" alt="html_valide" />
                     <figcaption>
                         Django backend
@@ -32,7 +32,7 @@
             </div>
         </div>
     </section>
-    <section class="description start_3 end_4">
+    <section class="start_3 end_4">
         <h3>À Propos</h3>
         <p class="m-0">Développé par BESEVIC Ivan.</p>
         <p> Tous droits réservés - {% now "Y" %}.</p>
@@ -42,25 +42,28 @@
             </a>
         </figure>
     </section>
-    <section class="payments start_5 end_6">
-        <h3 class="title is-3 mt-0">
+    <section class="start_5 end_6">
+        <h3 class="mt-0">
             Mode de paiements
         </h3>
-        <!-- PayPal Logo -->
-        <figure class="mt-1">
-            <a href="https://www.paypal.com/fr/webapps/mpp/paypal-popup" title="PayPal Comment Ca Marche"
-                onclick="window.open('https://www.paypal.com/fr/webapps/mpp/paypal-popup','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700'); return false;"><img
-                    src="https://www.paypalobjects.com/webstatic/mktg/logo-center/logo_paypal_site_fr.png"
-                    alt="Now accepting PayPal" /></a>
-        </figure>
-        <!-- PayPal Logo -->
-        <div class="d-flex">
-            <figure>
-                <img src="{% static "images/visa.png" %}" alt="visa" />
+        <div class="grid">
+            <!-- PayPal Logo -->
+            <figure class="mt-1 start_1 end_6">
+                <a href="https://www.paypal.com/fr/webapps/mpp/paypal-popup" title="PayPal Comment Ca Marche"
+                    onclick="window.open('https://www.paypal.com/fr/webapps/mpp/paypal-popup','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700'); return false;"><img
+                        src="https://www.paypalobjects.com/webstatic/mktg/logo-center/logo_paypal_site_fr.png"
+                        alt="Now accepting PayPal" /></a>
             </figure>
-            <figure>
-                <img src="{% static "images/cb.jpg" %}" alt="visa" />
-            </figure>
+            <div class="start_1 end_3 grid">
+                <!-- PayPal Logo -->
+                <figure class="start_1 end_3">
+                    <img src="{% static "images/visa.png" %}" alt="visa" />
+                </figure>
+                <figure class="start_4 end_6">
+                    <img src="{% static "images/cb.jpg" %}" alt="visa" />
+                </figure>                
+            </div>
         </div>
+
     </section>
 </footer>
