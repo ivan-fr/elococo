@@ -11,7 +11,7 @@ ORDERED_INSTANCE_KEY = "ordered_instance_key"
 class AddressFormSet(forms.BaseModelFormSet):
     def __init__(self, queryset, ordered_queryset, *args, **kwargs):
         super(AddressFormSet, self).__init__(queryset=queryset, *args, **kwargs)
-        self.ordered = queryset
+        self.ordered = ordered_queryset
 
     def get_form_kwargs(self, form_index):
         form_kwargs = super(AddressFormSet, self).get_form_kwargs(form_index)
@@ -74,6 +74,7 @@ class AddressForm(forms.ModelForm):
     def save(self, commit: bool):
         address = super().save(commit=False)
         address.order = self.order
+        address.save()
 
     class Meta:
         model = Address

@@ -24,7 +24,7 @@ from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
+from sale.forms import AddressForm, OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
     RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY, WIDGETS_FILL_NEXT, AddressFormSet
 from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
 
@@ -161,24 +161,24 @@ class OrderedDetail(FormMixin, DetailView):
 
     def get_object(self, queryset=None):
         obj = get_object(self, queryset)
-        if obj.last_name is None:
+        if obj.order_address.first().last_name is None:
             raise Http404()
         return obj
 
     def get(self, request, *args, **kwargs):
+        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+            return HttpResponseBadRequest()
+
         if request.session.get(BOOKING_SESSION_FILL_KEY, None) is None:
             return HttpResponseBadRequest()
 
         if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is None:
             return HttpResponseBadRequest()
 
-        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
-            return HttpResponseBadRequest()        
-        
         self.object = self.get_object()
 
-        if request.session.get(BOOKING_SESSION_KEY, None) is None:
-            return HttpResponseBadRequest()
+        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()        
 
         if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
@@ -276,6 +276,7 @@ class OrderedDetail(FormMixin, DetailView):
 class FillAddressInformationOrdered(ModelFormSetView):
     model = Address
     formset_class = AddressFormSet
+    form_class = AddressForm
     pk_url_kwarg = "pk"
     fields = ("first_name", "last_name", "address", "address2", "postal_code", "city")
     factory_kwargs = {'extra': 1,
