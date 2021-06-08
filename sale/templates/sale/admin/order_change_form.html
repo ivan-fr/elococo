@@ -1,0 +1,11 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block submit_buttons_bottom %}
+<fieldset class="module">
+<h1>Recap de la commande</h1>
+{% include "sale/ordered_recap.html" with ordered=original %}
+</fieldset>
+
+{{ block.super }}
+{% endblock submit_buttons_bottom %}
