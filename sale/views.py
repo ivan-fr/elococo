@@ -210,21 +210,9 @@ class OrderedDetail(FormMixin, DetailView):
         return reverse("sale:paypal_return", kwargs={"pk": self.object.pk, 'secrets_': self.object.secrets})
 
     def form_valid(self, form):
-        customer_kwargs = {
-            "first_name": self.object.first_name,
-            "last_name": self.object.last_name,
-            "email": self.object.email,
-            "phone": self.object.phone,
-        }
-
         if self.object.ordered_is_ready_to_delete:
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_ORDER_NOT_ENABLED
-            return HttpResponseRedirect(self.get_invalid_url())
-
-        result = settings.GATEWAY.customer.create(customer_kwargs)
-        if not result.is_success:
-            self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_NOT_PROCESS
-            return HttpResponseRedirect(self.get_invalid_url())
+            return JsonResponse({"redirect":self.get_invalid_url()})
 
         amount = Decimal(
             self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
@@ -251,7 +239,7 @@ class OrderedDetail(FormMixin, DetailView):
                     self.get_invalid_url()),
             )
 
-            JsonResponse({'id': checkout_session.id})
+            return JsonResponse({'id': checkout_session.id})
         except Exception as e:
             return JsonResponse({"error": str(e)})
 

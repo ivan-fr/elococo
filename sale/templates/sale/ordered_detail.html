@@ -43,7 +43,11 @@
         headers,
       })
         .then(function (response) {
-          return response.json();
+          response_json = response.json();
+          if (data.hasOwnProperty("redirect")) {
+                window.location.href = data["redirect"];
+            }
+          return response_json;
         })
         .then(function (session) {
           return stripe.redirectToCheckout({ sessionId: session.id });
