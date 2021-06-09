@@ -1,14 +1,14 @@
 from django.contrib import admin
 from catalogue.models import Product, ProductImage, Category
 from catalogue.bdd_calculations import price_annotation_format
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class MyAdmin(TreeAdmin):    
     prepopulated_fields = {"slug": ("category",)}
-
-    class Meta:
-        model = Category
+    form = movenodeform_factory(Category)
 
 
 class ProductImageAdmin(admin.StackedInline):

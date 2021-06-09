@@ -96,7 +96,7 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
             f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
             html_content,
             settings.EMAIL_HOST_USER,
-            [order.email]
+            [order.email, settings.EMAIL_HOST_USER]
         )
         email.content_subtype = "html"
         email.attach(f"invoice_#{order.pk}",

@@ -9,18 +9,17 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
+from treebeard.mp_tree import MP_Node
 
 
 def product_image_path(instance, filename: str):
     return 'product-{0}/{1}.{2}'.format(slugify(instance.product.name), time.time_ns(), filename.split('.')[-1])
 
 
-class Category(models.Model):
+class Category(MP_Node):
     category = models.CharField(max_length=60)
     slug = models.SlugField(primary_key=True)
-
-    class Meta:
-        ordering = ('category',)
+    node_order_by = ['category']
 
 
 class Product(models.Model):
@@ -30,7 +29,9 @@ class Product(models.Model):
     price = models.PositiveSmallIntegerField()
     TTC_price = models.BooleanField(default=False)
 
-    reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
+    reduction = models.PositiveSmallIntegerField(
+        validators=(MaxValueValidator(100),), default=0
+    )
     reduction_end = models.DateField(null=True, blank=True)
 
     stock = models.PositiveSmallIntegerField(default=0)
