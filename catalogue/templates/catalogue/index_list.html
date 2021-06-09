@@ -34,26 +34,27 @@
                     {% endwith %}
                 </article>
             {% endfor %}
-            <section class="row_no_end start_6 border-start border-primary border-3 ps-3">
-            <h2>Filtres associés</h2>
 
-            {% if filter_list %}
-                {% for category, info in filter_list %}
-                    {% if info.open %}
-                        <ul><li>
-                    {% else %}
-                        </li><li>
-                    {% endif %}
 
-                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}</a>
+            {% if filter_list is not None %}           
+                <section class="row_no_end start_6 border-start border-primary border-3 ps-3">
+                <h2>Filtres associés</h2>
+                    {% for category, info in filter_list %}
+                        {% if info.open %}
+                            <ul><li>
+                        {% else %}
+                            </li><li>
+                        {% endif %}
 
-                    {% for close in info.close %}
-                        </li></ul>
-                    {% endfor %}
-                {% endfor %}            
+                        <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}</a>
+
+                        {% for close in info.close %}
+                            </li></ul>
+                        {% endfor %}
+                    {% endfor %}             
+                </section>
             {% endif %}
 
-            </section>
         </div>
         {% else %}
             Il n'y a plus de produits en stocks ! Revennez un autre jour.

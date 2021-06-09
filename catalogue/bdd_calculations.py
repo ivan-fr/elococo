@@ -126,6 +126,11 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         ).order_by('-products_count__sum', 'category')
     }
 
+    dict_["selected_category_root"] = None
+    dict_["related_products"] = None
+    dict_["selected_category"] = None
+    dict_["filter_list"] = None
+
     if selected_category is not None:
         dict_["selected_category_root"] = dict_["filled_category"].annotate(
             sub_count=Count(
@@ -161,17 +166,19 @@ def filled_category(limit, selected_category=None, products_queryset=None):
 
             dict_["filter_list"] = Category.get_annotated_list_qs(
                 Category.get_tree(
-                    selected_category_root
+                    obj
                 ).filter(depth__lte=2).annotate(
-                    Count('products', distinct=True)
-                ), 2)
+                    products_count__sum=Sum(
+                        Subquery(
+                            get_descendants_categories(include_self=True).values("products__count"),
+                        )
+                    )
+                )
+            )
 
             dict_["selected_category_root"] = obj
             dict_["selected_category"] = selected_cat
         except selected_category_root.model.DoesNotExist:
-            dict_["selected_category_root"] = None
-            dict_["related_products"] = None
-            dict_["selected_category"] = None
-            dict_["filter_list"] = None
+            pass
 
     return dict_

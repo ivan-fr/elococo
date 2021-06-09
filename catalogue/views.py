@@ -223,6 +223,8 @@ class IndexView(ListView):
         self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
 
+        print(self.extra_context["filter_list"])
+
         return super(IndexView, self).get_queryset()
 
 
