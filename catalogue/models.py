@@ -21,10 +21,13 @@ class Category(MP_Node):
     slug = models.SlugField(primary_key=True)
     node_order_by = ['category']
 
+    class Meta:
+        verbose_name_plural = "categories"
+
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    slug = models.SlugField(primary_key=True)
+    slug = models.SlugField(unique=True)
     description = models.TextField()
     price = models.PositiveSmallIntegerField()
     TTC_price = models.BooleanField(default=False)

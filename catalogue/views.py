@@ -212,17 +212,18 @@ class IndexView(ListView):
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update(filled_category(5, category_slug))
         self.extra_context.update({"index": category_slug})
+        selected_category_root = self.extra_context["selected_category_root"]
 
-        if category_slug is not None:
+        if selected_category_root is not None:
+            self.extra_context.update({"index": selected_category_root.slug})
             self.extra_context.update(
-                {"filter_list": Category.get_annotated_list(self.extra_context["selected_category_root"], 2)}
-            )
+                {"filter_list": Category.get_annotated_list(selected_category_root, 2)}
+            )            
+            self.queryset = self.queryset.filter(categories__slug=category_slug)
+        else:
+            self.extra_context.update({"filter_list": None})
 
-        if category_slug is not None:
-            self.queryset = self.queryset.filter(
-                categories__slug=category_slug)
-
-        self.queryset = self.queryset.filter(stock__gt=0)
+        self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
 
         return super(IndexView, self).get_queryset()

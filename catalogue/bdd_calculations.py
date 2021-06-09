@@ -6,7 +6,7 @@ from django.db.models.functions import Cast, Ceil
 from django.utils.timezone import now
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
-from catalogue.models import Category
+from catalogue.models import Category, Product
 
 TVA_PERCENT = Decimal(20.)
 BACK_TWO_PLACES = Decimal(10) ** -2
@@ -87,21 +87,32 @@ def total_price_from_all_product():
     return Sum(F("price_exact_ttc_with_quantity")), Sum(F("price_exact_ht_with_quantity"))
 
 
-def get_descendants_categories_with_products(**filters):
+def get_descendants_categories(with_products=True, include_self=False, **filters):
+    if with_products:
+        d1 = {"products__stock__gt": 0, "products__enable_sale": True}
+        d2 = {"products__count__gt": 0}
+    else:
+        d1 = {}
+        d2 = {}
+
+    if include_self:
+        d3 = {"depth__gte": OuterRef("depth")}
+    else:
+        d3 = {"depth__gt": OuterRef("depth")}
+
     return Category.objects.filter(
-        products__stock__gt=0, products__enable_sale=True, **filters
+        **d1, **filters
     ).annotate(
-        Count(
-            'products', distinct=True)
+        Count('products', distinct=True)
     ).filter(
         path__startswith=OuterRef("path"),
-        depth__gt=OuterRef("depth"),
-        products__count__gt=0
+        depth__gte=OuterRef("depth"),
+        **d2, **d3
     )
 
 
-def filled_category(limit, selected_category=None):
-    categories_with_products = get_descendants_categories_with_products()[:limit]
+def filled_category(limit, selected_category=None, products_queryset=None):
+    categories_with_products = get_descendants_categories()[:limit]
 
     dict_ = {
         'filled_category': Category.get_root_nodes().annotate(
@@ -111,17 +122,45 @@ def filled_category(limit, selected_category=None):
                 )
             )
         ).filter(
-            products_count__sum=0
+            products_count__sum__gt=0
         ).order_by('-products_count__sum', 'category')
     }
 
     if selected_category is not None:
         dict_["selected_category_root"] = dict_["filled_category"].filter(
             slug=Subquery(
-                get_descendants_categories_with_products(
+                get_descendants_categories(
+                    with_products=False,
+                    include_self=True,
                     slug=selected_category
                 ).values("slug")
             )
         )
+
+        selected_category_root = dict_["selected_category_root"]
+        try:
+            obj = selected_category_root.get()
+            if products_queryset is not None:
+                dict_["related_products"] = products_queryset.filter(
+                    categories__slug__in=Category.objects.annotate(
+                        sub=Subquery(
+                            Category.objects.filter(slug=selected_category)
+                        )
+                    )
+                    .filter(
+                        path__startswith=obj.path,
+                        depth__gte=obj.depth
+                    )
+                    .filter(path__startswith=F("sub__path"),
+                            depth__gte=F("sub__depth"))
+                    .order_by(
+                        'path'
+                    ))
+            else:
+                dict_["related_products"] = None
+            dict_["selected_category_root"] = obj
+        except selected_category_root.model.DoesNotExist:
+            dict_["selected_category_root"] = None
+            dict_["related_products"] = None
 
     return dict_
