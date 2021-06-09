@@ -1,7 +1,8 @@
 from decimal import Decimal
 
-from django.db.models import DecimalField, PositiveSmallIntegerField, IntegerField
-from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery, Q
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import PositiveSmallIntegerField
+from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery, Exists
 from django.db.models.aggregates import Aggregate
 from django.db.models.functions import Cast, Ceil
 from django.utils.timezone import now
@@ -22,10 +23,10 @@ def reduction_from_bdd():
 
 
 def price_exact(with_reduction=True):
-    decimal_price = Cast(F('price'), DecimalField())
+    decimal_price = F('price')
     if with_reduction:
         reduction_percentage = Decimal(
-            1.) - Cast(reduction_from_bdd(), DecimalField()) * BACK_TWO_PLACES
+            1.) - reduction_from_bdd() * BACK_TWO_PLACES
         return Ceil(decimal_price * reduction_percentage) * BACK_TWO_PLACES
     return decimal_price * BACK_TWO_PLACES
 
@@ -99,24 +100,28 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     else:
         d3 = {"depth__gt": OuterRef("depth")}
 
-    return Category.objects.all().select_related('products').filter(
+    return Category.objects.all().filter(
         path__startswith=OuterRef("path"),
         **d1, **d3, **filters
-    ).annotate(
-        sub_count=Count('products', distinct=True)
     )
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):
-    dict_ = {
-        'filled_category': Category.get_root_nodes()
-        .annotate(
-            products_count__sum=Subquery(get_descendants_categories(
-                include_self=True).values(products_count=Count("products")))
+    t = Category.get_root_nodes().filter(
+        Exists(get_descendants_categories(include_self=True))
+    )
+
+    po = t
+    for cat in po:
+        p = Category.objects.filter(
+            **{"products__stock__gt": 0, "products__enable_sale": True, "depth__gte": cat.depth, "path__startswith": cat.path}
+        ).aggregate(
+            Count("products", distinct=True)
         )
-        .filter(
-            products_count__sum__gt=0
-        ).order_by('-products_count__sum', 'category')
+        cat.products_count__sum = p.get("products__count", 0)
+
+    dict_ = {
+        'filled_category': po
     }
 
     dict_["selected_category_root"] = None
@@ -125,17 +130,15 @@ def filled_category(limit, selected_category=None, products_queryset=None):
     dict_["filter_list"] = None
 
     if selected_category is not None:
-        dict_["selected_category_root"] = dict_["filled_category"].annotate(
-            sub_count=Count(
-                Subquery(
-                    get_descendants_categories(
-                        with_products=False,
-                        include_self=True,
-                        slug=selected_category
-                    ).values("slug")
+        dict_["selected_category_root"] = t.filter(
+            Exists(
+                get_descendants_categories(
+                    with_products=False,
+                    include_self=True,
+                    slug=selected_category
                 )
             )
-        ).filter(sub_count__gt=0)
+        )
 
         selected_category_root = dict_["selected_category_root"]
         try:
@@ -158,17 +161,20 @@ def filled_category(limit, selected_category=None, products_queryset=None):
 
             p = Category.get_tree(
                 obj
-            ).filter(depth__lte=2).annotate(
-                produc_sub=Subquery(get_descendants_categories(
-                    include_self=True).values("products"))
-            ).annotate(products_count__sum=Count("produc_sub"))
+            ).filter(depth__lte=2)
 
-            for a in p:
-                print(a.produc_sub, a.products_count__sum)
+            w_list = []
+            ti = p
+            for cat in ti:
+                to = Category.objects.filter(
+                    **{"products__stock__gt": 0, "products__enable_sale": True, "depth__gte": cat.depth, "path__startswith": cat.path}
+                ).aggregate(
+                    Count("products", distinct=True)
+                )
+                w_list.append(When(pk=cat.pk, then=to.get("products__count", 0)))
+            p = p.annotate(products_count__sum=Case(*w_list, default=Value(0)))
 
-            dict_["filter_list"] = Category.get_annotated_list_qs(
-                p
-            )
+            dict_["filter_list"] = Category.get_annotated_list_qs(p)
 
             dict_["selected_category_root"] = obj
             dict_["selected_category"] = selected_category

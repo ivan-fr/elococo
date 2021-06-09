@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import psycopg2
 import json
 from pathlib import Path
 
@@ -81,9 +82,16 @@ WSGI_APPLICATION = 'elococo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': secrets["db"]["name"],
+        'USER':  secrets["db"]["user"],
+        'PASSWORD': secrets["db"]["pwd"],
+        'HOST':  secrets["db"]["host"],
+        'PORT':  secrets["db"]["port"],
+    },
+    'OPTIONS': {
+        'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
+    },
 }
 
 # Password validation
