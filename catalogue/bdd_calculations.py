@@ -116,11 +116,10 @@ def filled_category(limit, selected_category=None, products_queryset=None):
 
     dict_ = {
         'filled_category': Category.get_root_nodes().annotate(
-            products_count__sum=Sum(
+            products_count__sum=Count(
                 Subquery(
-                    categories_with_products.values("products__count")
-                )
-            )
+                    categories_with_products.values("products")
+                ), distinct=True)
         ).filter(
             products_count__sum__gt=0
         ).order_by('-products_count__sum', 'category')
@@ -158,7 +157,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
                         ).values("slug"),
                         output_field=SlugField()
                     )
-                )
+                ).distinct()
 
                 dict_["related_products"] = related_products
             else:
@@ -168,11 +167,10 @@ def filled_category(limit, selected_category=None, products_queryset=None):
                 Category.get_tree(
                     obj
                 ).filter(depth__lte=2).annotate(
-                    products_count__sum=Sum(
+                    products_count__sum=Count(
                         Subquery(
-                            get_descendants_categories(include_self=True).values("products__count"),
-                        )
-                    )
+                            get_descendants_categories(include_self=True).values("products")
+                        ), distinct=True)
                 )
             )
 
