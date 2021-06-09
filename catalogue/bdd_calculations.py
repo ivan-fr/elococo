@@ -1,13 +1,13 @@
 from decimal import Decimal
 
-from django.db.models import DecimalField, PositiveSmallIntegerField, SlugField
-from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery
-from django.db.models.fields import related
+from django.db.models import DecimalField, PositiveSmallIntegerField, IntegerField
+from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery, Q
+from django.db.models.aggregates import Aggregate
 from django.db.models.functions import Cast, Ceil
 from django.utils.timezone import now
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
-from catalogue.models import Category, Product
+from catalogue.models import Category
 
 TVA_PERCENT = Decimal(20.)
 BACK_TWO_PLACES = Decimal(10) ** -2
@@ -91,36 +91,30 @@ def total_price_from_all_product():
 def get_descendants_categories(with_products=True, include_self=False, **filters):
     if with_products:
         d1 = {"products__stock__gt": 0, "products__enable_sale": True}
-        d2 = {"products__count__gt": 0}
     else:
         d1 = {}
-        d2 = {}
 
     if include_self:
         d3 = {"depth__gte": OuterRef("depth")}
     else:
         d3 = {"depth__gt": OuterRef("depth")}
 
-    return Category.objects.filter(
-        **d1, **filters
-    ).annotate(
-        Count('products', distinct=True)
-    ).filter(
+    return Category.objects.all().select_related('products').filter(
         path__startswith=OuterRef("path"),
-        **d2, **d3
+        **d1, **d3, **filters
+    ).annotate(
+        sub_count=Count('products', distinct=True)
     )
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):
-    categories_with_products = get_descendants_categories()[:limit]
-
     dict_ = {
-        'filled_category': Category.get_root_nodes().annotate(
-            products_count__sum=Count(
-                Subquery(
-                    categories_with_products.values("products")
-                ), distinct=True)
-        ).filter(
+        'filled_category': Category.get_root_nodes()
+        .annotate(
+            products_count__sum=Subquery(get_descendants_categories(
+                include_self=True).values(products_count=Count("products")))
+        )
+        .filter(
             products_count__sum__gt=0
         ).order_by('-products_count__sum', 'category')
     }
@@ -154,8 +148,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
                         Category.objects.filter(
                             path__startswith=selected_category.path,
                             depth__gte=selected_category.depth
-                        ).values("slug"),
-                        output_field=SlugField()
+                        ).values("slug")
                     )
                 ).distinct()
 
@@ -163,20 +156,23 @@ def filled_category(limit, selected_category=None, products_queryset=None):
             else:
                 dict_["related_products"] = None
 
+            p = Category.get_tree(
+                obj
+            ).filter(depth__lte=2).annotate(
+                produc_sub=Subquery(get_descendants_categories(
+                    include_self=True).values("products"))
+            ).annotate(products_count__sum=Count("produc_sub"))
+
+            for a in p:
+                print(a.produc_sub, a.products_count__sum)
+
             dict_["filter_list"] = Category.get_annotated_list_qs(
-                Category.get_tree(
-                    obj
-                ).filter(depth__lte=2).annotate(
-                    products_count__sum=Count(
-                        Subquery(
-                            get_descendants_categories(include_self=True).values("products")
-                        ), distinct=True)
-                )
+                p
             )
 
             dict_["selected_category_root"] = obj
             dict_["selected_category"] = selected_category
         except selected_category_root.model.DoesNotExist:
-            pass
+            dict_["selected_category_root"] = None
 
     return dict_
