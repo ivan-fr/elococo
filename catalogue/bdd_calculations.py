@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db.models import DecimalField, PositiveSmallIntegerField
-from django.db.models import F, Count, Case, When, Value, Sum, Min
+from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery
 from django.db.models.functions import Cast, Ceil
 from django.utils.timezone import now
 
@@ -23,7 +23,8 @@ def reduction_from_bdd():
 def price_exact(with_reduction=True):
     decimal_price = Cast(F('price'), DecimalField())
     if with_reduction:
-        reduction_percentage = Decimal(1.) - Cast(reduction_from_bdd(), DecimalField()) * BACK_TWO_PLACES
+        reduction_percentage = Decimal(
+            1.) - Cast(reduction_from_bdd(), DecimalField()) * BACK_TWO_PLACES
         return Ceil(decimal_price * reduction_percentage) * BACK_TWO_PLACES
     return decimal_price * BACK_TWO_PLACES
 
@@ -72,9 +73,12 @@ def price_annotation_format(basket=None):
                "effective_reduction": reduction_from_bdd()}
 
     if basket is not None and bool(basket):
-        my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ttc_)
-        my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(basket, price_exact_ht_)
-        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(basket)
+        my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(
+            basket, price_exact_ttc_)
+        my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(
+            basket, price_exact_ht_)
+        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(
+            basket)
 
     return my_dict
 
@@ -83,7 +87,41 @@ def total_price_from_all_product():
     return Sum(F("price_exact_ttc_with_quantity")), Sum(F("price_exact_ht_with_quantity"))
 
 
-def filled_category(limit):
-    return {'filled_category': Category.objects.filter(products__stock__gt=0, products__enable_sale=True).annotate(
-        Count('products', distinct=True)).filter(products__count__gt=0).order_by(
-        '-products__count', 'category')[:limit]}
+def get_descendants_categories_with_products(**filters):
+    return Category.objects.filter(
+        products__stock__gt=0, products__enable_sale=True, **filters
+    ).annotate(
+        Count(
+            'products', distinct=True)
+    ).filter(
+        path__startswith=OuterRef("path"),
+        depth__gt=OuterRef("depth"),
+        products__count__gt=0
+    )
+
+
+def filled_category(limit, selected_category=None):
+    categories_with_products = get_descendants_categories_with_products()[:limit]
+
+    dict_ = {
+        'filled_category': Category.get_root_nodes().annotate(
+            products_count__sum=Sum(
+                Subquery(
+                    categories_with_products.values("products__count")
+                )
+            )
+        ).filter(
+            products_count__sum=0
+        ).order_by('-products_count__sum', 'category')
+    }
+
+    if selected_category is not None:
+        dict_["selected_category_root"] = dict_["filled_category"].filter(
+            slug=Subquery(
+                get_descendants_categories_with_products(
+                    slug=selected_category
+                ).values("slug")
+            )
+        )
+
+    return dict_

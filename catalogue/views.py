@@ -13,7 +13,7 @@ from catalogue.bdd_calculations import price_annotation_format, filled_category,
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
     MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
 from elococo.generic import FormSetMixin
-from catalogue.models import Product
+from catalogue.models import Category, Product
 
 
 def update_basket_session(session, form, change=False):
@@ -40,7 +40,8 @@ def update_basket_session(session, form, change=False):
     else:
         if session[BASKET_SESSION_KEY].get(product.slug, None) is not None:
             session[BASKET_SESSION_KEY][product.slug]["quantity"] = \
-                session[BASKET_SESSION_KEY][product.slug]["quantity"] + form.cleaned_data["quantity"]
+                session[BASKET_SESSION_KEY][product.slug]["quantity"] + \
+                form.cleaned_data["quantity"]
         else:
             session[BASKET_SESSION_KEY][product.slug] = {
                 "product_name": product.name,
@@ -67,9 +68,11 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
+            self.queryset = self.model.objects.filter(
+                enable_sale=True, stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
-            self.queryset = self.queryset.annotate(**price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
+            self.queryset = self.queryset.annotate(
+                **price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
         else:
             self.queryset = None
 
@@ -108,10 +111,13 @@ class BasketView(FormSetMixin, BaseListView):
     def get_formset_kwargs(self):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
-        basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
-        self.object_list = sorted(self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum))
+        basket_enum = {product_slug: n for n,
+                       product_slug in enumerate(basket.keys())}
+        self.object_list = sorted(self.object_list, key=methodcaller(
+            'compute_basket_oder', basket_enum=basket_enum))
 
-        self.formset_kwargs = {"products_queryset": self.object_list, "session": self.request.session}
+        self.formset_kwargs = {
+            "products_queryset": self.object_list, "session": self.request.session}
         return super(BasketView, self).get_formset_kwargs()
 
     def formset_valid(self, formset):
@@ -198,15 +204,23 @@ class IndexView(ListView):
     paginate_by = 15
     template_name = 'catalogue/index_list.html'
     model = Product
-    extra_context = filled_category(5)
+    extra_context = {}
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
+        self.queryset = self.model.objects.filter(
+            enable_sale=True, stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
+        self.extra_context.update(filled_category(5, category_slug))
         self.extra_context.update({"index": category_slug})
 
         if category_slug is not None:
-            self.queryset = self.queryset.filter(categories__slug=category_slug)
+            self.extra_context.update(
+                {"filter_list": Category.get_annotated_list(self.extra_context["selected_category_root"], 2)}
+            )
+
+        if category_slug is not None:
+            self.queryset = self.queryset.filter(
+                categories__slug=category_slug)
 
         self.queryset = self.queryset.filter(stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
@@ -222,7 +236,8 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
+        self.queryset = self.model.objects.filter(
+            enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 
@@ -238,7 +253,8 @@ class ProductDetailView(FormMixin, DetailView):
 
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
-        kwargs.update({"session": self.request.session, PRODUCT_INSTANCE_KEY: self.object})
+        kwargs.update({"session": self.request.session,
+                      PRODUCT_INSTANCE_KEY: self.object})
         return kwargs
 
     def form_valid(self, form):

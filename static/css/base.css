@@ -5,6 +5,10 @@
     grid-template-columns: repeat(6, 1fr);
 }
 
+.row_no_end {
+    grid-column: 1/-1;
+}
+
 .span_3 {
     grid-column: 3 span;
 }

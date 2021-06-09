@@ -9,32 +9,47 @@
 
             <div id="boutique" class="grid">
              {% for product in product_list %}
-                    <article>
-                        <h3 class="is-hidden">{{ product.name|title }}</h3>
-                        {% with product_image=product.productimage_set.first %}
-                            {% if product_image %}
-                                <figure class="hover_figure">
-                                    <a href="{% url 'catalogue_product_detail' product.slug %}">
-                                        <img class="rounded" src="{{ product_image.image.url }}"
-                                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                                    </a>
-                                    {% if product.effective_reduction > 0 %}
-                                        <div class="info_reduction">
-                                            - {{ product.effective_reduction }}%
-                                        </div>
-                                    {% endif %}
-                                    <div class="info_price">
-                                        {{ product.price_exact_ttc|floatformat:2 }} € TTC
+                <article>
+                    <h3 class="is-hidden">{{ product.name|title }}</h3>
+                    {% with product_image=product.productimage_set.first %}
+                        {% if product_image %}
+                            <figure class="hover_figure">
+                                <a href="{% url 'catalogue_product_detail' product.slug %}">
+                                    <img class="rounded" src="{{ product_image.image.url }}"
+                                            alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                                </a>
+                                {% if product.effective_reduction > 0 %}
+                                    <div class="info_reduction">
+                                        - {{ product.effective_reduction }}%
                                     </div>
-                                    <figcaption>
-                                        {{ product.name|title }}
-                                    </figcaption>
-                                </figure>
-                            {% endif %}
-                        {% endwith %}
-                    </article>
+                                {% endif %}
+                                <div class="info_price">
+                                    {{ product.price_exact_ttc|floatformat:2 }} € TTC
+                                </div>
+                                <figcaption>
+                                    {{ product.name|title }}
+                                </figcaption>
+                            </figure>
+                        {% endif %}
+                    {% endwith %}
+                </article>
+            {% endfor %}
+            <div class="row_no_end start_6">
+            {% for item, info in filter_list %}
+                {% if info.open %}
+                    <ul><li>
+                {% else %}
+                    </li><li>
+                {% endif %}
+
+                {{ item }}
+
+                {% for close in info.close %}
+                    </li></ul>
                 {% endfor %}
+            {% endfor %}
             </div>
+        </div>
         {% else %}
             Il n'y a plus de produits en stocks ! Revennez un autre jour.
         {% endif %}
