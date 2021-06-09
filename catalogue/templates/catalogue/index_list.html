@@ -41,9 +41,22 @@
                 <h2>Filtres associés</h2>
                     {% for category, info in filter_list %}
                         {% if info.open %}
-                            <ul><li>
+                            <ul>
+                            
+                            {% if selected_category.slug == category.slug %}
+                                <li class="link-warning">
+                            {% else %}
+                                <li class="link-dark">
+                            {% endif %}
+
                         {% else %}
-                            </li><li>
+                            </li>
+
+                            {% if selected_category.slug == category.slug %}
+                                <li class="link-warning">
+                            {% else %}
+                                <li class="link-dark">
+                            {% endif %}
                         {% endif %}
 
                         <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }} ({{category.products_count__sum}})</a>

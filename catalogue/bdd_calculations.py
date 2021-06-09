@@ -146,14 +146,14 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
-            selected_cat = Category.objects.filter(
+            selected_category = Category.objects.filter(
                 slug=selected_category).get()
             if products_queryset is not None:
                 related_products = products_queryset.filter(
                     categories__slug__in=Subquery(
                         Category.objects.filter(
-                            path__startswith=selected_cat.path,
-                            depth__gte=selected_cat.depth
+                            path__startswith=selected_category.path,
+                            depth__gte=selected_category.depth
                         ).values("slug"),
                         output_field=SlugField()
                     )
@@ -175,7 +175,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
             )
 
             dict_["selected_category_root"] = obj
-            dict_["selected_category"] = selected_cat
+            dict_["selected_category"] = selected_category
         except selected_category_root.model.DoesNotExist:
             pass
 
