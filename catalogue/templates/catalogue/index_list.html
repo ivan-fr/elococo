@@ -34,21 +34,26 @@
                     {% endwith %}
                 </article>
             {% endfor %}
-            <div class="row_no_end start_6">
-            {% for item, info in filter_list %}
-                {% if info.open %}
-                    <ul><li>
-                {% else %}
-                    </li><li>
-                {% endif %}
+            <section class="row_no_end start_6 border-start border-primary border-3 ps-3">
+            <h2>Filtres associés</h2>
 
-                {{ item }}
+            {% if filter_list %}
+                {% for category, info in filter_list %}
+                    {% if info.open %}
+                        <ul><li>
+                    {% else %}
+                        </li><li>
+                    {% endif %}
 
-                {% for close in info.close %}
-                    </li></ul>
-                {% endfor %}
-            {% endfor %}
-            </div>
+                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}</a>
+
+                    {% for close in info.close %}
+                        </li></ul>
+                    {% endfor %}
+                {% endfor %}            
+            {% endif %}
+
+            </section>
         </div>
         {% else %}
             Il n'y a plus de produits en stocks ! Revennez un autre jour.

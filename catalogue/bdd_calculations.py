@@ -1,7 +1,8 @@
 from decimal import Decimal
 
-from django.db.models import DecimalField, PositiveSmallIntegerField
+from django.db.models import DecimalField, PositiveSmallIntegerField, SlugField
 from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery
+from django.db.models.fields import related
 from django.db.models.functions import Cast, Ceil
 from django.utils.timezone import now
 
@@ -106,7 +107,6 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
         Count('products', distinct=True)
     ).filter(
         path__startswith=OuterRef("path"),
-        depth__gte=OuterRef("depth"),
         **d2, **d3
     )
 
@@ -127,40 +127,51 @@ def filled_category(limit, selected_category=None, products_queryset=None):
     }
 
     if selected_category is not None:
-        dict_["selected_category_root"] = dict_["filled_category"].filter(
-            slug=Subquery(
-                get_descendants_categories(
-                    with_products=False,
-                    include_self=True,
-                    slug=selected_category
-                ).values("slug")
+        dict_["selected_category_root"] = dict_["filled_category"].annotate(
+            sub_count=Count(
+                Subquery(
+                    get_descendants_categories(
+                        with_products=False,
+                        include_self=True,
+                        slug=selected_category
+                    ).values("slug")
+                )
             )
-        )
+        ).filter(sub_count__gt=0)
 
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
+            selected_cat = Category.objects.filter(
+                slug=selected_category).get()
             if products_queryset is not None:
-                dict_["related_products"] = products_queryset.filter(
-                    categories__slug__in=Category.objects.annotate(
-                        sub=Subquery(
-                            Category.objects.filter(slug=selected_category)
-                        )
+                related_products = products_queryset.filter(
+                    categories__slug__in=Subquery(
+                        Category.objects.filter(
+                            path__startswith=selected_cat.path,
+                            depth__gte=selected_cat.depth
+                        ).values("slug"),
+                        output_field=SlugField()
                     )
-                    .filter(
-                        path__startswith=obj.path,
-                        depth__gte=obj.depth
-                    )
-                    .filter(path__startswith=F("sub__path"),
-                            depth__gte=F("sub__depth"))
-                    .order_by(
-                        'path'
-                    ))
+                )
+
+                dict_["related_products"] = related_products
             else:
                 dict_["related_products"] = None
+
+            dict_["filter_list"] = Category.get_annotated_list_qs(
+                Category.get_tree(
+                    selected_category_root
+                ).filter(depth__lte=2).annotate(
+                    Count('products', distinct=True)
+                ), 2)
+
             dict_["selected_category_root"] = obj
+            dict_["selected_category"] = selected_cat
         except selected_category_root.model.DoesNotExist:
             dict_["selected_category_root"] = None
             dict_["related_products"] = None
+            dict_["selected_category"] = None
+            dict_["filter_list"] = None
 
     return dict_
