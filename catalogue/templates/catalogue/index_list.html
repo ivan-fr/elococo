@@ -46,7 +46,7 @@
                             </li><li>
                         {% endif %}
 
-                        <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}</a>
+                        <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }} ({{category.products_count__sum}})</a>
 
                         {% for close in info.close %}
                             </li></ul>
