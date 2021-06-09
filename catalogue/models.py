@@ -18,8 +18,11 @@ def product_image_path(instance, filename: str):
 
 class Category(MP_Node):
     category = models.CharField(max_length=60)
-    slug = models.SlugField(primary_key=True)
+    slug = models.SlugField(unique=True)
     node_order_by = ['category']
+
+    def __str__(self):
+        return '%s' % (self.category)
 
     class Meta:
         verbose_name_plural = "categories"
@@ -27,7 +30,7 @@ class Category(MP_Node):
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(primary_key=True)
     description = models.TextField()
     price = models.PositiveSmallIntegerField()
     TTC_price = models.BooleanField(default=False)

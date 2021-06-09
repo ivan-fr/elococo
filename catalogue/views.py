@@ -210,7 +210,6 @@ class IndexView(ListView):
         self.queryset = self.model.objects.filter(
             enable_sale=True, stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
-        print(category_slug)
         self.extra_context.update(filled_category(5, category_slug, products_queryset=self.queryset))
         self.extra_context.update({"index": category_slug})
         selected_category_root = self.extra_context.get("selected_category_root", None)
@@ -222,8 +221,6 @@ class IndexView(ListView):
         self.extra_context["related_products"] = None
         self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
-
-        print(self.extra_context["filter_list"])
 
         return super(IndexView, self).get_queryset()
 
