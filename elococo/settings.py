@@ -10,6 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+if not DEBUG:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn="https://cffd7602ac8945a89c05f9b386fe39ea@o267463.ingest.sentry.io/5810051",
+        integrations=[DjangoIntegration()],
+
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
+
 import psycopg2
 import json
 from pathlib import Path
@@ -26,8 +47,6 @@ secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = secrets['secret_key']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 ALLOWED_HOSTS = secrets['allowed_hosts']
 
