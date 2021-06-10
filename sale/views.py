@@ -82,18 +82,19 @@ class PaymentDoneView(TemplateView, View):
             order.invoice_date = now()
             order.save()
 
-        context_dict = {"ordered": order,
-                        "tva": TVA_PERCENT,
-                        "website_title": settings.WEBSITE_TITLE, "email":True}
-        html_content = render_to_string(request, "sale/invoice.html", context_dict)
-        email = EmailMessage(
-            f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-            html_content,
-            settings.EMAIL_HOST_USER,
-            [order.email, settings.EMAIL_HOST_USER]
-        )
-        email.content_subtype = "html"
-        email.send()
+            context_dict = {"ordered": order,
+                            "tva": TVA_PERCENT,
+                            "website_title": settings.WEBSITE_TITLE, "email": True}
+            html_content = render_to_string(
+                "sale/invoice.html", context_dict, request)
+            email = EmailMessage(
+                f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+                html_content,
+                settings.EMAIL_HOST_USER,
+                [order.email, settings.EMAIL_HOST_USER]
+            )
+            email.content_subtype = "html"
+            email.send()
 
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
 
@@ -198,7 +199,7 @@ class OrderedDetail(FormMixin, DetailView):
     def form_valid(self, form):
         if self.object.ordered_is_ready_to_delete:
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_ORDER_NOT_ENABLED
-            return JsonResponse({"redirect":self.get_invalid_url()})
+            return JsonResponse({"redirect": self.get_invalid_url()})
 
         amount = Decimal(
             self.object.price_exact_ttc_with_quantity_sum)
