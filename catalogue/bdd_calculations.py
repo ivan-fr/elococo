@@ -1,10 +1,9 @@
 from decimal import Decimal
+from typing import cast
 
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import PositiveSmallIntegerField
-from django.db.models import F, Count, Case, When, Value, Sum, Min, OuterRef, Subquery, Exists
-from django.db.models.aggregates import Aggregate
-from django.db.models.functions import Cast, Ceil
+from django.db.models import F, Count, Case, When, Value, Sum, OuterRef, Subquery, Exists
+from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
@@ -42,8 +41,7 @@ def price_exact_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
-    return Min(Cast(data["quantity"], PositiveSmallIntegerField()),
-               Cast(BASKET_MAX_QUANTITY_PER_FORM, PositiveSmallIntegerField()), F("stock"))
+    return Least(data["quantity"], BASKET_MAX_QUANTITY_PER_FORM, F("stock"), output_field=PositiveSmallIntegerField())
 
 
 def effective_quantity_per_product_from_basket(basket):

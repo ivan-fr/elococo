@@ -366,7 +366,7 @@ class BookingBasketView(BaseFormView):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            queryset = Product.objects.select_for_update().filter(enable_sale=True)
+            queryset = Product.objects.filter(enable_sale=True)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
             queryset = queryset.annotate(
                 **price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
