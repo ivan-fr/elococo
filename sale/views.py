@@ -10,7 +10,7 @@ from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import render
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -64,7 +64,7 @@ class PaymentDoneView(TemplateView, View):
 
         try:
             order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
-                                           payment_status=False).get()
+                                           payment_status=False).prefetch_related("order_address").get()
         except Ordered.DoesNotExist:
             raise Http404()
 
@@ -82,12 +82,10 @@ class PaymentDoneView(TemplateView, View):
             order.invoice_date = now()
             order.save()
 
-        htmly = get_template('sale/email_invoice.html')
         context_dict = {"ordered": order,
                         "tva": TVA_PERCENT,
                         "website_title": settings.WEBSITE_TITLE}
-        html_attach = render(request, "sale/invoice.html", context_dict)
-        html_content = htmly.render(context_dict)
+        html_content = render_to_string(request, "sale/invoice.html", context_dict)
         email = EmailMessage(
             f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
             html_content,
@@ -95,8 +93,6 @@ class PaymentDoneView(TemplateView, View):
             [order.email, settings.EMAIL_HOST_USER]
         )
         email.content_subtype = "html"
-        email.attach(f"invoice_#{order.pk}.html",
-                     html_attach.getvalue(), 'text/html')
         email.send()
 
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})

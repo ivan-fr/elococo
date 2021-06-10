@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Invoice</title>
-</head>
-<body>
-<p>Bonjour {{ ordered.last_name|upper }} {{ ordered.first_name|capfirst }},</p>
+{% if ordered.order_address.1.last_name is not None %}
+<p>Bonjour {{ ordered.order_address.1.last_name|upper }} {{ ordered.order_address.1.first_name|capfirst }},</p>
+{% else %}
+<p>Bonjour {{ ordered.order_address.0.last_name|upper }} {{ ordered.order_address.0.first_name|capfirst }},</p>
+{% endif %}
+
 <p>Tout d'abord, merci pour votre achat ;)</p>
 <p>Dans ce mail vous trouverez plusieurs informations.
 <p>
@@ -18,5 +16,6 @@
     <strong>Et votre facture en pièce jointe</strong> au format PDF.
 </p>
 <p>Cordialement, {{ website_title }}.</p>
-</body>
-</html>
+
+<hr>
+<hr>
