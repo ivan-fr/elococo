@@ -27,7 +27,7 @@ secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
 SECRET_KEY = secrets['secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = secrets['allowed_hosts']
 
