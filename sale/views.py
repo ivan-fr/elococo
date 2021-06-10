@@ -15,9 +15,8 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
-from django_weasyprint.views import WeasyTemplateView, WeasyTemplateResponseMixin
 
 from catalogue.bdd_calculations import TVA_PERCENT
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
@@ -34,11 +33,8 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
-class InvoiceView(WeasyTemplateView):
+class InvoiceView(TemplateView):
     template_name = "sale/invoice.html"
-    pdf_stylesheets = [
-        settings.STATICFILES_DIRS[0] / 'css/invoice.css',
-    ]
 
     def get_context_data(self, **kwargs):
         try:
@@ -52,7 +48,7 @@ class InvoiceView(WeasyTemplateView):
             raise Http404()
 
 
-class PaymentDoneView(WeasyTemplateResponseMixin, View):
+class PaymentDoneView(TemplateView, View):
     template_name = "sale/invoice.html"
     pdf_stylesheets = [
         settings.STATICFILES_DIRS[0] / 'css/invoice.css',
@@ -90,7 +86,7 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
         context_dict = {"ordered": order,
                         "tva": TVA_PERCENT,
                         "website_title": settings.WEBSITE_TITLE}
-        pdf_response = self.render_to_response(context_dict).render()
+        html_attach = render(request, "sale/invoice.html", context_dict)
         html_content = htmly.render(context_dict)
         email = EmailMessage(
             f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
@@ -99,8 +95,8 @@ class PaymentDoneView(WeasyTemplateResponseMixin, View):
             [order.email, settings.EMAIL_HOST_USER]
         )
         email.content_subtype = "html"
-        email.attach(f"invoice_#{order.pk}",
-                     pdf_response.getvalue(), 'application/pdf')
+        email.attach(f"invoice_#{order.pk}.html",
+                     html_attach.getvalue(), 'text/html')
         email.send()
 
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
