@@ -11,7 +11,14 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+from pathlib import Path
+import json
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
+
+DEBUG = secrets["debug"]
 
 if not DEBUG:
     import sentry_sdk
@@ -32,21 +39,13 @@ if not DEBUG:
     )
 
 import psycopg2
-import json
-from pathlib import Path
-
 import stripe
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = secrets['secret_key']
-
 
 ALLOWED_HOSTS = secrets['allowed_hosts']
 
@@ -99,19 +98,27 @@ WSGI_APPLICATION = 'elococo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DATABASES = {}
+
+if DEBUG:
+    DATABASES.update({'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'elococo.db',  # This is where you put the name of the db file.
+        # If one doesn't exist, it will be created at migration time.
+    }})
+else:
+    DATABASES.update({'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': secrets["db"]["name"],
-        'USER':  secrets["db"]["user"],
+        'USER': secrets["db"]["user"],
         'PASSWORD': secrets["db"]["pwd"],
-        'HOST':  secrets["db"]["host"],
-        'PORT':  secrets["db"]["port"],
+        'HOST': secrets["db"]["host"],
+        'PORT': secrets["db"]["port"],
     },
-    'OPTIONS': {
-        'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
-    },
-}
+        'OPTIONS': {
+            'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
+        }
+    })
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
