@@ -40,7 +40,7 @@
 
     {% if messages %}
         {% for message in messages %}
-            <div class="column_centered span_12 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            <div class="column_centered alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
                 {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
                 {{ message }}
             </div>
