@@ -139,8 +139,8 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # UPLOAD FIles
-MEDIA_ROOT = BASE_DIR / 'uploads'
-MEDIA_URL = '/uploads/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Website title
 WEBSITE_TITLE = "Carla's Cosmetic"
