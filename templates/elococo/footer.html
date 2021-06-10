@@ -18,13 +18,13 @@
                     </figcaption>
                 </figure>
                 <figure class="start_4 end_6">
-                    <img src="{% static "images/html5-validator-badge-blue.svg" %}" alt="html_valide" />
+                    <a target="_blank" href="https://validator.w3.org/nu/?doc={{ request.scheme }}://{{ request.get_host }}{% url "index" %}"><img src="{% static "images/html5-validator-badge-blue.svg" %}" alt="html_valide" /></a>
                     <figcaption>
                         HTML valide
                     </figcaption>
                 </figure>
                 <figure class="start_1 end_6">
-                    <img class="w-50" src="{% static "images/django.jpg" %}" alt="html_valide" />
+                    <a href="https://www.djangoproject.com/" target="_blank"><img class="w-50" src="{% static "images/django.jpg" %}" alt="html_valide" /></a>
                     <figcaption>
                         Django backend
                     </figcaption>
