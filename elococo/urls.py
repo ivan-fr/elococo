@@ -21,6 +21,9 @@ from django.views.generic import TemplateView
 
 from catalogue.views import IndexRedirectionView
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     path('', IndexRedirectionView.as_view()),
     path('admin/', admin.site.urls),
@@ -32,3 +35,5 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+else:
+    urlpatterns += path('sentry-debug/', trigger_error)
