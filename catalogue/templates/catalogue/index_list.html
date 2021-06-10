@@ -5,7 +5,7 @@
     {% if product_list %}
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
 
-        <div id="boutique" class="grid span_12 gap-2">
+        <div id="boutique" class="grid span_12 gap-3">
             {% for product in product_list %}
                 <article class="span_2">
                     <h3 class="is-hidden">{{ product.name|title }}</h3>
