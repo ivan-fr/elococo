@@ -61,10 +61,10 @@
                         {% endif %}
 
                         <div class="grid gap-3">
-                            <div class="quantity grid span_10">
-                                <label class="form-label span_4"
+                            <div class="quantity grid span_6">
+                                <label class="form-label span_6"
                                        for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
-                                <div class="input-group span_8">
+                                <div class="input-group span_6">
                                         <span class="input-group-text" id="basic-addon1"><i
                                                 class="bi-sort-numeric-down"></i></span>
                                     {{ form.quantity }}
@@ -75,7 +75,7 @@
                                 </div>
                                 {{ form.quantity.errors }}
                             </div>
-                            <div class="submit start_6 end_12">
+                            <div class="submit span_6">
                                 <input type="submit" class="btn btn-success" value="Ajouter dans le panier"/>
                             </div>
                         </div>
