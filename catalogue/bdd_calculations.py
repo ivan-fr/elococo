@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import cast
 
-from django.db.models import PositiveSmallIntegerField
+from django.db.models import PositiveSmallIntegerField, IntegerField
 from django.db.models import F, Count, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
@@ -101,25 +101,23 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     return Category.objects.all().filter(
         path__startswith=OuterRef("path"),
         **d1, **d3, **filters
-    )
+    ).values(
+        'products__pk'
+    ).distinct()
+
+
+class SQSum(Subquery):
+    template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
+    output_field = IntegerField()
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):
-    t = Category.get_root_nodes().filter(
+    filled_category = Category.get_root_nodes().filter(
         Exists(get_descendants_categories(include_self=True))
-    )
-
-    po = t
-    for cat in po:
-        p = Category.objects.filter(
-            **{"products__stock__gt": 0, "products__enable_sale": True, "depth__gte": cat.depth, "path__startswith": cat.path}
-        ).aggregate(
-            Count("products", distinct=True)
-        )
-        cat.products_count__sum = p.get("products__count", 0)
+    ).annotate(products_count__sum=SQSum(get_descendants_categories(include_self=True)))
 
     dict_ = {
-        'filled_category': po
+        'filled_category': filled_category
     }
 
     dict_["selected_category_root"] = None
@@ -128,7 +126,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
     dict_["filter_list"] = None
 
     if selected_category is not None:
-        dict_["selected_category_root"] = t.filter(
+        dict_["selected_category_root"] = filled_category.filter(
             Exists(
                 get_descendants_categories(
                     with_products=False,
@@ -157,22 +155,17 @@ def filled_category(limit, selected_category=None, products_queryset=None):
             else:
                 dict_["related_products"] = None
 
-            p = Category.get_tree(
+            annotated_lsit = Category.get_tree(
                 obj
-            ).filter(depth__lte=2)
+            ).filter(
+                depth__lte=2
+            ).annotate(
+                products_count__sum=SQSum(
+                    get_descendants_categories(include_self=True))
+            )
 
-            w_list = []
-            ti = p
-            for cat in ti:
-                to = Category.objects.filter(
-                    **{"products__stock__gt": 0, "products__enable_sale": True, "depth__gte": cat.depth, "path__startswith": cat.path}
-                ).aggregate(
-                    Count("products", distinct=True)
-                )
-                w_list.append(When(pk=cat.pk, then=to.get("products__count", 0)))
-            p = p.annotate(products_count__sum=Case(*w_list, default=Value(0)))
-
-            dict_["filter_list"] = Category.get_annotated_list_qs(p)
+            dict_["filter_list"] = Category.get_annotated_list_qs(
+                annotated_lsit)
 
             dict_["selected_category_root"] = obj
             dict_["selected_category"] = selected_category
