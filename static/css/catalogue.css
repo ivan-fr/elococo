@@ -29,16 +29,6 @@ main .navbar ul > li.link.is-active {
     color: white;
 }
 
-main .navbar {
-    background-color: unset;
-    border-radius: unset;
-    margin-bottom: 1em;
-}
-
-main > section h2.is_colored:first-child {
-    margin-top: 0;
-}
-
 main h2.is_colored {
     background-color: #ffe2d1;
     border-bottom: 0.1em solid #ff6c00;

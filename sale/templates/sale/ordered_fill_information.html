@@ -1,41 +1,40 @@
-{% extends 'elococo/base.html' %}
-
-{% block body_class %}
-main_expand_left
-{% endblock %}
+{% extends 'elococo/base_small_wave.html' %}
 
 {% block base_container %}
-<section class="start_1 end_5">
-    <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
-    <section>
-        <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
-        {% include "sale/ordered_recap.html" with ordered=ordered %}
-    </section>
-</section>
-<div class="covered_image image1 start_6">
-</div>
-<div class="covered_image start_1">
-</div>
-{% include "sale/ordered_informations.html" with ordered=ordered %}
-{% if ordered.ordered_is_enable %}
-<section class="start_4 end_6">
-    <h2 class="is_colored">Formulaire d'informations générales</h2>
-    <form class="grid" action="{% url 'sale:fill' ordered.pk %}" method="post">
-        {% csrf_token %}
-        <div class="start_1 end_5">
-            {{ form.email.errors }}
-            <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
-            {{ form.email }}
+    <div class="grid gap-3 span_12">
+        <section class="span_10">
+            <h2>Commande #{{ ordered.order_number }}</h2>
+            <section>
+                <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
+                {% include "sale/ordered_recap.html" with ordered=ordered %}
+            </section>
+        </section>
+        <div class="covered_image image1 span_2">
         </div>
-
-        <div class="start_1 end_5">
-            {{ form.phone.errors }}
-            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
-            {{ form.phone }}
+        <div class="covered_image span_2">
         </div>
+        {% include "sale/ordered_informations.html" with ordered=ordered %}
+        {% if ordered.ordered_is_enable %}
+            <section class="span_5">
+                <h2 class="is_colored">Formulaire d'informations générales</h2>
+                <form class="grid gap-3" action="{% url 'sale:fill' ordered.pk %}" method="post">
+                    {% csrf_token %}
+                    <div class="span_9">
+                        {{ form.email.errors }}
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
+                        {{ form.email }}
+                    </div>
 
-        <input type="submit" class="btn btn-success start_1 end_3" value="Suivant" />
-    </form>
-</section>
-{% endif %}
+                    <div class="span_9">
+                        {{ form.phone.errors }}
+                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
+                        {{ form.phone }}
+                    </div>
+
+                    <input type="submit" class="btn btn-success start_1 end_3" value="Suivant"/>
+                </form>
+            </section>
+        {% endif %}
+    </div>
+
 {% endblock %}

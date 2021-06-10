@@ -1,12 +1,8 @@
-{% extends 'elococo/base.html' %}
-
-{% block body_class %}
-    main_expand_right
-{% endblock %}
+{% extends 'elococo/base_small_wave.html' %}
 
 {% block base_container %}
-    <section class="start_2 end_5">
-        <h2 class="is_colored">Commande #{{ pk }}</h2>
+    <section class="column_centered">
+        <h2>Commande #{{ pk }}</h2>
         <section>
             <h3>Mauvaise nouvelle ! Paiement annulé !</h3>
             {% if type_error == 1 %}
@@ -14,7 +10,6 @@
                     Votre paiement a échoué, vous n'avez pas été décrédité.<br>
                     Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour pouvoir effectuer votre achat.
                 </p>
-
             {% else %}
                 <p>
                     Votre paiement a échoué, vous n'avez pas été décrédité.<br>

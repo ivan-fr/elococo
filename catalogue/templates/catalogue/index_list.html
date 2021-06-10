@@ -1,22 +1,20 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <div class="covered_image image1"></div>
-    <section class="start_2 end_6">
-        <h2 class="is_colored">Boutique</h2>
-        {% if product_list %}
-            {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+    <h2 class="text-white text-center start_2 end_12">Boutique</h2>
+    {% if product_list %}
+        {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
 
-            <div id="boutique" class="grid">
-             {% for product in product_list %}
-                <article>
+        <div id="boutique" class="grid span_12 gap-2">
+            {% for product in product_list %}
+                <article class="span_2">
                     <h3 class="is-hidden">{{ product.name|title }}</h3>
                     {% with product_image=product.productimage_set.first %}
                         {% if product_image %}
                             <figure class="hover_figure">
                                 <a href="{% url 'catalogue_product_detail' product.slug %}">
                                     <img class="rounded" src="{{ product_image.image.url }}"
-                                            alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                                 </a>
                                 {% if product.effective_reduction > 0 %}
                                     <div class="info_reduction">
@@ -35,42 +33,40 @@
                 </article>
             {% endfor %}
 
-
-            {% if filter_list is not None %}           
-                <section class="row_no_end start_6 border-start border-primary border-3 ps-3">
-                <h2>Filtres associés</h2>
+            {% if filter_list is not None %}
+                <section class="row_no_end start_10 end_12 border-start border-primary border-3 ps-3">
+                    <h2>Filtres associés</h2>
                     {% for category, info in filter_list %}
                         {% if info.open %}
                             <ul>
-                            
+
                             {% if selected_category.slug == category.slug %}
                                 <li class="link-warning">
-                            {% else %}
+                                    {% else %}
                                 <li class="link-dark">
                             {% endif %}
 
                         {% else %}
-                            </li>
+                        </li>
 
                             {% if selected_category.slug == category.slug %}
                                 <li class="link-warning">
-                            {% else %}
+                                    {% else %}
                                 <li class="link-dark">
                             {% endif %}
                         {% endif %}
 
-                        <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }} ({{category.products_count__sum}})</a>
+                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}
+                        ({{ category.products_count__sum }})</a>
 
-                        {% for close in info.close %}
-                            </li></ul>
-                        {% endfor %}
-                    {% endfor %}             
+                    {% for close in info.close %}
+                        </li></ul>
+                    {% endfor %}
+                    {% endfor %}
                 </section>
             {% endif %}
-
         </div>
-        {% else %}
-            Il n'y a plus de produits en stocks ! Revennez un autre jour.
-        {% endif %}
-    </section>
+    {% else %}
+        <p>Il n'y a plus de produits en stocks ! Revennez un autre jour.</p>
+    {% endif %}
 {% endblock %}

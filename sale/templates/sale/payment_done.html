@@ -1,12 +1,8 @@
-{% extends 'elococo/base.html' %}
-
-{% block body_class %}
-    main_expand_left
-{% endblock %}
+{% extends 'elococo/base_small_wave.html' %}
 
 {% block base_container %}
-    <section class="start_2 end_5">
-        <h2 class="is_colored">Commande #{{ pk }}</h2>
+    <section class="column_centered">
+        <h2>Commande #{{ pk }}</h2>
         <section>
             <h3>Bonne nouvelle ! Paiement réussi !</h3>
             <p>Un mail contenant une facture va vous être envoyé. Pensez à regarder dans vos SPAM.</p>

@@ -2,44 +2,46 @@
 {% load static %}
 
 {% block base_container %}
-<section id="catalogue" class="start_1 end_5">
-    <h2 class="is_colored">{{ product.name|title }}</h2>
-    <article id="detail" class="grid">
+    <h2 class="text-white text-center start_2 end_12">{{ product.name|title }}</h2>
+
+    <article id="detail" class="grid span_10 gap-3">
         <h3 class="is-hidden">Details</h3>
 
-        <div class="image_produit start_1 end_2">
+        <div class="image_produit span_3">
             <div class="spinner-border text-info" role="status"></div>
         </div>
 
-        <div class="image_produits grid start_3 end_4">
+        <div class="image_produits grid gap-3 span_5">
             {% for product_image in product.productimage_set.all %}
-            <figure class="hover_figure span_3 border">
-                <img src="{{ product_image.image.url }}" alt="product_{{ forloop.counter }}_{{ product.name }}" />
-                <figcaption>
-                    Image du produit n°{{ forloop.counter }}
-                </figcaption>
-            </figure>
+                <figure class="hover_figure span_6 border">
+                    <img src="{{ product_image.image.url }}"
+                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                    <figcaption>
+                        Image du produit n°{{ forloop.counter }}
+                    </figcaption>
+                </figure>
             {% endfor %}
         </div>
 
-        <div class="info_sale start_5 end_6">
-            <section class="box">
+        <div class="info_sale span_4">
+            <section class="box bg-white">
                 <h3>Informations de vente</h3>
                 <div class="content">
                     <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
                     </p>
                     {% if product.effective_reduction > 0 %}
-                    <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
-                        produit.</p>
-                    <p>
-                        Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
-                        (Heure Europe/Paris, UTC+2).
-                    </p>
-                    <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
+                        <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
+                            produit.</p>
+                        <p>
+                            Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
+                            (Heure Europe/Paris, UTC+2).
+                        </p>
+                        <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
                     {% endif %}
                     <p>
-                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours. 
-                        {% elif product.stock <= 5 %} Il ne reste plus que <strong>{{ product.stock }} unité(s)</strong> de
+                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                        {% elif product.stock <= 5 %} Il ne reste plus que
+                            <strong>{{ product.stock }} unité(s)</strong> de
                             ce produit en
                             stock !
                         {% else %}
@@ -48,31 +50,33 @@
                     </p>
                 </div>
             </section>
-            <section class="box">
+            <section class="box bg-white">
                 <h3>Commandes</h3>
                 <div class="content">
-                    <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}" method="post">
+                    <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
+                          method="post">
                         {% csrf_token %}
                         {% if form.non_field_errors %}
-                        {{ form.non_field_errors }}
+                            {{ form.non_field_errors }}
                         {% endif %}
 
-                        <div class="grid">
-                            <div class="quantity grid start_1 end_3">
-                                <label class="form-label start_1 end_2" for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
-                                <div class="input-group start_3 end_6">
-                                    <span class="input-group-text" id="basic-addon1"><i
-                                            class="bi-sort-numeric-down"></i></span>
+                        <div class="grid gap-3">
+                            <div class="quantity grid span_10">
+                                <label class="form-label span_4"
+                                       for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                <div class="input-group span_8">
+                                        <span class="input-group-text" id="basic-addon1"><i
+                                                class="bi-sort-numeric-down"></i></span>
                                     {{ form.quantity }}
                                 </div>
-    
-                                <div class="form-text start_1 end_6">
+
+                                <div class="form-text span_12">
                                     {{ form.quantity.help_text }}
                                 </div>
-                                {{ form.quantity.errors }}                    
-                            </div>                            
-                            <div class="submit start_4 end_6">
-                                <input type="submit" class="btn btn-success" value="Ajouter dans le panier" />
+                                {{ form.quantity.errors }}
+                            </div>
+                            <div class="submit start_6 end_12">
+                                <input type="submit" class="btn btn-success" value="Ajouter dans le panier"/>
                             </div>
                         </div>
                     </form>
@@ -80,7 +84,7 @@
             </section>
         </div>
 
-        <div class="info_description start_2 end_5 card border-dark text-dark">
+        <div class="info_description start_2 end_9 card border-dark text-dark">
             <div class="card-body">
                 <div class="card-text">{{ product.description|safe }}</div>
             </div>
@@ -91,53 +95,52 @@
             <figcaption>Images Licence</figcaption>
         </figure>
     </article>
-</section>
-<div class="covered_image image2 start_6"></div>
+    <div class="covered_image image2 span_2"></div>
 {% endblock %}
 
 {% block body_js %}
-{{ block.super }}
-<script type="application/javascript">
-    // From IB - {% now "Y" %}
-    let image_product = document.querySelector("#detail .image_produit");
-    let images_products = document.querySelector("#detail .image_produits");
-    let figures = images_products.querySelectorAll(":scope figure");
+    {{ block.super }}
+    <script type="application/javascript">
+        // From IB - {% now "Y" %}
+        let image_product = document.querySelector("#detail .image_produit");
+        let images_products = document.querySelector("#detail .image_produits");
+        let figures = images_products.querySelectorAll(":scope figure");
 
-    function treatment_image(figure) {
-        let figure_clone = figure.cloneNode(true);
-        figure_clone.classList.remove("pointer");
-        image_product.innerHTML = "";
-        image_product.appendChild(figure_clone);
-    }
-
-    function handle_image_product(event) {
-        treatment_image(event.currentTarget);
-    }
-
-    function initListener() {
-        try {
-            let first_figure = figures[0];
-            treatment_image(first_figure);
-        } catch (e) {
-            return false;
+        function treatment_image(figure) {
+            let figure_clone = figure.cloneNode(true);
+            figure_clone.classList.remove("pointer");
+            image_product.innerHTML = "";
+            image_product.appendChild(figure_clone);
         }
 
-        for (const figure of figures) {
-            figure.addEventListener("click", handle_image_product, false);
-            figure.classList.add("pointer");
+        function handle_image_product(event) {
+            treatment_image(event.currentTarget);
         }
 
-        return true;
-    }
+        function initListener() {
+            try {
+                let first_figure = figures[0];
+                treatment_image(first_figure);
+            } catch (e) {
+                return false;
+            }
 
-    setTimeout(initListener, 500);
+            for (const figure of figures) {
+                figure.addEventListener("click", handle_image_product, false);
+                figure.classList.add("pointer");
+            }
 
-    {% if basket_updated %}
-    let basket_modal_call = new bootstrap.Modal(basket_modal, {
-        keyboard: false
-    })
-    basket_modal_call.show();
-    basket_modal_showed = true;
-    {% endif %}
-</script>
+            return true;
+        }
+
+        setTimeout(initListener, 500);
+
+        {% if basket_updated %}
+            let basket_modal_call = new bootstrap.Modal(basket_modal, {
+                keyboard: false
+            })
+            basket_modal_call.show();
+            basket_modal_showed = true;
+        {% endif %}
+    </script>
 {% endblock %}

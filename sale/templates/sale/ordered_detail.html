@@ -1,4 +1,4 @@
-{% extends 'elococo/base.html' %}
+{% extends 'elococo/base_small_wave.html' %}
 
 {% block head_js %}
     {% if  ordered.ordered_is_enable and not ordered.payment_status %}
@@ -8,18 +8,18 @@
 {% endblock %}
 
 {% block base_container %}
-    <section class="start_1 end_5">
+    <section class="span_10">
         <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
         <section>
             <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
             {% include "sale/ordered_recap.html" with ordered=ordered %}
         </section>
     </section>
-    <div class="covered_image image2 start_6"></div>
-    <div class="covered_image start_1"></div>
+    <div class="covered_image image2 span_2"></div>
+    <div class="covered_image span_2"></div>
     {% include "sale/ordered_informations.html" with ordered=ordered %}
     {% if public_api_key %}
-        <section class="start_4 end_6">
+        <section class="span_5">
             <h2 class="no-flex is_colored">Formulaire de paiement</h2>
             <input type="button"id="checkout-button" class="btn btn-success" value="Payer {{ amount }} EUR"/>
         </section>

@@ -1,30 +1,30 @@
 {% load static %}
 
-<footer class="footer grid start_1 end_6">
-    <section class="start_1 end_2">
+<footer class="footer grid column_centered">
+    <section class="span_4">
         <h3>Logos Et Certifications</h3>
         <div class="grid">
-            <figure class="fig1 start_1 end_2">
-                <img src="{% static random_footer_logo %}" alt="logo">
+            <figure class="fig1 span_4">
+                <img class="w-50" src="{% static random_footer_logo %}" alt="logo">
                 <figcaption>
                     {{ website_title }}
                 </figcaption>
             </figure>
-            <div class="grid start_3 end_6">
-                <figure class="start_1 end_3">
+            <div class="grid span_8 gap-3">
+                <figure class="span_6">
                     <img src="{% static "images/Valid_css.svg" %}" alt="CSS Valide !" />
                     <figcaption>
                         CSS valide
                     </figcaption>
                 </figure>
-                <figure class="start_4 end_6">
+                <figure class="span_6">
                     <a target="_blank" href="https://validator.w3.org/nu/?doc={{ request.scheme }}://{{ request.get_host }}{% url "index" %}"><img src="{% static "images/html5-validator-badge-blue.svg" %}" alt="html_valide" /></a>
                     <figcaption>
                         HTML valide
                     </figcaption>
                 </figure>
-                <figure class="start_1 end_6">
-                    <a href="https://www.djangoproject.com/" target="_blank"><img class="w-50" src="{% static "images/django.jpg" %}" alt="html_valide" /></a>
+                <figure class="span_6">
+                    <a href="https://www.djangoproject.com/" target="_blank"><img src="{% static "images/django.jpg" %}" alt="html_valide" /></a>
                     <figcaption>
                         Django backend
                     </figcaption>
@@ -32,7 +32,7 @@
             </div>
         </div>
     </section>
-    <section class="start_3 end_4">
+    <section class="span_4">
         <h3>À Propos</h3>
         <p class="m-0">Développé par <a target="_blank" href="{% url 'ivan_cv' %}">BESEVIC Ivan</a>.</p>
         <p> Tous droits réservés - {% now "Y" %}.</p>
@@ -42,20 +42,18 @@
             </a>
         </figure>
     </section>
-    <section class="start_5 end_6">
+    <section class="span_4">
         <h3 class="mt-0">
             Mode de paiements
         </h3>
-        <div class="grid">
-            <div class="start_1 end_3">
-                <!-- PayPal Logo -->
-                <figure class="d-inline-block me-2">
-                    <img src="{% static "images/visa.png" %}" alt="visa" />
-                </figure>
-                <figure class="d-inline-block">
-                    <img src="{% static "images/cb.jpg" %}" alt="visa" />
-                </figure>                
-            </div>
+        <div>
+            <!-- PayPal Logo -->
+            <figure class="d-inline-block me-2">
+                <img src="{% static "images/visa.png" %}" alt="visa" />
+            </figure>
+            <figure class="d-inline-block">
+                <img src="{% static "images/cb.jpg" %}" alt="visa" />
+            </figure>
         </div>
     </section>
 </footer>
