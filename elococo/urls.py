@@ -36,4 +36,4 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
 else:
-    urlpatterns += path('sentry-debug/', trigger_error)
+    urlpatterns += [path('sentry-debug/', trigger_error)]
