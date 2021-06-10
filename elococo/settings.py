@@ -158,7 +158,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # UPLOAD FIles
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / "var/www/media/"
 MEDIA_URL = '/media/'
 
 # Website title
