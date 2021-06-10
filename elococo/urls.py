@@ -22,10 +22,10 @@ from django.views.generic import TemplateView
 from catalogue.views import IndexRedirectionView
 
 urlpatterns = [
+    path('', IndexRedirectionView.as_view()),
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
-    path('', IndexRedirectionView.as_view()),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv")
 ]
 
