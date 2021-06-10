@@ -84,7 +84,7 @@ class PaymentDoneView(TemplateView, View):
 
         context_dict = {"ordered": order,
                         "tva": TVA_PERCENT,
-                        "website_title": settings.WEBSITE_TITLE}
+                        "website_title": settings.WEBSITE_TITLE, "email":True}
         html_content = render_to_string(request, "sale/invoice.html", context_dict)
         email = EmailMessage(
             f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",

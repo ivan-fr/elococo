@@ -10,7 +10,9 @@
 </head>
 <body>
 
+{% if email %}
 {% include "sale/email_invoice.html" %}
+{% endif %}
 
 <h1>FACTURE</h1>
 <section>
@@ -120,9 +122,7 @@
     </tfoot>
 </table>
 
-<p>
-    {{ website_title }}.
-</p>
+<p>{{ website_title }}.</p>
 
 </body>
 </html>
