@@ -232,7 +232,9 @@ a {
     color: unset;
 }
 
-
+.link-warning {
+    color: #81410a;
+}
 
 a:visited {
     color: unset;
