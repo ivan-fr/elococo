@@ -8,13 +8,15 @@ ol, ul {
 }
 
 .grid {
+    width: 100%;
     display: grid;
     grid-template-rows: auto;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, minmax(0,1fr));
+    box-sizing: border-box;
 }
 
 .column_centered {
-    grid-column: 2 / 12;
+    grid-column: 2 / span 10;
 }
 
 .row_no_end {
@@ -188,6 +190,7 @@ a:visited {
 .wrapper {
     background: #f7fafb;
     z-index: 0;
+    row-gap: 1em;
 }
 
 .wrapper > * {
@@ -213,9 +216,6 @@ a:visited {
 
 body > footer {
     border-top: 2px solid #ff6c00;
-    background: #ffe2d1;
-    padding: 1em;
-    justify-items: center;
 }
 
 body {
@@ -312,10 +312,6 @@ thead, tbody, tfoot, tr, td, th {
     border-width: 0;
 }
 
-.d-flex {
-    display: flex;
-}
-
 .form-control {
     padding: .75em;
     box-sizing: border-box;
@@ -385,19 +381,17 @@ thead, tbody, tfoot, tr, td, th {
 }
 
 .navbar ul {
-    display: flex;
     margin: 0;
     padding: 0;
     height: 100%;
 }
 
-.navbar ul:first-child {
-    flex: 1;
+.navbar > ul {
+    display: flex;
 }
 
 .navbar {
     height: auto;
-    display: flex;
 }
 
 .no-flex {

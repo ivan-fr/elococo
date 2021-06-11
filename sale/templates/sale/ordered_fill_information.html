@@ -2,20 +2,20 @@
 
 {% block base_container %}
     <div class="grid gap-3 span_12">
-        <section class="span_10">
+        <section class="span_10 span_md_12 w-100">
             <h2>Commande #{{ ordered.order_number }}</h2>
             <section>
                 <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
                 {% include "sale/ordered_recap.html" with ordered=ordered %}
             </section>
         </section>
-        <div class="covered_image image1 span_2">
+        <div class="covered_image image1 span_2 is-hidden-md">
         </div>
-        <div class="covered_image span_2">
+        <div class="covered_image span_2 is-hidden-md">
         </div>
         {% include "sale/ordered_informations.html" with ordered=ordered %}
         {% if ordered.ordered_is_enable %}
-            <section class="span_5">
+            <section class="span_5 span_md_12">
                 <h2 class="is_colored">Formulaire d'informations générales</h2>
                 <form class="grid gap-3" action="{% url 'sale:fill' ordered.pk %}" method="post">
                     {% csrf_token %}
@@ -31,7 +31,7 @@
                         {{ form.phone }}
                     </div>
 
-                    <input type="submit" class="btn btn-success start_1 end_3" value="Suivant"/>
+                    <input type="submit" class="btn btn-success span_5" value="Suivant"/>
                 </form>
             </section>
         {% endif %}

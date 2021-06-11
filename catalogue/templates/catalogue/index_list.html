@@ -5,9 +5,9 @@
     {% if product_list %}
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
 
-        <div id="boutique" class="grid span_12 gap-3">
+        <div id="boutique" class="grid span_9 span_md_12 gap-3">
             {% for product in product_list %}
-                <article class="span_2">
+                <article class="span_3 span_md_6 span_xs_12">
                     <h3 class="is-hidden">{{ product.name|title }}</h3>
                     {% with product_image=product.productimage_set.first %}
                         {% if product_image %}
@@ -32,40 +32,38 @@
                     {% endwith %}
                 </article>
             {% endfor %}
+        </div>
+        {% if filter_list is not None %}
+            <section class="span_3 span_md_12 row_md_3 border-start border-primary border-3 ps-3">
+                <h2>Filtres associés</h2>
+                {% for category, info in filter_list %}
+                    {% if info.open %}
+                        <ul>
 
-            {% if filter_list is not None %}
-                <section class="row_no_end start_10 end_12 border-start border-primary border-3 ps-3">
-                    <h2>Filtres associés</h2>
-                    {% for category, info in filter_list %}
-                        {% if info.open %}
-                            <ul>
-
-                            {% if selected_category.slug == category.slug %}
-                                <li class="link-warning">
-                                    {% else %}
-                                <li class="link-dark">
-                            {% endif %}
-
-                        {% else %}
-                        </li>
-
-                            {% if selected_category.slug == category.slug %}
-                                <li class="link-warning">
-                                    {% else %}
-                                <li class="link-dark">
-                            {% endif %}
+                        {% if selected_category.slug == category.slug %}
+                            <li class="link-warning">
+                                {% else %}
+                            <li class="link-dark">
                         {% endif %}
 
-                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}
-                        ({{ category.products_count__sum }})</a>
+                    {% else %}
+                    </li>
+                        {% if selected_category.slug == category.slug %}
+                            <li class="link-warning">
+                                {% else %}
+                            <li class="link-dark">
+                        {% endif %}
+                    {% endif %}
 
-                    {% for close in info.close %}
-                        </li></ul>
-                    {% endfor %}
-                    {% endfor %}
-                </section>
-            {% endif %}
-        </div>
+                <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}
+                    ({{ category.products_count__sum }})</a>
+
+                {% for close in info.close %}
+                    </li></ul>
+                {% endfor %}
+                {% endfor %}
+            </section>
+        {% endif %}
     {% else %}
         <p>Il n'y a plus de produits en stocks ! Revennez un autre jour.</p>
     {% endif %}

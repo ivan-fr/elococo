@@ -1,8 +1,7 @@
 {% load static %}
 
-
-<nav class="navbar column_centered mt-5 bg-white rounded-2">
-    <ul>
+<nav class="navbar column_centered mt-5 bg-white rounded-2 d-flex">
+    <ul class="d-flex flex-grow-1 flex-shrink-1">
         <li class="logo"><img src="{% static random_footer_logo %}" width="28" alt="nav_logo"></li>
         <li class="brand">{{ website_title }}</li>
         <li class="link is-active">
@@ -11,7 +10,7 @@
             </a>
         </li>
     </ul>
-    <ul>
+    <ul class="d-xs-flex">
         <li>
             <a href="{% url 'sale:retrieve' %}" class="btn btn-light">Retrouver une commande</a>
         </li>
