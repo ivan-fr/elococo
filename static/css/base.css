@@ -236,6 +236,10 @@ a {
     color: #81410a;
 }
 
+.link-dark {
+    color: black;
+}
+
 a:visited {
     color: unset;
 }
