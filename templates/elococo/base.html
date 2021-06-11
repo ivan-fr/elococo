@@ -17,7 +17,7 @@
 
 <div class="wrapper gap-3 pb-5 grid span_12">
     <header class="header">
-        <div class="inner-header">
+        <div class="inner-header small_inner">
         </div>
         <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
              viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
@@ -36,9 +36,11 @@
 
     {% include "elococo/navbar.html" %}
 
+    <div class="span_12 bottom_wave"></div>
+
     {% if messages %}
         {% for message in messages %}
-            <div class="start_1 end_6 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            <div class="column_centered alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
                 {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
                 {{ message }}
             </div>
