@@ -4,35 +4,38 @@
     <h2 class="text-center start_2 end_12">Boutique</h2>
     {% if product_list %}
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
-
-        <div id="boutique" class="grid span_9 span_md_12 gap-3">
-            {% for product in product_list %}
-                <article class="span_3 span_md_6 span_xs_12">
-                    <h3 class="is-hidden">{{ product.name|title }}</h3>
-                    {% with product_image=product.productimage_set.first %}
-                        {% if product_image %}
-                            <figure class="hover_figure">
-                                <a href="{% url 'catalogue_product_detail' product.slug %}">
-                                    <img class="rounded" src="{{ product_image.image.url }}"
-                                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                                </a>
-                                {% if product.effective_reduction > 0 %}
-                                    <div class="info_reduction">
-                                        - {{ product.effective_reduction }}%
-                                    </div>
-                                {% endif %}
-                                <div class="info_price">
-                                    {{ product.price_exact_ttc|floatformat:2 }} € TTC
-                                </div>
-                                <figcaption>
-                                    {{ product.name|title }}
-                                </figcaption>
-                            </figure>
+        {% if filter_list is None %}
+            <div id="boutique" class="grid span_12 span_md_12 gap-3">
+        {% else %}
+            <div id="boutique" class="grid span_9 span_md_12 gap-3">
+        {% endif %}
+    {% for product in product_list %}
+        <article class="span_3 span_md_6 span_xs_12">
+            <h3 class="is-hidden">{{ product.name|title }}</h3>
+            {% with product_image=product.productimage_set.first %}
+                {% if product_image %}
+                    <figure class="hover_figure">
+                        <a href="{% url 'catalogue_product_detail' product.slug %}">
+                            <img class="rounded" src="{{ product_image.image.url }}"
+                                 alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                        </a>
+                        {% if product.effective_reduction > 0 %}
+                            <div class="info_reduction">
+                                - {{ product.effective_reduction }}%
+                            </div>
                         {% endif %}
-                    {% endwith %}
-                </article>
-            {% endfor %}
-        </div>
+                        <div class="info_price">
+                            {{ product.price_exact_ttc|floatformat:2 }} € TTC
+                        </div>
+                        <figcaption>
+                            {{ product.name|title }}
+                        </figcaption>
+                    </figure>
+                {% endif %}
+            {% endwith %}
+        </article>
+    {% endfor %}
+    </div>
         {% if filter_list is not None %}
             <section class="span_3 span_md_12 row_md_3 border-start border-primary border-3 ps-3">
                 <h2>Filtres associés</h2>

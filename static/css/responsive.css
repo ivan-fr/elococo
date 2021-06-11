@@ -1,4 +1,4 @@
-@media screen and (max-width: 992px) {
+@media screen and (max-width: 1092px) {
     .span_md_2 {
         grid-column: 2 span;
     }
