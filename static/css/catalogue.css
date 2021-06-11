@@ -85,7 +85,7 @@ figure.hover_figure.border figcaption, #boutique figure.hover_figure figcaption 
 }
 
 #boutique {
-    grid-template-rows: 20em;
+    grid-auto-rows: 20em;
 }
 
 #boutique figure.hover_figure img, figure.hover_figure.border img {
