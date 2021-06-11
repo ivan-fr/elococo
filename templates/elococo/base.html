@@ -93,6 +93,8 @@
     let spinner = basket_modal.querySelector(".modal-body").cloneNode(true);
     let modal_footer_clone = basket_modal.querySelector(".modal-footer").cloneNode(true);
     let modal_form_container = document.getElementById("basket-form");
+    let responsive_table = document.createElement("div");
+    responsive_table.classList.add("table-responsive");
 
     function add_save_button(footer) {
         return function listener() {
@@ -271,8 +273,10 @@
         if (errors_form !== null) {
             form.appendChild(errors_form);
         }
+        let responsive = responsive_table.cloneNode();
+        responsive.appendChild(table)
 
-        form.appendChild(table);
+        form.appendChild(responsive);
         form.appendChild(modal_form_container_footer);
 
         form.addEventListener("submit", post_basket);

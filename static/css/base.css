@@ -1,3 +1,68 @@
+.py-4 {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.mt-5 {
+    margin-top: 2.5rem;
+}
+
+.gap-5 {
+    gap: 2rem;
+}
+
+.text-dark {
+    color: black;
+}
+
+.text-white {
+    color: white;
+}
+
+.w-50 {
+    width: 50%;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.pb-5 {
+    padding-bottom: 3rem;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.flex-shrink-1 {
+    flex-shrink: 1;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+.rounded-2 {
+    border-radius: .75em;
+}
+
+.d-inline-block {
+    display: inline-block;
+}
+
 dl, ol, ul {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -166,6 +231,8 @@ ol, ul {
 a {
     color: unset;
 }
+
+
 
 a:visited {
     color: unset;

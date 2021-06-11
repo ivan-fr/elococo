@@ -97,14 +97,14 @@ figure.hover_figure.border figcaption, #boutique figure.hover_figure figcaption 
 }
 
 #detail .box h3 {
-    border-bottom: 0.1em solid #ff6c00;
+    border-bottom: 2px solid #ff1d1d;
     padding: 1em;
     margin: 0;
     box-sizing: content-box;
 }
 
 #detail .box {
-    border: 0.1em solid #ff6c00;
+    border: 2px solid #ff1d1d;
 }
 
 #detail div > .box:not(:last-child) {
