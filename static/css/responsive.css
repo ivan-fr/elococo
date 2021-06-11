@@ -159,7 +159,7 @@
     }
 
     .is-hidden-md {
-        display: none;
+        display: none!important;
     }
 
     main :is(h1, h2, h3, h4, h5, h6) {
