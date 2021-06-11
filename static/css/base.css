@@ -10,7 +10,7 @@ ol, ul {
 .grid {
     width: 100%;
     display: grid;
-    grid-template-rows: auto;
+    grid-auto-rows: auto;
     grid-template-columns: repeat(12, minmax(0,1fr));
     box-sizing: border-box;
 }
