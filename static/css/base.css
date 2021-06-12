@@ -80,6 +80,14 @@ ol, ul {
     box-sizing: border-box;
 }
 
+.grid-wrapper {
+    width: 100%;
+    display: grid;
+    grid-auto-rows: auto;
+    grid-template-columns: 0.4fr repeat(10, minmax(0, 1fr)) 0.4fr;
+    box-sizing: border-box;
+}
+
 .column_centered {
     grid-column: 2 / span 10;
 }
@@ -263,7 +271,7 @@ a:visited {
 .wrapper {
     background: #f7fafb;
     z-index: 0;
-    row-gap: 1em;
+    gap: 1em;
 }
 
 .wrapper > * {

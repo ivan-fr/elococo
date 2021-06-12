@@ -49,7 +49,12 @@
         {% endfor %}
     {% endif %}
 
-    <main class="grid gap-3 column_centered">
+    <div class="column_centered grid">
+    {% block title %}
+    {% endblock %}
+    </div>
+
+    <main class="grid-wrapper gap-3 span_12">
         {% block base_container %}
         {% endblock %}
     </main>

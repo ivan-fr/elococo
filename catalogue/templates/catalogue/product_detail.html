@@ -1,10 +1,12 @@
-{% extends 'elococo/base.html' %}
+{% extends 'elococo/base_grid_wrapper.html' %}
 {% load static %}
 
-{% block base_container %}
-    <h2 class="text-center start_2 end_12">{{ product.name|title }}</h2>
+{% block title %}
+    <h2 class="start_2 end_12">{{ product.name|title }}</h2>
+{% endblock %}
 
-    <article id="detail" class="grid span_10 span_md_12 gap-3">
+{% block base_container %}
+    <article id="detail" class="grid start_2 end_10 start_md_1 end_md_11 gap-3">
         <h3 class="is-hidden">Details</h3>
 
         <div class="image_produit span_3 span_md_12">
