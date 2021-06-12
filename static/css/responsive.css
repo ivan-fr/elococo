@@ -140,6 +140,50 @@
         grid-row: 12;
     }
 
+    .end_md_2 {
+        grid-column-end: 3;
+    }
+
+    .end_md_3 {
+        grid-column-end: 4;
+    }
+
+    .end_md_4 {
+        grid-column-end: 5;
+    }
+
+    .end_md_5 {
+        grid-column-end: 6;
+    }
+
+    .end_md_6 {
+        grid-column-end: 7;
+    }
+
+    .end_md_7 {
+        grid-column-end: 8;
+    }
+
+    .end_md_8 {
+        grid-column-end: 9;
+    }
+
+    .end_md_9 {
+        grid-column-end: 10;
+    }
+
+    .end_md_10 {
+        grid-column-end: 11;
+    }
+
+    .end_md_11 {
+        grid-column-end: 12;
+    }
+
+    .end_md_12 {
+        grid-column-end: 13;
+    }
+
     .d-flex {
         flex-direction: column;
     }
@@ -163,7 +207,7 @@
     }
 
     .is-hidden-md {
-        display: none!important;
+        display: none !important;
     }
 
     main :is(h1, h2, h3, h4, h5, h6) {
