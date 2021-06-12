@@ -148,11 +148,6 @@
         border: none;
     }
 
-    nav.navbar.navigation ul {
-        border: 1px solid black;
-        overflow: hidden;
-    }
-
     .bottom_wave {
         margin-top: unset;
     }
