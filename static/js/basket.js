@@ -54,7 +54,8 @@ function status200() {
         modal_form_container_footer.classList.add("btn", "is-hidden");
 
         let select = modal_form_container.querySelector(":scope form select");
-        let input = modal_form_container.querySelector(":scope form input");
+        let input = modal_form_container.querySelector(":scope form table input");
+        console.log(input);
         select.addEventListener("change", add_save_button(modal_form_container_footer));
         input.addEventListener("change", add_save_button(modal_form_container_footer));
         modal_form_container.querySelector(":scope form").addEventListener("submit", post_basket);
@@ -179,11 +180,13 @@ function post_booking(event) {
         return false;
     }
 
-    httpRequest.onload = onload_booking;
-    httpRequest.open('POST', url_get_booking, true);
-    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    httpRequest.responseType = 'json';
-    httpRequest.send(new FormData(event.currentTarget));
+    if (confirm("Etes vous sûr de vouloir réserver le panier ? Vous ne pourrez pas consitué un autre panier pendant une certaine durée si le paiement n'est pas effectué.")) {
+        httpRequest.onload = onload_booking;
+        httpRequest.open('POST', url_get_booking, true);
+        httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest.responseType = 'json';
+        httpRequest.send(new FormData(event.currentTarget));
+    }
 }
 
 basket_modal.addEventListener('show.bs.modal', get_basket);
