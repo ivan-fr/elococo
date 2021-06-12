@@ -211,6 +211,18 @@ class IndexView(ListView):
         self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
 
+        if self.request.GET.get("order", None) is not None:
+            if self.request.GET["order"].lower() == "asc":
+                self.ordering = ("price_exact_ttc",)
+                self.extra_context.update({"order": 0})
+            elif self.request.GET["order"].lower() == "desc":
+                self.ordering = ("-price_exact_ttc",)
+                self.extra_context.update({"order": 1})
+        else:
+            self.extra_context.update({"order": -1})
+
+        self.extra_context.update({"slug_category": category_slug})
+
         return super(IndexView, self).get_queryset()
 
 

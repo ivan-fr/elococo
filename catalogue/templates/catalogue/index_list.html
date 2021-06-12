@@ -4,6 +4,7 @@
     <h2 class="text-center start_2 end_12">Boutique</h2>
     {% if product_list %}
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+        {% include "catalogue/filtres.html" with slug_category=slug_category order=order only %}
         {% if filter_list is None %}
             <div id="boutique" class="grid span_12 span_md_12 gap-3">
         {% else %}
