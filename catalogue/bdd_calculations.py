@@ -1,8 +1,8 @@
+from abc import ABC
 from decimal import Decimal
-from typing import cast
 
+from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import PositiveSmallIntegerField, IntegerField
-from django.db.models import F, Count, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
 
@@ -106,7 +106,7 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     ).distinct()
 
 
-class SQSum(Subquery):
+class SQSum(Subquery, ABC):
     template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
     output_field = IntegerField()
 
@@ -116,14 +116,8 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         Exists(get_descendants_categories(include_self=True))
     ).annotate(products_count__sum=SQSum(get_descendants_categories(include_self=True)))
 
-    dict_ = {
-        'filled_category': filled_category
-    }
-
-    dict_["selected_category_root"] = None
-    dict_["related_products"] = None
-    dict_["selected_category"] = None
-    dict_["filter_list"] = None
+    dict_ = {'filled_category': filled_category, "selected_category_root": None, "related_products": None,
+             "selected_category": None, "filter_list": None}
 
     if selected_category is not None:
         dict_["selected_category_root"] = filled_category.filter(

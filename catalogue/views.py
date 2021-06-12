@@ -1,8 +1,7 @@
-import copy
 from operator import methodcaller
 
 from django.http import JsonResponse, Http404
-from django.middleware.csrf import get_token
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
@@ -12,8 +11,8 @@ from django.views.generic.list import BaseListView
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
     MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
+from catalogue.models import Product
 from elococo.generic import FormSetMixin
-from catalogue.models import Category, Product
 
 
 def update_basket_session(session, form, change=False):
@@ -112,7 +111,7 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(BASKET_SESSION_KEY, {})
 
         basket_enum = {product_slug: n for n,
-                       product_slug in enumerate(basket.keys())}
+                                           product_slug in enumerate(basket.keys())}
         self.object_list = sorted(self.object_list, key=methodcaller(
             'compute_basket_oder', basket_enum=basket_enum))
 
@@ -126,25 +125,15 @@ class BasketView(FormSetMixin, BaseListView):
 
         return super(BasketView, self).formset_valid(formset)
 
-    def json_response(self, formset, basket):
-        basket = copy.deepcopy(basket)
+    def json_response(self, formset):
+        data = {}
         aggregate = self.queryset.aggregate(*total_price_from_all_product())
 
-        for i, product in enumerate(self.object_list):
-            basket[product.slug].update({
-                "input_html_quantity": str(formset[i]['quantity']),
-                "input_html_remove": str(formset[i]['remove']),
-                "price_exact_ttc_with_quantity": product.price_exact_ttc_with_quantity,
-                "effective_reduction": product.effective_reduction,
-                "price_exact_ttc": product.price_exact_ttc,
-                "price_exact_ht": product.price_exact_ht,
-                "form_errors": str(formset[i].errors)
-            })
-        basket["__all__"] = aggregate
-        basket["formset_management"] = str(formset.management_form)
-        basket["csrf_token"] = get_token(self.request)
+        context = {"zip_products": list(zip(self.object_list, formset)), "aggregate": aggregate, "formset": formset}
 
-        return JsonResponse(basket)
+        data["form"] = render_to_string("catalogue/basket.html", context, self.request)
+
+        return JsonResponse(data)
 
     def init_queryset(self):
         self.object_list = self.get_queryset()
@@ -185,7 +174,7 @@ class BasketView(FormSetMixin, BaseListView):
             return response
 
         formset = self.construct_formset()
-        return self.json_response(formset, self.request.session.get(BASKET_SESSION_KEY, {}))
+        return self.json_response(formset)
 
     def post(self, request, *args, **kwargs):
         response = self.base_logical_response()
@@ -197,7 +186,7 @@ class BasketView(FormSetMixin, BaseListView):
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
-            return self.json_response(formset, self.request.session.get(BASKET_SESSION_KEY, {}))
+            return self.json_response(formset)
 
 
 class IndexView(ListView):
@@ -251,7 +240,7 @@ class ProductDetailView(FormMixin, DetailView):
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
         kwargs.update({"session": self.request.session,
-                      PRODUCT_INSTANCE_KEY: self.object})
+                       PRODUCT_INSTANCE_KEY: self.object})
         return kwargs
 
     def form_valid(self, form):

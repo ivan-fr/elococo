@@ -1,0 +1,84 @@
+{% load getter %}
+{% spaceless %}
+    <form action="{% url "catalogue_basket" %}">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {% for form in formset %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+        {% endfor %}
+
+        {% if formset.errors %}
+            {% for form in formset %}
+                <ul class="errorlist">
+                    {% if form.non_field_errors %}
+                        <li>{{ form.non_field_errors }}</li>
+                    {% endif %}
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li>
+                                {{ field.label }}
+                                <ul class="errorlist">
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table table-bordered bg-white table-striped mb-0">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nom du produit</th>
+                    <th scope="col">Prix unitaire (HT)</th>
+                    <th scope="col">Prix unitaire (TTC)</th>
+                    <th scope="col">Dont réduction (%)</th>
+                    <th scope="col">Quantité</th>
+                    <th scope="col">Sous Total (HT)</th>
+                    <th scope="col">Sous Total (TTC)</th>
+                    <th scope="col">Supprimer ?</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for product in zip_products %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>
+                            <a href="{% url "catalogue_product_detail" product.0.slug %}">{{ product.0.name }}</a>
+                        </td>
+                        <td>{{ product.0.price_exact_ht|floatformat:2 }}€</td>
+                        <td>{{ product.0.price_exact_ttc|floatformat:2 }}€</td>
+                        <td>{% if product.0.effective_reduction > 0 %}
+                            -{{ product.0.effective_reduction }}%
+                        {% else %}
+                            Pas de reduction.
+                        {% endif %}</td>
+                        <td>
+                            {{ product.1.quantity }}
+                        </td>
+                        <td>{{ product.0.price_exact_ht_with_quantity|floatformat:2 }}€</td>
+                        <td>{{ product.0.price_exact_ttc_with_quantity|floatformat:2 }}€</td>
+                        <td>{{ product.1.remove }}</td>
+                    </tr>
+                {% endfor %}
+
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td colspan="5"></td>
+                    <td>{{ aggregate.price_exact_ht_with_quantity__sum|floatformat:2 }}€</td>
+                    <td><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+{% endspaceless %}

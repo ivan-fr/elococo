@@ -1,8 +1,8 @@
 import secrets
 import string
-import stripe
 from decimal import Decimal
 
+import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
@@ -10,7 +10,7 @@ from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
 from django.middleware.csrf import get_token
 from django.shortcuts import render
-from django.template.loader import get_template, render_to_string
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
@@ -24,7 +24,8 @@ from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import AddressForm, OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, CheckoutForm, \
+from sale.forms import AddressForm, OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, \
+    CheckoutForm, \
     RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY, WIDGETS_FILL_NEXT, AddressFormSet
 from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
 
@@ -258,7 +259,7 @@ class FillAddressInformationOrdered(ModelFormSetView):
     def get_formset_kwargs(self):
         kwargs = super().get_formset_kwargs()
         kwargs.update({"queryset": self.object_list,
-                      "ordered_queryset": self.object})
+                       "ordered_queryset": self.object})
         return kwargs
 
     def get_factory_kwargs(self):

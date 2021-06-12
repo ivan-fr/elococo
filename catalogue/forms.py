@@ -28,7 +28,7 @@ class AddToBasketForm(forms.Form):
     choices = tuple(range(1, BASKET_MAX_QUANTITY_PER_FORM + 1))
     quantity = forms.ChoiceField(choices=((i, i) for i in choices),
                                  help_text="Choisir une quantité.",
-                                 label="Quantiter",
+                                 label="Quantité",
                                  widget=forms.Select(attrs={"class": "form-select"}))
 
     def __init__(self, *args, **kwargs):
@@ -71,9 +71,12 @@ class AddToBasketForm(forms.Form):
 
         return super(AddToBasketForm, self).clean()
 
+    class Meta:
+        labels = {"quantity": "quantité"}
+
 
 class UpdateBasketForm(AddToBasketForm):
-    remove = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}))
+    remove = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"}), label="Supprimer")
 
     def clean(self):
         if self.cleaned_data.get("remove", False):
