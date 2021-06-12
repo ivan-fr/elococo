@@ -48,7 +48,6 @@ main h2.is_colored {
     right: -1px;
     top: 1px;
     position: absolute;
-    display: none;
     border-top-right-radius: 0.25em;
     border-bottom-left-radius: 0.25em;
     background-color: #ffe2d1;
@@ -74,10 +73,6 @@ figure.hover_figure.border figcaption, #boutique figure.hover_figure figcaption 
     text-align: center;
     box-sizing: border-box;
     font-weight: bold;
-}
-
-#boutique > article figure.hover_figure:hover .info_price {
-    display: block;
 }
 
 #boutique > article {
