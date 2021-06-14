@@ -15,32 +15,7 @@
         {% else %}
             <div id="boutique" class="grid span_9 span_md_12 gap-3">
         {% endif %}
-    {% for product in product_list %}
-        <article class="span_3 span_md_6 span_xs_12">
-            <h3 class="is-hidden">{{ product.name|title }}</h3>
-            {% with product_image=product.productimage_set.first %}
-                {% if product_image %}
-                    <figure class="hover_figure">
-                        <a href="{% url 'catalogue_product_detail' product.slug %}">
-                            <img class="rounded" src="{{ product_image.image.url }}"
-                                 alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                        </a>
-                        {% if product.effective_reduction > 0 %}
-                            <div class="info_reduction">
-                                - {{ product.effective_reduction }}%
-                            </div>
-                        {% endif %}
-                        <div class="info_price">
-                            {{ product.price_exact_ttc|floatformat:2 }} € TTC
-                        </div>
-                        <figcaption>
-                            {{ product.name|title }}
-                        </figcaption>
-                    </figure>
-                {% endif %}
-            {% endwith %}
-        </article>
-    {% endfor %}
+    {% include "catalogue/products_list.html" %}
     </div>
         {% if filter_list is not None %}
             <section class="span_3 span_md_12 row_md_3 border-start border-primary border-3 ps-3">
@@ -73,6 +48,7 @@
                 {% endfor %}
             </section>
         {% endif %}
+        <span id="current_url_products" data-url="{{ current_url }}"></span>
     {% else %}
         <p>Il n'y a plus de produits en stocks ! Revennez un autre jour.</p>
     {% endif %}
@@ -80,4 +56,69 @@
 
 {% block body_js %}
     <script src="{% static "js/dr.js" %}"></script>
+    <script>
+        function on_up_dr_produtts(left, right) {
+            if (!httpRequest) {
+                alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+                return false;
+            }
+
+            let url = new URL(document.getElementById("current_url_products").getAttribute("data-url"), window.location.origin);
+            url.searchParams.set('min_ttc_price', left);
+            url.searchParams.set('max_ttc_price', right);
+
+            httpRequest.onload = callback_onload_products_filter(null, url.pathname + url.search);
+            httpRequest.open('GET', url.pathname + url.search);
+            httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            httpRequest.responseType = 'json';
+            httpRequest.send();
+        }
+
+        dr(document.getElementById("products_dr"), on_up_dr_produtts);
+
+        let boutique = document.getElementById("boutique");
+
+        function callback_onload_products_filter(event, url) {
+            return function onload_products_filter() {
+                document.getElementById("current_url_products").setAttribute("data-url", url);
+                if (event !== null) {
+                    let ul_filters = event.target.parentElement.parentElement;
+                    ul_filters.querySelector("li.is-active").classList.remove("is-active");
+                    event.target.parentElement.classList.add("is-active");
+                }
+                let products = httpRequest.response;
+                boutique.innerHTML = products.html;
+            }
+        }
+
+        function get_products_filter(event) {
+            event.preventDefault();
+            if (!httpRequest) {
+                alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+                return false;
+            }
+
+            let url = new URL(document.getElementById("current_url_products").getAttribute("data-url"), window.location.origin);
+
+            if (event.currentTarget.getAttribute("data-url-key") !== "") {
+                if (event.currentTarget.getAttribute("data-url-value") === null) {
+                    url.searchParams.delete(event.currentTarget.getAttribute("data-url-key"));
+                } else {
+                    url.searchParams.set(event.currentTarget.getAttribute("data-url-key"),
+                        event.currentTarget.getAttribute("data-url-value"));
+                }
+            }
+
+            httpRequest.onload = callback_onload_products_filter(event, url.pathname + url.search);
+            httpRequest.open('GET', url.pathname + url.search);
+            httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            httpRequest.responseType = 'json';
+            httpRequest.send();
+        }
+
+        let filter;
+        for (filter of document.querySelectorAll(".filters a")) {
+            filter.addEventListener("click", get_products_filter)
+        }
+    </script>
 {% endblock %}

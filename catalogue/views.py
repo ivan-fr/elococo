@@ -1,3 +1,4 @@
+from decimal import Decimal
 from operator import methodcaller
 
 from django.http import JsonResponse, Http404
@@ -8,7 +9,8 @@ from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import BaseListView
 
-from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, data_from_all_product
+from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, \
+    data_from_all_product, cast_annotate_to_decimal
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
     MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
 from catalogue.models import Product
@@ -196,21 +198,40 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(
+        queryset = self.model.objects.all().filter(
             enable_sale=True, stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
-        self.extra_context.update(filled_category(5, category_slug, products_queryset=self.queryset))
+        self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))
         self.extra_context.update({"index": category_slug})
         selected_category_root = self.extra_context.get("selected_category_root", None)
 
         if selected_category_root is not None:
             self.extra_context.update({"index": selected_category_root.slug})
-            self.queryset = self.extra_context["related_products"]
+            queryset = self.extra_context["related_products"]
+            self.extra_context["related_products"] = None
+            self.queryset = queryset.filter(enable_sale=True, stock__gt=0)
 
-        self.extra_context["related_products"] = None
-        self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
-        self.queryset = self.queryset.annotate(**price_annotation_format())
-        self.extra_context.update(self.queryset.aggregate(*data_from_all_product()))
+        annotation_p = price_annotation_format()
+        cast_annotate_to_decimal(annotation_p, "price_exact_ttc")
+
+        queryset = queryset.annotate(**annotation_p)
+        self.extra_context.update(queryset.aggregate(*data_from_all_product()))
+
+        if category_slug is None:
+            url_name = "catalogue_index"
+            self.extra_context.update({"current_url": reverse(url_name)})
+        else:
+            url_name = "catalogue_navigation_categories"
+            self.extra_context.update({"current_url": reverse(url_name, kwargs={"slug_category": category_slug})})
+
+        if self.request.GET.get("min_ttc_price", None) is not None \
+                and self.request.GET.get("max_ttc_price", None) is not None:
+            queryset = queryset.filter(
+                price_exact_ttc__range=(
+                    Decimal.from_float(float(self.request.GET["min_ttc_price"])),
+                    Decimal.from_float(float(self.request.GET["max_ttc_price"]))
+                )
+            )
 
         if self.request.GET.get("order", None) is not None:
             if self.request.GET["order"].lower() == "asc":
@@ -222,9 +243,38 @@ class IndexView(ListView):
         else:
             self.extra_context.update({"order": -1})
 
-        self.extra_context.update({"slug_category": category_slug})
+            self.extra_context.update({"slug_category": category_slug})
 
-        return super(IndexView, self).get_queryset()
+        ordering = self.get_ordering()
+        if ordering:
+            if isinstance(ordering, str):
+                ordering = (ordering,)
+            queryset = queryset.order_by(*ordering)
+
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        allow_empty = self.get_allow_empty()
+
+        if not allow_empty:
+            # When pagination is enabled and object_list is a queryset,
+            # it's better to do a cheap query than to load the unpaginated
+            # queryset in memory.
+            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = not self.object_list
+            if is_empty:
+                raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
+                    'class_name': self.__class__.__name__,
+                })
+        context = self.get_context_data()
+
+        if request.is_ajax():
+            return JsonResponse({"html": render_to_string("catalogue/products_list.html", context, request)})
+
+        return self.render_to_response(context)
 
 
 class ProductDetailView(FormMixin, DetailView):

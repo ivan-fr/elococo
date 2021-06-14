@@ -1,34 +1,31 @@
 <nav class="navbar navigation border bg-white mb-3 span_5 rounded-2">
-    <ul class="d-flex">
+    <ul class="d-flex filters">
         {% if order is not None and order == 0 %}
             <li class="link is-active">
                 {% else %}
             <li class="link">
         {% endif %}
-        {% if slug_category %}
-            <a href="{% url 'catalogue_navigation_categories' slug_category %}?order=asc">
-                prix croissant
-            </a>
-        {% else %}
-            <a href="{% url 'catalogue_index' %}?order=asc">
-                prix croissant
-            </a>
-        {% endif %}
+        <a href="" data-url-key="order" data-url-value="asc">
+            prix croissant
+        </a>
         </li>
         {% if order == 1 %}
             <li class="link is-active">
                 {% else %}
             <li class="link">
         {% endif %}
-        {% if slug_category %}
-            <a href="{% url 'catalogue_navigation_categories' slug_category %}?order=desc">
-                prix décroissant
-            </a>
-        {% else %}
-            <a href="{% url 'catalogue_index' %}?order=desc">
-                prix décroissant
-            </a>
+        <a href="" data-url-key="order" data-url-value="desc">
+            prix décroissant
+        </a>
+        </li>
+        {% if order == -1 %}
+            <li class="link is-active">
+                {% else %}
+            <li class="link">
         {% endif %}
+        <a href="" data-url-key="order">
+            derniers ajouts
+        </a>
         </li>
     </ul>
 </nav>
@@ -36,7 +33,7 @@
 <form action="" class="start_8 end_12">
     <nav class="navbar navigation navigation_form border bg-white mb-3 rounded-2">
         <ul class="d-flex">
-            <li class="grid dr_grid">
+            <li class="grid dr_grid" id="products_dr">
                 <div class="dr_value_left span_2 text-right" data-dr-left="{{ price_exact_ttc__min|floatformat:2 }}">
                     {{ price_exact_ttc__min|floatformat:2 }} €
                 </div>

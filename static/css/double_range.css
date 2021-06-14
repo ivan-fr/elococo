@@ -42,6 +42,7 @@
     cursor: move;
     position: relative;
     user-select: none;
+    border-radius: 1em;
 }
 
 .dr_wrapper:nth-of-type(2) {

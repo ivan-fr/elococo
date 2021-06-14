@@ -310,6 +310,10 @@ body {
     margin: 0;
 }
 
+body > footer {
+    border-top: 2px solid #ff6c00;
+}
+
 div.covered_image.image1 {
     background-image: url("../images/paris.jpg");
 }

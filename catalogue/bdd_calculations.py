@@ -2,10 +2,12 @@ from abc import ABC
 from decimal import Decimal
 
 from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
+from django.db.models import FloatField
+from django.db.models import Max, Min
 from django.db.models import PositiveSmallIntegerField, IntegerField
+from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
-from django.db.models import Max, Min
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
@@ -39,6 +41,13 @@ def price_exact_ht(with_reduction=True):
 def price_exact_ttc(with_reduction=True):
     price = price_exact(with_reduction)
     return Case(When(TTC_price=False, then=price * TVA), default=price)
+
+
+def range_ttc(with_reduction=True):
+    price = price_exact(with_reduction)
+    return When(
+        Case(When(TTC_price=False, then=price * TVA), default=price)
+    )
 
 
 def effective_quantity(data):
@@ -82,6 +91,10 @@ def price_annotation_format(basket=None):
             basket)
 
     return my_dict
+
+
+def cast_annotate_to_decimal(dict_, key):
+    dict_[key] = Cast(dict_[key], output_field=FloatField())
 
 
 def total_price_from_all_product():
