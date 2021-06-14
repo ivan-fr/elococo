@@ -10,8 +10,8 @@ function dr(dr_grid, on_up) {
     let dr_value_left = dr_grid.querySelector(".dr_value_left");
     let dr_value_right = dr_grid.querySelector(".dr_value_right");
 
-    let dr_value_left_init = parseFloat(dr_value_left.getAttribute("data-dr-left").replace(',', '.'));
-    let dr_value_right_init = parseFloat(dr_value_right.getAttribute("data-dr-right").replace(',', '.'));
+    let dr_value_left_init = parseFloat(dr_value_left.getAttribute("data-dr-left").replace(',', '.')).toFixed(2);
+    let dr_value_right_init = parseFloat(dr_value_right.getAttribute("data-dr-right").replace(',', '.')).toFixed(2);
 
     let dr_chosen_value_left_init = dr_value_left.getAttribute("data-dr-left").replace(',', '.');
     let dr_chosen_value_right_init = dr_value_right.getAttribute("data-dr-right").replace(',', '.');
@@ -87,7 +87,7 @@ function dr(dr_grid, on_up) {
 
             let percentage = Math.max(limit_min, Math.min(back_base_percentage, limit_max));
 
-            if (percentage === limit_min || percentage === limit_max) {
+            if (Math.abs(percentage - limit_min) <= 1e-2 || Math.abs(percentage - limit_max) <= 1e-2) {
                 if (direction === 1) {
                     box_right.style.backgroundColor = "#ff6969";
                 } else {
@@ -96,15 +96,14 @@ function dr(dr_grid, on_up) {
             }
 
             let distance_value = linear(start, end, percentage);
-            console.log(distance_value)
 
             if (direction === 1) {
-                distance_value = Math.round((distance_value + Number.EPSILON) * 100) / 100
+                distance_value = (Math.round((distance_value + Number.EPSILON) * 100) / 100).toFixed(2)
                 dr_value_right.setAttribute("data-dr-right", `${distance_value}`);
                 dr_value_right.textContent = `${distance_value.toString().replace(".", ",")} €`;
                 box_right.style.backgroundColor = null;
             } else {
-                distance_value = Math.round((distance_value + Number.EPSILON) * 100) / 100
+                distance_value = (Math.round((distance_value + Number.EPSILON) * 100) / 100).toFixed(2)
                 dr_value_left.setAttribute("data-dr-left", `${distance_value}`);
                 dr_value_left.textContent = `${distance_value.toString().replace(".", ",")} €`;
                 box_left.style.backgroundColor = null;
