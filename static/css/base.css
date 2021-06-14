@@ -302,10 +302,6 @@ a:visited {
     max-height: 150px;
 }
 
-body > footer {
-    border-top: 2px solid #ff6c00;
-}
-
 body {
     background: #ffe2d1;
     font-family: \"Gill Sans\", sans-serif;

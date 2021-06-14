@@ -34,15 +34,15 @@ function callback(box, direction) {
     if (direction === 1) {
         direction_str = "right";
         limit_min = 0.;
-        limit_max = Math.round(((dr_main.right - box_left.getBoundingClientRect().left) / dr_main.width + Number.EPSILON) * 100) / 100;
         start = dr_value_right_init;
         end = dr_value_left_init;
+        limit_max = Math.round(((dr_main.right - box_left.getBoundingClientRect().left) / dr_main.width + Number.EPSILON) * 100) / 100;
     } else {
         direction_str = "left";
         limit_min = 0.;
-        limit_max = Math.round(((box_right.getBoundingClientRect().right - dr_main.left) / dr_main.width + Number.EPSILON) * 100) / 100;
         start = dr_value_left_init;
         end = dr_value_right_init;
+        limit_max = Math.round(((box_right.getBoundingClientRect().right - dr_main.left) / dr_main.width + Number.EPSILON) * 100) / 100;
     }
 
     return function (event) {
@@ -58,13 +58,20 @@ function callback(box, direction) {
             base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.left) / dr_main.width, limit_max));
         }
 
-
         let value = lineare(start, end, base_percentage);
-
         let quotient_relative = function_quotient((value - start) / 2);
 
-        let value_target;
-        value_target = start + 2 * quotient_relative;
+        let value_target_end;
+
+        if (direction === 1) {
+            value_target_end = parseFloat(dr_value_left.getAttribute("data-dr-left").replace(',', '.')) + 2;
+            limit_max = reverse_lineare(start, end, value_target_end);
+        } else {
+            value_target_end = parseFloat(dr_value_right.getAttribute("data-dr-right").replace(',', '.')) - 2;
+            limit_max = reverse_lineare(start, end, value_target_end);
+        }
+
+        let value_target = start + 2 * quotient_relative;
 
         let back_base_percentage = reverse_lineare(start, end, value_target);
 
@@ -109,7 +116,6 @@ function callback(box, direction) {
 
 function callback_up(move_event) {
     return function up() {
-        console.log("koko");
         document.removeEventListener("pointermove", move_event);
         document.body.style.cursor = null;
         document.body.style.userSelect = null;
