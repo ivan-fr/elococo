@@ -5,7 +5,7 @@ function dr(dr_grid, on_up) {
     let box_right = dr_grid.querySelector(".dr_main .dr_wrapper:nth-of-type(2) .dr_box");
     let zIndex = 10;
 
-    let dr_main = dr_grid.querySelector(".dr_main").getBoundingClientRect();
+    let dr_main = dr_grid.querySelector(".dr_main");
 
     let dr_value_left = dr_grid.querySelector(".dr_value_left");
     let dr_value_right = dr_grid.querySelector(".dr_value_right");
@@ -40,13 +40,13 @@ function dr(dr_grid, on_up) {
             limit_min = 0.;
             start = dr_value_right_init;
             end = dr_value_left_init;
-            limit_max = Math.round(((dr_main.right - box_left.getBoundingClientRect().left) / dr_main.width + Number.EPSILON) * 100) / 100;
+            limit_max = Math.round(((dr_main.getBoundingClientRect().right - box_left.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width + Number.EPSILON) * 100) / 100;
         } else {
             direction_str = "left";
             limit_min = 0.;
             start = dr_value_left_init;
             end = dr_value_right_init;
-            limit_max = Math.round(((box_right.getBoundingClientRect().right - dr_main.left) / dr_main.width + Number.EPSILON) * 100) / 100;
+            limit_max = Math.round(((box_right.getBoundingClientRect().right - dr_main.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width + Number.EPSILON) * 100) / 100;
         }
 
         return function (event) {
@@ -56,10 +56,10 @@ function dr(dr_grid, on_up) {
             let base_percentage, function_quotient;
             if (direction === 1) {
                 function_quotient = Math.ceil;
-                base_percentage = Math.max(limit_min, Math.min((dr_main.right - event.pageX) / dr_main.width, limit_max));
+                base_percentage = Math.max(limit_min, Math.min((dr_main.getBoundingClientRect().right - event.pageX) / dr_main.getBoundingClientRect().width, limit_max));
             } else {
                 function_quotient = Math.floor;
-                base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.left) / dr_main.width, limit_max));
+                base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width, limit_max));
             }
 
             let value = linear(start, end, base_percentage);
@@ -108,12 +108,18 @@ function dr(dr_grid, on_up) {
                 direction_str, `max(0px, ${percentage * 100}% - ${box_right.getBoundingClientRect().width}px)`
             );
 
-            let px_2 = Math.abs((box_right.getBoundingClientRect().right - box_left.getBoundingClientRect().left - box_left.getBoundingClientRect().width));
-            let px_3 = (box_left.getBoundingClientRect().left - dr_temoin.getBoundingClientRect().left + box_left.getBoundingClientRect().width);
-            dr.style.width = `${px_2}px`;
-            dr.style.left = `${px_3}px`;
+            update_bar();
         };
     }
+
+    function update_bar() {
+        let px_2 = Math.abs((box_right.getBoundingClientRect().right - box_left.getBoundingClientRect().left - box_left.getBoundingClientRect().width));
+        let px_3 = (box_left.getBoundingClientRect().left - dr_temoin.getBoundingClientRect().left + box_left.getBoundingClientRect().width);
+        dr.style.width = `${px_2}px`;
+        dr.style.left = `${px_3}px`;
+    }
+
+    window.addEventListener('resize', update_bar);
 
     function callback_up(move_event) {
         return function up() {
