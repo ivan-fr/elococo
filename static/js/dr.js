@@ -79,9 +79,24 @@ function dr(dr_grid, on_up) {
 
             let back_base_percentage = reverse_linear(start, end, value_target);
 
+            if (isNaN(back_base_percentage)) {
+                box_right.style.backgroundColor = "#ff6969";
+                box_left.style.backgroundColor = "#ff6969";
+                return;
+            }
+
             let percentage = Math.max(limit_min, Math.min(back_base_percentage, limit_max));
 
+            if (percentage === limit_min || percentage === limit_max) {
+                if (direction === 1) {
+                    box_right.style.backgroundColor = "#ff6969";
+                } else {
+                    box_left.style.backgroundColor = "#ff6969";
+                }
+            }
+
             let distance_value = linear(start, end, percentage);
+            console.log(distance_value)
 
             if (direction === 1) {
                 distance_value = Math.round((distance_value + Number.EPSILON) * 100) / 100
