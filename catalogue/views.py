@@ -8,7 +8,7 @@ from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import BaseListView
 
-from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product
+from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, data_from_all_product
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
     MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
 from catalogue.models import Product
@@ -210,6 +210,7 @@ class IndexView(ListView):
         self.extra_context["related_products"] = None
         self.queryset = self.queryset.filter(enable_sale=True, stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
+        self.extra_context.update(self.queryset.aggregate(*data_from_all_product()))
 
         if self.request.GET.get("order", None) is not None:
             if self.request.GET["order"].lower() == "asc":

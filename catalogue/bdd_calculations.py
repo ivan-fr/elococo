@@ -5,6 +5,7 @@ from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exis
 from django.db.models import PositiveSmallIntegerField, IntegerField
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
+from django.db.models import Max, Min
 
 from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
@@ -87,6 +88,10 @@ def total_price_from_all_product():
     return Sum(F("price_exact_ttc_with_quantity")), Sum(F("price_exact_ht_with_quantity"))
 
 
+def data_from_all_product():
+    return Min("price_exact_ttc"), Max("price_exact_ttc")
+
+
 def get_descendants_categories(with_products=True, include_self=False, **filters):
     if with_products:
         d1 = {"products__stock__gt": 0, "products__enable_sale": True}
@@ -112,15 +117,15 @@ class SQSum(Subquery, ABC):
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):
-    filled_category = Category.get_root_nodes().filter(
+    filled_category_ = Category.get_root_nodes().filter(
         Exists(get_descendants_categories(include_self=True))
-    ).annotate(products_count__sum=SQSum(get_descendants_categories(include_self=True)))
+    ).annotate(products_count__sum=SQSum(get_descendants_categories(include_self=True)))[:limit]
 
-    dict_ = {'filled_category': filled_category, "selected_category_root": None, "related_products": None,
+    dict_ = {'filled_category': filled_category_, "selected_category_root": None, "related_products": None,
              "selected_category": None, "filter_list": None}
 
     if selected_category is not None:
-        dict_["selected_category_root"] = filled_category.filter(
+        dict_["selected_category_root"] = Category.objects.filter(pk__in=filled_category_).filter(
             Exists(
                 get_descendants_categories(
                     with_products=False,

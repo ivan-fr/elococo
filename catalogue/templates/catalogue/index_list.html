@@ -1,10 +1,15 @@
 {% extends 'elococo/base.html' %}
+{% load static %}
+
+{% block head_css %}
+    <link rel="stylesheet" href="{% static "css/double_range.css" %}">
+{% endblock %}
 
 {% block base_container %}
     <h2 class="text-center start_2 end_12">Boutique</h2>
     {% if product_list %}
         {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
-        {% include "catalogue/filtres.html" with slug_category=slug_category order=order only %}
+        {% include "catalogue/filtres.html" %}
         {% if filter_list is None %}
             <div id="boutique" class="grid span_12 span_md_12 gap-3">
         {% else %}
@@ -71,4 +76,8 @@
     {% else %}
         <p>Il n'y a plus de produits en stocks ! Revennez un autre jour.</p>
     {% endif %}
+{% endblock %}
+
+{% block body_js %}
+    <script src="{% static "js/dr.js" %}"></script>
 {% endblock %}
