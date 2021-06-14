@@ -86,7 +86,7 @@ function dr(dr_grid, on_up) {
             }
 
             let percentage = Math.max(limit_min, Math.min(back_base_percentage, limit_max));
-            if (Math.abs(percentage - limit_max) <= 9e-2) {
+            if (Math.abs(percentage - limit_max) <= 9e-2 || Math.abs(percentage - limit_min) <= 9e-2) {
                 box.style.backgroundColor = '#ff6969';
             } else {
                 box.style.backgroundColor = null;
