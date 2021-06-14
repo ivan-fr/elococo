@@ -1,4 +1,4 @@
-<nav class="navbar navigation border bg-white mb-3 span_5 rounded-2">
+<nav class="navbar navigation border bg-white mb-3 span_5 span_md_12 rounded-2">
     <ul class="d-flex filters">
         {% if order is not None and order == 0 %}
             <li class="link is-active">
@@ -6,7 +6,7 @@
             <li class="link">
         {% endif %}
         <a href="" data-url-key="order" data-url-value="asc">
-            prix croissant
+            Prix croissant
         </a>
         </li>
         {% if order == 1 %}
@@ -15,7 +15,7 @@
             <li class="link">
         {% endif %}
         <a href="" data-url-key="order" data-url-value="desc">
-            prix décroissant
+            Prix décroissant
         </a>
         </li>
         {% if order == -1 %}
@@ -24,13 +24,13 @@
             <li class="link">
         {% endif %}
         <a href="" data-url-key="order">
-            derniers ajouts
+            Derniers ajouts
         </a>
         </li>
     </ul>
 </nav>
 
-<form action="" class="start_8 end_12">
+<form action="" class="start_8 end_12 span_md_12">
     <nav class="navbar navigation navigation_form border bg-white mb-3 rounded-2">
         <ul class="d-flex">
             <li class="grid dr_grid" id="products_dr">
