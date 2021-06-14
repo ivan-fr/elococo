@@ -1,8 +1,6 @@
 let dr = document.querySelector(".dr_main .double_range");
 let box_left = document.querySelector(".dr_main .dr_wrapper:nth-of-type(1) .dr_box");
 let box_right = document.querySelector(".dr_main .dr_wrapper:nth-of-type(2) .dr_box");
-let move_event = null;
-let do_add_event_listener_up = true;
 let zIndex = 10;
 
 let dr_main = document.querySelector(".dr_main").getBoundingClientRect();
@@ -51,19 +49,19 @@ function callback(box, direction) {
         if (init_page_x === null) {
             init_page_x = event.pageX;
         }
-        let base_percentage, function_quotion;
+        let base_percentage, function_quotient;
         if (direction === 1) {
-            function_quotion = Math.ceil;
+            function_quotient = Math.ceil;
             base_percentage = Math.max(limit_min, Math.min((dr_main.right - event.pageX) / dr_main.width, limit_max));
         } else {
-            function_quotion = Math.floor;
+            function_quotient = Math.floor;
             base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.left) / dr_main.width, limit_max));
         }
 
 
         let value = lineare(start, end, base_percentage);
 
-        let quotient_relative = function_quotion((value - start) / 2);
+        let quotient_relative = function_quotient((value - start) / 2);
 
         let value_target;
         value_target = start + 2 * quotient_relative;
@@ -106,38 +104,33 @@ function callback(box, direction) {
                 box_left.style.backgroundColor = "#ff7474";
             }
         }
-
-        if (do_add_event_listener_up) {
-            document.addEventListener("pointerup", up);
-            do_add_event_listener_up = false;
-        }
     };
 }
 
-function up() {
-    document.removeEventListener("pointermove", move_event);
-    document.body.style.cursor = null;
-    document.body.style.userSelect = null;
-    move_event = null;
-    box_right.style.backgroundColor = null;
-    box_left.style.backgroundColor = null;
-    do_add_event_listener_up = true;
+function callback_up(move_event) {
+    return function up() {
+        console.log("koko");
+        document.removeEventListener("pointermove", move_event);
+        document.body.style.cursor = null;
+        document.body.style.userSelect = null;
+        move_event = null;
+        box_right.style.backgroundColor = null;
+        box_left.style.backgroundColor = null;
+    }
 }
 
-box_left.addEventListener("pointerdown", function (event) {
-    event.currentTarget.parentElement.style.zIndex = `${zIndex}`;
-    zIndex++;
-    move_event = callback(event.currentTarget, 0);
-    document.body.style.cursor = "move";
-    document.body.style.userSelect = "none";
-    document.addEventListener("pointermove", move_event);
-})
+function callback_down(direction) {
+    return function down(event) {
+        event.currentTarget.parentElement.style.zIndex = `${zIndex}`;
+        zIndex++;
+        let move_event = callback(event.currentTarget, direction);
+        document.body.style.cursor = "move";
+        document.body.style.userSelect = "none";
+        document.addEventListener("pointermove", move_event);
+        document.addEventListener("pointerup", callback_up(move_event));
+    }
+}
 
-box_right.addEventListener("pointerdown", function (event) {
-    event.currentTarget.parentElement.style.zIndex = `${zIndex}`;
-    zIndex++;
-    move_event = callback(event.currentTarget, 1);
-    document.body.style.cursor = "move";
-    document.body.style.userSelect = "none";
-    document.addEventListener("pointermove", move_event);
-})
+box_left.addEventListener("pointerdown", callback_down(0));
+
+box_right.addEventListener("pointerdown", callback_down(1));
