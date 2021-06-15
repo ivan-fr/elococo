@@ -50,6 +50,10 @@ function dr(dr_grid, on_up) {
         }
 
         return function move(event) {
+            if (event.type === "touchmove") {
+                event.pageX = event.touches[0].pageX;
+            }
+
             if (init_page_x === null) {
                 init_page_x = event.pageX;
             }
@@ -129,7 +133,7 @@ function dr(dr_grid, on_up) {
                 return;
             }
 
-            if (next_back_base_percentage >= limit_max || next_back_base_percentage < limit_min) {
+            if (next_back_base_percentage > limit_max || next_back_base_percentage < limit_min) {
                 box.style.backgroundColor = '#ff6969';
             } else {
                 box.style.backgroundColor = null;
@@ -166,12 +170,12 @@ function dr(dr_grid, on_up) {
 
     window.addEventListener('resize', update_bar);
 
-    function callback_up(move_event) {
+    function callback_up(move_callback, touch = 0) {
         return function up() {
-            document.removeEventListener("pointermove", move_event);
+            document.removeEventListener(get_name_event("move", touch), move_callback);
             document.body.style.cursor = null;
             document.body.style.userSelect = null;
-            move_event = null;
+            move_callback = null;
             box_right.style.backgroundColor = null;
             box_left.style.backgroundColor = null;
 
@@ -188,23 +192,37 @@ function dr(dr_grid, on_up) {
                 );
             }
 
-            document.removeEventListener("pointerup", up);
+            document.removeEventListener("mouseup", up);
         }
     }
 
-    function callback_down(direction) {
+    function get_name_event(key, touch = 0) {
+        let dico;
+        if (touch) {
+            dico = {"move": "mousemove", "up": "mouseup", "down": "mousedown"}
+        } else {
+            dico = {"move": "touchmove", "up": "touchend", "down": "touchstart"}
+        }
+        return dico[key];
+    }
+
+    function callback_down(direction, touch = 0) {
         return function down(event) {
             event.currentTarget.parentElement.style.zIndex = `${zIndex}`;
             zIndex++;
             let move_event = callback_move(event.currentTarget, direction);
             document.body.style.cursor = "move";
             document.body.style.userSelect = "none";
-            document.addEventListener("pointermove", move_event);
-            document.addEventListener("pointerup", callback_up(move_event));
+            document.addEventListener(get_name_event("move", touch), move_event);
+            document.addEventListener(get_name_event("up", touch), callback_up(move_event, touch));
         }
     }
 
-    box_left.addEventListener("pointerdown", callback_down(0));
+    box_left.addEventListener(get_name_event("down"), callback_down(0));
 
-    box_right.addEventListener("pointerdown", callback_down(1));
+    box_right.addEventListener(get_name_event("down"), callback_down(1));
+
+    box_left.addEventListener(get_name_event("down", 1), callback_down(0, 1));
+
+    box_right.addEventListener(get_name_event("down", 1), callback_down(1, 1));
 }

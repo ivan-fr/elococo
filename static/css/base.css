@@ -427,6 +427,10 @@ nav.navbar.navigation {
     text-align: right;
 }
 
+.text-left {
+    text-align: left;
+}
+
 .navbar:not(.navigation_form) ul > li {
     display: flex;
 }
