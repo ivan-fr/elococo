@@ -16,7 +16,6 @@ function dr(dr_grid, on_up) {
     let dr_chosen_value_left_init = dr_value_left.getAttribute("data-dr-left").replace(',', '.');
     let dr_chosen_value_right_init = dr_value_right.getAttribute("data-dr-right").replace(',', '.');
 
-
     function linear(start, end, x) {
         let a = (end - start);
         return x * a + start;
