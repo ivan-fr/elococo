@@ -1,0 +1,154 @@
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    color: #212529 !important;
+    grid-gap: 0.5em !important;
+    background-color: #fff !important;
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-tap-highlight-color: transparent !important;
+    margin: 1.1em auto !important;
+    width: 1600px !important;
+}
+
+.start_1 {
+    grid-column-start: 1;
+}
+
+.start_2 {
+    grid-column-start: 2;
+}
+
+.start_3 {
+    grid-column-start: 3;
+}
+
+.start_4 {
+    grid-column-start: 4;
+}
+
+.start_5 {
+    grid-column-start: 5;
+}
+
+.start_6 {
+    grid-column-start: 6;
+}
+
+.start_7 {
+    grid-column-start: 7;
+}
+
+.start_8 {
+    grid-column-start: 8;
+}
+
+.start_9 {
+    grid-column-start: 9;
+}
+
+.start_10 {
+    grid-column-start: 10;
+}
+
+.start_11 {
+    grid-column-start: 11;
+}
+
+.start_12 {
+    grid-column-start: 12;
+}
+
+.end_1 {
+    grid-column-end: 2;
+}
+
+.end_2 {
+    grid-column-end: 3;
+}
+
+.end_3 {
+    grid-column-end: 4;
+}
+
+.end_4 {
+    grid-column-end: 5;
+}
+
+.end_5 {
+    grid-column-end: 6;
+}
+
+.end_6 {
+    grid-column-end: 7;
+}
+
+.end_7 {
+    grid-column-end: 8;
+}
+
+.end_8 {
+    grid-column-end: 9;
+}
+
+.end_9 {
+    grid-column-end: 10;
+}
+
+.end_10 {
+    grid-column-end: 11;
+}
+
+.end_11 {
+    grid-column-end: 12;
+}
+
+.end_12 {
+    grid-column-end: 13;
+}
+
+.grid {
+    display: grid;
+    grid-gap: 1em;
+    grid-template-rows: auto;
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.img_main_cv {
+    border-radius: 1em;
+    height: 10em;
+}
+
+.font_size_title {
+    font-size: 4.5rem;
+}
+
+.font_size_sub {
+    font-size: 1.5rem;
+}
+
+.mx_auto {
+    margin: 0 auto;
+}
+
+.text_right {
+    text-align: right;
+}
+
+.bg_light_blue {
+    background-color: rgb(199, 222, 255);
+    border-radius: 1em;
+}
+
+.pad_1 {
+    padding: 1em;
+}
+
+.border_dash {
+    border: black dashed 2px;
+}
+
+.mb_1 {
+    margin-bottom: 1em;
+}

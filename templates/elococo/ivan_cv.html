@@ -7,228 +7,128 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV BESEVIC Ivan</title>
+    <link rel="stylesheet" href="{% static "css/cv.css" %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            font-size: 1.5rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #212529;
-            grid-gap: 0.5em;
-            background-color: #fff;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-            margin: 1.1em auto;
-            width: 1500px;
-        }
-
-        .grid {
-            display: grid;
-            grid-gap: 1em;
-            grid-template-rows: auto;
-            grid-template-columns: repeat(6, 1fr);
-        }
-
-        .start_1 {
-            grid-column-start: 1;
-        }
-
-        .start_2 {
-            grid-column-start: 2;
-        }
-
-        .start_3 {
-            grid-column-start: 3;
-        }
-
-        .start_4 {
-            grid-column-start: 4;
-        }
-
-        .start_5 {
-            grid-column-start: 5;
-        }
-
-        .start_6 {
-            grid-column-start: 6;
-        }
-
-        .end_1 {
-            grid-column-end: 2;
-        }
-
-        .end_2 {
-            grid-column-end: 3;
-        }
-
-        .end_3 {
-            grid-column-end: 4;
-        }
-
-        .end_4 {
-            grid-column-end: 5;
-        }
-
-        .end_5 {
-            grid-column-end: 6;
-        }
-
-        .end_6 {
-            grid-column-end: 7;
-        }
-
-        .img_main_cv {
-            border-radius: 1em;
-            height: 10em;
-        }
-
-        .font_size_title {
-            font-size: 4.5rem;
-        }
-
-        .font_size_sub {
-            font-size: 1.5rem;
-        }
-
-        .mx_auto {
-            margin: 0 auto;
-        }
-
-        .text_right {
-            text-align: right;
-        }
-
-        .bg_light_blue {
-            background-color: rgb(199, 222, 255);
-        }
-
-        .pad_1 {
-            padding: 1em;
-        }
-
-        .border_dash {
-            border: black dashed 2px;
-        }
-
-        .mb_1 {
-            margin-bottom: 1em;
-        }
-    </style>
 </head>
 
 <body class="grid" id="myCanvas">
-    <div class="bg_light_blue start_1 end_3 text_right">
-        <div class="grid pad_1">
-            <div class="font_size_title start_1 end_6"><b>BESEVIC</b> Ivan</div>
-            <div class="start_4 end_6 font_size_sub"><em>Étudiant en informatique</em></div>
+<div class="bg_light_blue start_1 end_7 text_right">
+    <div class="grid pad_1">
+        <div class="font_size_title start_1 end_12"><b>BESEVIC</b> Ivan</div>
+        <div class="start_4 end_12 font_size_sub"><em>Étudiant en informatique</em></div>
+    </div>
+</div>
+<div class="start_11 end_12 mx_auto">
+    <img class="img_main_cv" src="{% static 'images/cv.jpg' %}" alt="Ivan">
+</div>
+<div class="start_1 end_3">
+    <div class="grid">
+        <div class="start_1 end_12">
+            <h2>CONTACT</h2>
+            <p><i class="bi-geo-alt-fill"></i> 248 rue de Crimée 75019 PARIS</p>
+            <p><i class="bi-telephone-fill"></i> 06 37 72 82 73</p>
+            <p><i class="bi-envelope-fill"></i> <a href="mailto:ivan.besevic_fr@yahoo.com">ivan.besevic_fr@yahoo.com</a>
+            </p>
+            <p><i class="bi-linkedin"></i> Profile linkedin: <a target="_blank"
+                                                                href="https://www.linkedin.com/in/ivan-besevic-23493b166/">https://www.linkedin.com/in/ivan-besevic-23493b166/</a>
+            </p>
+            <p><i class="bi-github"></i> Lien github: <a target="_blank"
+                                                         href="https://github.com/ivan-fr/">https://github.com/ivan-fr/</a>
+            </p>
         </div>
-    </div>
-    <div class="start_6 end_6 mx_auto">
-        <img class="img_main_cv" src="{% static 'images/cv.jpg' %}" alt="Ivan">
-    </div>
-    <div class="start_1 end_2">
-        <div class="grid">
-            <div class="start_1 end_6">
-                <h2>CONTACT</h2>
-                <p><i class="bi-geo-alt-fill"></i> 248 rue de Crimée 75019 PARIS</p>
-                <p><i class="bi-telephone-fill"></i> 06 37 72 82 73</p>
-                <p><i class="bi-envelope-fill"></i> <a href="mailto:ivan.besevic_fr@yahoo.com">ivan.besevic_fr@yahoo.com</a></p>
-                <p><i class="bi-linkedin"></i> Profile linkedin: <a target="_blank"
-                        href="https://www.linkedin.com/in/ivan-besevic-23493b166/">https://www.linkedin.com/in/ivan-besevic-23493b166/</a>
-                </p>
-                <p><i class="bi-github"></i> Lien github: <a target="_blank"
-                        href="https://github.com/ivan-fr/">https://github.com/ivan-fr/</a>
-                </p>
-            </div>
-            <div class="start_1 end_6">
-                <h2>COMPÉTENCES</h2>
-                <ul>
-                    <li>JAVA (language de programmation)</li>
-                    <li>PYTHON (language de programmation)</li>
-                    <li>C (language de programmation)</li>
-                    <li>SQL (language pour requêtes)</li>
-                </ul>
-            </div>
-            <div class="start_1 end_6">
-                <h2>PARCOURS ACADÉMIQUE</h2>
-                <ul>
-                    <li><u>2021-2022:</u> <b>Sorbonne Université</b><br> Licence Informatique (BAC+3)</li>
-                    <li><u>2020-2021:</u> <b>Sorbonne Université</b><br> Licence Informatique (BAC+2)<br>mentions <strong>TB</strong></li>
-                    <li><u>2019-2020:</u> <b>Caen Normandie</b><br> Licence Informatique (BAC+1)<br>mentions <strong>TB</strong></li>
-                    <li><u>2018-2019:</u> <b>OpenClassRooms</b><br> Developpeur d'applications<br>(RNCP niveau 6)</li>
-                </ul>
-            </div>
-            <div class="start_1 end_6">
-                <h2>CENTRE D'INTÊRET</h2>
-                <p> Jeux videos <i class="bi-controller"></i> <br>
-                    Cinéma <i class="bi-camera-reels-fill"></i> <br>Faire des sorties <i
+        <div class="start_1 end_12">
+            <h2>COMPÉTENCES</h2>
+            <ul>
+                <li>JAVA (language de programmation)</li>
+                <li>PYTHON (language de programmation)</li>
+                <li>C (language de programmation)</li>
+                <li>SQL (language pour requêtes)</li>
+            </ul>
+        </div>
+        <div class="start_1 end_12">
+            <h2>PARCOURS ACADÉMIQUE</h2>
+            <ul>
+                <li><u>2021-2022:</u> <b>Sorbonne Université</b><br> Licence Informatique (BAC+3)</li>
+                <li><u>2020-2021:</u> <b>Sorbonne Université</b><br> Licence Informatique (BAC+2)<br>mentions
+                    <strong>TB</strong></li>
+                <li><u>2019-2020:</u> <b>Caen Normandie</b><br> Licence Informatique (BAC+1)<br>mentions
+                    <strong>TB</strong></li>
+                <li><u>2018-2019:</u> <b>OpenClassRooms</b><br> Developpeur d'applications<br>(RNCP niveau 6)</li>
+            </ul>
+        </div>
+        <div class="start_1 end_12">
+            <h2>CENTRE D'INTÊRET</h2>
+            <p> Jeux videos <i class="bi-controller"></i> <br>
+                Cinéma <i class="bi-camera-reels-fill"></i> <br>Faire des sorties <i
                         class="bi-emoji-smile-fill"></i>
-                </p>
-            </div>
+            </p>
         </div>
     </div>
-    <div class="start_3 end_6">
-        <div class="grid">
-            <div class="start_1 end_6">
-                <h2>PROFILE</h2>
-                <div class="pad_1 border_dash">
-                    <p>
-                        Étudiant en informatique, je suis actuellement en recherche d’un <b>stage pendant les vacances
-                            d'été 2021</b>.
-                    </p>
-                    <p>Je maîtrise différents aspects de la programmation, tel que les structures de données (tables de
-                        hachages, arbres, graphes). Le calcul relationnel pour faire des requêtes, plusieurs paradigmes
-                        de
-                        développement (POO, procédural, fonctionnel).</p>
-                    <p>Ainsi que des connaissances en mathématiques (algèbre et
-                        probabilité, discrète, logique et algorithmiques).
-                    </p>
-                    <p>Je connais la méthode de développement agile “scrum”
-                        que j’applique dans le cadre universitaire de projets en groupe.
-                    </p>
-                    <p>Auparavant j’ai effectué une formation
-                        professionnelle en pratiquant le langage python afin de faire des sites web avec le framework
-                        Django.
-                    </p>
-                </div>
-
-            </div>
-            <div class="pad_1 bg_light_blue start_1 end_6">
-                <h2>ÉXPERIENCES</h2>
-                <h3>2021 - Développeur Python/DJANGO - projet personnel</h3>
+</div>
+<div class="start_4 end_12">
+    <div class="grid">
+        <div class="start_1 end_12">
+            <h2>PROFILE</h2>
+            <div class="pad_1 border_dash">
                 <p>
-                    <p><a target="_blank" href="http://67.205.140.214/">http://67.205.140.214/</a> (site de démonstration)</p>
-                    Développement d'un site e-commerce, gestions d'un catalogue avec catégories, gestions d'un panier avec
-                    AJAX. <br>
-                    Gestions des formulaires de renseignements. <br>
-                    Librairie de paiements utilisé stripe.
+                    Étudiant en informatique, je suis actuellement en recherche d’un <b>stage pendant les vacances
+                    d'été 2021</b>.
                 </p>
-                <h3>2021 - Développeur Python/C# - Sorbonne Université - projet</h3>
-                <p>
-                    Développement de stratégies pour un robot type Gopigo avec simulation de rendu côté ordinateur avec
-                    unity.
-
-                    Le robot est capable de suivre une balise grâce à sa caméra (avec analyse d'image en utilsant
-                    numpy), éviter des obstacles et suivre un parcours géométrique.
+                <p>Je maîtrise différents aspects de la programmation, tel que les structures de données (tables de
+                    hachages, arbres, graphes). Le calcul relationnel pour faire des requêtes, plusieurs paradigmes
+                    de
+                    développement (POO, procédural, fonctionnel).</p>
+                <p>Ainsi que des connaissances en mathématiques (algèbre et
+                    probabilité, discrète, logique et algorithmiques).
                 </p>
-                <h3>2020 - Développeur Python - Université de Caen - projet</h3>
-                <p>Développement d'un sokoban avec pygame. Intelligence artificiel basé sur l'algorithme A* pour jouer
-                    contre l'ordinateur.</b>.
+                <p>Je connais la méthode de développement agile “scrum”
+                    que j’applique dans le cadre universitaire de projets en groupe.
                 </p>
-                <h3>2019 - Développeur python/django - OpenClassRooms</h3>
-                <p><a target="_blank" href="http://3.138.191.40/">http://3.138.191.40/</a> (site de démonstration)</p>
-                <p>
-                    Site Web dans le cadre d'un projet.
-                    Simulation d'une billetterie en ligne.
-                    Possibilité de gérer un stock de places en fonction d'un calendrier.
-
-                    À ce jour, on a pas la possibilité de remplir le panier de commande, car aucun créneaux de spectacle
-                    est disponible dans la simulation.
+                <p>Auparavant j’ai effectué une formation
+                    professionnelle en pratiquant le langage python afin de faire des sites web avec le framework
+                    Django.
                 </p>
             </div>
+
+        </div>
+        <div class="pad_1 bg_light_blue start_1 end_12">
+            <h2>ÉXPERIENCES</h2>
+            <h3>2021 - Développeur Python/DJANGO - projet personnel</h3>
+            <p>
+            <p><a target="_blank" href="http://67.205.140.214/">http://67.205.140.214/</a> (site de démonstration)</p>
+            Développement d'un site e-commerce, gestions d'un catalogue avec catégories, gestions d'un panier avec
+            AJAX. <br>
+            Gestions des formulaires de renseignements. <br>
+            Stripe est la librairie de paiements utilisé pour ce projet.
+            </p>
+            <h3>2021 - Développeur Python/C# - Sorbonne Université - projet</h3>
+            <p>
+                Développement de stratégies pour un robot type Gopigo avec simulation de rendu côté ordinateur avec
+                unity.
+
+                Le robot est capable de suivre une balise grâce à sa caméra (avec analyse d'image en utilsant
+                numpy), éviter des obstacles et suivre un parcours géométrique.
+            </p>
+            <h3>2020 - Développeur Python - Université de Caen - projet</h3>
+            <p>Développement d'un sokoban avec pygame. Intelligence artificiel basé sur l'algorithme A* pour jouer
+                contre l'ordinateur.</b>
+            </p>
+            <h3>2019 - Développeur python/django - OpenClassRooms</h3>
+            <p><a target="_blank" href="http://3.138.191.40/">http://3.138.191.40/</a> (site de démonstration)</p>
+            <p>
+                Site Web dans le cadre d'un projet.
+                Simulation d'une billetterie en ligne.
+                Possibilité de gérer un stock de places en fonction d'un calendrier.
+
+
+            </p>
+            <p>
+                À ce jour, on a pas la possibilité de remplir le panier de commande, car aucun créneaux de spectacle
+                est disponible dans la simulation.
+            </p>
         </div>
     </div>
+</div>
 </body>
 
 </html>
