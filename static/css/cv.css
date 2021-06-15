@@ -1,14 +1,29 @@
+@page {
+    size: A4 portrait;
+}
+
+h1, h2, h3 {
+    margin: 5px auto;
+}
+
+p {
+    margin: 2px auto;
+}
+
 body {
+    margin: 0 3px;
+    padding: 0;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-    font-size: 1.3rem !important;
+    font-size: 14px !important;
     font-weight: 400 !important;
     line-height: 1.5 !important;
     color: #212529 !important;
-    grid-gap: 0.5em !important;
-    background-color: #fff !important;
+    grid-gap: 2px !important;
     -webkit-text-size-adjust: 100% !important;
     -webkit-tap-highlight-color: transparent !important;
-    margin: 1.1em 9.5em !important;
+    width: 21cm;
+    height: 29.7cm;
+    word-break: break-word;
 }
 
 .start_1 {
@@ -109,7 +124,7 @@ body {
 
 .grid {
     display: grid;
-    grid-gap: 1em;
+    grid-gap: 5px;
     grid-template-rows: auto;
     grid-template-columns: repeat(12, 1fr);
 }
@@ -141,13 +156,49 @@ body {
 }
 
 .pad_1 {
-    padding: 1em;
+    padding: 8px;
+}
+
+.ps_1 {
+    padding-left: 10px;
+}
+
+
+.ps_2 {
+    padding-left: 5px;
+}
+
+.pe_2 {
+    padding-right: 5px;
+}
+
+ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+li span {
+  position: relative;
+  left: -10px;
+}
+
+li::marker {
+    unicode-bidi: isolate;
+    font-variant-numeric: tabular-nums;
+    text-transform: none;
+    text-indent: 3px !important;
+    text-align: start !important;
+    text-align-last: start !important;
 }
 
 .border_dash {
     border: black dashed 2px;
 }
 
+.mt_1 {
+    margin-top: 3px;
+}
+
 .mb_1 {
-    margin-bottom: 1em;
+    margin-bottom: 3px;
 }
