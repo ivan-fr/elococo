@@ -27,32 +27,64 @@ function dr(dr_grid, on_up) {
         return (r - start) / a;
     }
 
-    function callback(box, direction) {
+    function callback_move(box, direction) {
         let init_page_x = null;
+        let t_minus_one_page_x = null;
+        let last_dir_mouse = null;
 
         let limit_max;
-        let limit_min;
+        let limit_min = 0.;
         let direction_str;
         let start, end;
 
         if (direction === 1) {
             direction_str = "right";
-            limit_min = 0.;
             start = dr_value_right_init;
             end = dr_value_left_init;
             limit_max = Math.round(((dr_main.getBoundingClientRect().right - box_left.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width + Number.EPSILON) * 100) / 100;
         } else {
             direction_str = "left";
-            limit_min = 0.;
             start = dr_value_left_init;
             end = dr_value_right_init;
             limit_max = Math.round(((box_right.getBoundingClientRect().right - dr_main.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width + Number.EPSILON) * 100) / 100;
         }
 
-        return function (event) {
+        return function move(event) {
             if (init_page_x === null) {
                 init_page_x = event.pageX;
             }
+
+            let dir_mouse;
+            if (t_minus_one_page_x !== null) {
+                if (event.pageX - t_minus_one_page_x > 0) {
+                    dir_mouse = 0
+                } else if (event.pageX - t_minus_one_page_x < 0) {
+                    dir_mouse = 1
+                } else {
+                    dir_mouse = last_dir_mouse
+                }
+            } else {
+                dir_mouse = direction;
+            }
+            last_dir_mouse = dir_mouse;
+            t_minus_one_page_x = event.pageX;
+
+            let delta_value = dr_value_right_init - dr_value_left_init
+            let starter;
+            if (direction === 1) {
+                if (dir_mouse === 1) {
+                    starter = dr_value_right_init;
+                } else {
+                    starter = dr_value_right_init - Math.floor(delta_value / 2) * 2;
+                }
+            } else {
+                if (dir_mouse === 1) {
+                    starter = dr_value_left_init + Math.floor(delta_value / 2) * 2;
+                } else {
+                    starter = dr_value_left_init;
+                }
+            }
+
             let base_percentage, function_quotient;
             if (direction === 1) {
                 function_quotient = Math.ceil;
@@ -62,8 +94,19 @@ function dr(dr_grid, on_up) {
                 base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width, limit_max));
             }
 
-            let value = linear(start, end, base_percentage);
-            let quotient_relative = function_quotient((value - start) / 2);
+            let start_bis, end_bis;
+            if (direction !== dir_mouse) {
+                [start_bis, end_bis] = [end, start]
+            } else {
+                [start_bis, end_bis] = [start, end]
+            }
+
+            let value = linear(start_bis, end_bis, base_percentage);
+            let quotient_relative = function_quotient((value - starter) / 2);
+
+            if (direction !== dir_mouse) {
+                quotient_relative *= -1
+            }
 
             let value_target_end;
 
@@ -76,8 +119,9 @@ function dr(dr_grid, on_up) {
             }
 
             let value_target = start + 2 * quotient_relative;
-
+            let next_value_target = start + 2 * (quotient_relative + Math.sign(quotient_relative));
             let back_base_percentage = reverse_linear(start, end, value_target);
+            let next_back_base_percentage = reverse_linear(start, end, next_value_target);
 
             if (isNaN(back_base_percentage)) {
                 box_right.style.background = "#ff6969";
@@ -85,12 +129,13 @@ function dr(dr_grid, on_up) {
                 return;
             }
 
-            let percentage = Math.max(limit_min, Math.min(back_base_percentage, limit_max));
-            if (Math.abs(percentage - limit_max) <= 9e-2 || Math.abs(percentage - limit_min) <= 9e-2) {
+            if (next_back_base_percentage >= limit_max || next_back_base_percentage < limit_min) {
                 box.style.backgroundColor = '#ff6969';
             } else {
                 box.style.backgroundColor = null;
             }
+
+            let percentage = Math.max(limit_min, Math.min(back_base_percentage, limit_max));
 
             let distance_value = linear(start, end, percentage);
 
@@ -151,7 +196,7 @@ function dr(dr_grid, on_up) {
         return function down(event) {
             event.currentTarget.parentElement.style.zIndex = `${zIndex}`;
             zIndex++;
-            let move_event = callback(event.currentTarget, direction);
+            let move_event = callback_move(event.currentTarget, direction);
             document.body.style.cursor = "move";
             document.body.style.userSelect = "none";
             document.addEventListener("pointermove", move_event);
