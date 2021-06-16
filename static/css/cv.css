@@ -2,7 +2,7 @@
     size: A4 portrait;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     margin: 5px auto;
 }
 
@@ -178,8 +178,8 @@ ul {
 }
 
 li span {
-  position: relative;
-  left: -10px;
+    position: relative;
+    left: -10px;
 }
 
 li::marker {
