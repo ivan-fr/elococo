@@ -168,6 +168,10 @@ a:visited {
 }
 
 .pad_1 {
+    padding: 8px;
+}
+
+.pad_2 {
     padding: 9px;
 }
 
@@ -177,6 +181,10 @@ a:visited {
 
 .pb_1 {
     padding-bottom: 5px;
+}
+
+.pb_2 {
+    padding-bottom: 9px;
 }
 
 .ps_2 {
