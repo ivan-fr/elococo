@@ -124,7 +124,6 @@ body {
 
 .grid {
     display: grid;
-    grid-gap: 5px;
     grid-template-rows: auto;
     grid-template-columns: repeat(12, 1fr);
 }
@@ -163,6 +162,9 @@ body {
     padding-left: 10px;
 }
 
+.pb_1 {
+    padding-bottom: 5px;
+}
 
 .ps_2 {
     padding-left: 5px;
