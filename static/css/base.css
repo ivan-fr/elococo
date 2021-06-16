@@ -468,6 +468,10 @@ nav.navbar.navigation {
     align-items: unset;
 }
 
+.p_absolute {
+    position: absolute;
+}
+
 .navbar ul > li.link.is-active {
     background-color: #9e3b49;
     font-weight: bold;
