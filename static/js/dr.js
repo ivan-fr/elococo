@@ -16,6 +16,9 @@ function dr(dr_grid, on_up) {
     let dr_chosen_value_left_init = dr_value_left.getAttribute("data-dr-left").replace(',', '.');
     let dr_chosen_value_right_init = dr_value_right.getAttribute("data-dr-right").replace(',', '.');
 
+    let limit_quotient = {0: null, 1: null};
+    let last_quotient = {0: null, 1: null};
+
     function linear(start, end, x) {
         let a = (end - start);
         return x * a + start;
@@ -30,6 +33,7 @@ function dr(dr_grid, on_up) {
         let init_page_x = null;
         let t_minus_one_page_x = null;
         let last_dir_mouse = null;
+        let just_change = null;
 
         let limit_max;
         let limit_min = 0.;
@@ -69,6 +73,9 @@ function dr(dr_grid, on_up) {
             } else {
                 dir_mouse = direction;
             }
+
+            just_change = last_dir_mouse !== dir_mouse;
+
             last_dir_mouse = dir_mouse;
             t_minus_one_page_x = event.pageX;
 
@@ -111,6 +118,40 @@ function dr(dr_grid, on_up) {
                 quotient_relative *= -1
             }
 
+            let func;
+            if (direction === 1) {
+                if (dir_mouse === 1) {
+                    func = Math.max
+                } else {
+                    func = Math.min
+                }
+            } else {
+                if (dir_mouse === 1) {
+                    func = Math.min
+                } else {
+                    func = Math.max
+                }
+            }
+
+            let sign = Math.sign(quotient_relative);
+            if (sign === 0) {
+                if (direction === 1) {
+                    sign = -1;
+                } else {
+                    sign = 1
+                }
+            }
+
+            if (just_change === true) {
+                limit_quotient[direction] = func(Math.abs(quotient_relative), Math.abs(last_quotient[direction])) * sign;
+            }
+
+            if (limit_quotient[direction] !== null) {
+                quotient_relative = func(Math.abs(quotient_relative), Math.abs(limit_quotient[direction])) * sign;
+            }
+
+            last_quotient[direction] = quotient_relative;
+
             let value_target_end;
 
             if (direction === 1) {
@@ -121,10 +162,10 @@ function dr(dr_grid, on_up) {
                 limit_max = reverse_linear(start, end, value_target_end);
             }
 
-            let value_target = start + 2 * quotient_relative;
-            let next_value_target = start + 2 * (quotient_relative + Math.sign(quotient_relative));
-            let back_base_percentage = reverse_linear(start, end, value_target);
+            let next_value_target = start + 2 * (quotient_relative + sign);
             let next_back_base_percentage = reverse_linear(start, end, next_value_target);
+            let value_target = start + 2 * quotient_relative;
+            let back_base_percentage = reverse_linear(start, end, value_target);
 
             if (isNaN(back_base_percentage)) {
                 box_right.style.background = "#ff6969";
@@ -132,7 +173,7 @@ function dr(dr_grid, on_up) {
                 return;
             }
 
-            if (next_back_base_percentage > limit_max || next_back_base_percentage < limit_min) {
+            if (next_back_base_percentage > limit_max || (next_back_base_percentage <= limit_min && base_percentage < limit_min)) {
                 box.style.backgroundColor = '#ff6969';
             } else {
                 box.style.backgroundColor = null;
