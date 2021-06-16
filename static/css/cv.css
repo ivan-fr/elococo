@@ -11,7 +11,7 @@ p {
 }
 
 body {
-    margin: 0 3px;
+    margin: 0;
     position: relative;
     display: flex;
     align-items: center;
@@ -160,6 +160,8 @@ a:visited {
     z-index: -1;
     position: absolute;
     top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .bg_light_blue {
@@ -185,6 +187,11 @@ a:visited {
 
 .pb_2 {
     padding-bottom: 9px;
+}
+
+
+.mx_1 {
+    margin: auto 5px;
 }
 
 .ps_2 {
