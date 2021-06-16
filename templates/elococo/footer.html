@@ -4,19 +4,20 @@
     <section class="span_6 span_md_6 span_xs_12">
         <h3>Logos</h3>
         <div class="grid">
-            <figure class="fig1 span_md_12 span_6">
-                <img src="{% static "images/Carla_logo.png" %}" alt="logo">
+            <figure class="fig1 span_md_12 span_5">
+                <img class="logo" src="{% static "images/Carla_logo.png" %}" alt="logo">
             </figure>
             <div class="grid span_md_12 span_5 gap-3">
                 <figure class="span_6 span_md_4">
-                    <a target="_blank" href="https://validator.w3.org/nu/?doc={{ request.scheme }}://{{ request.get_host }}{% url "index" %}"><img
-                            src="{% static "images/html5-validator-badge-blue.svg" %}" alt="html_valide"/></a>
+                    <a target="_blank" href="https://validator.w3.org/nu/?doc={{ request.scheme }}://
+                            {{ request.get_host }}{% url "index" %}"><img
+                            src="{% static "images/html5-validator-badge-blue.svg" %}" class="logo" alt="html_valide"/></a>
                     <figcaption>
                         HTML valide
                     </figcaption>
                 </figure>
                 <figure class="span_6 span_md_4">
-                    <a href="https://www.djangoproject.com/" target="_blank"><img src="{% static "images/django.jpg" %}"
+                    <a href="https://www.djangoproject.com/"  target="_blank"><img class="logo" src="{% static "images/logo-django1.png" %}"
                                                                                   alt="html_valide"/></a>
                     <figcaption>
                         Django backend

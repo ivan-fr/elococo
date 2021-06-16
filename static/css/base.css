@@ -431,6 +431,10 @@ nav.navbar.navigation {
     text-align: left;
 }
 
+.logo {
+    height: 84px;
+}
+
 .navbar:not(.navigation_form) ul > li {
     display: flex;
 }
