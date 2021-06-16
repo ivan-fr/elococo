@@ -5,21 +5,21 @@
         <h3>Logos</h3>
         <div class="grid">
             <figure class="fig1 span_md_12 span_5">
-                <img class="logo" src="{% static "images/Carla_logo.png" %}" alt="logo">
+                <img class="logos" src="{% static "images/Carla_logo.png" %}" alt="logo">
             </figure>
             <div class="grid span_md_12 span_5 gap-3">
                 <figure class="span_6 span_md_4">
                     <a target="_blank"
                        href="https://validator.w3.org/nu/?doc={{ request.scheme }}://{{ request.get_host }}{% url "index" %}">
-                        <img src="{% static "images/html5-validator-badge-blue.svg" %}" class="logo" alt="html_valide"/>
+                        <img src="{% static "images/html5-validator-badge-blue.svg" %}" class="logos" alt="html_valide"/>
                     </a>
                     <figcaption>
                         HTML valide
                     </figcaption>
                 </figure>
                 <figure class="span_6 span_md_4">
-                    <a href="https://www.djangoproject.com/"  target="_blank"><img class="logo" src="{% static "images/logo-django1.png" %}"
-                                                                                  alt="html_valide"/></a>
+                    <a href="https://www.djangoproject.com/"  target="_blank"><img class="logos" src="{% static "images/logo-django1.png" %}"
+                                                                                   alt="html_valide"/></a>
                     <figcaption>
                         Django backend
                     </figcaption>
