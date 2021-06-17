@@ -472,6 +472,18 @@ nav.navbar.navigation {
     position: absolute;
 }
 
+.grid_vertical_center {
+    place-items: center
+}
+
+.ps_1 {
+    padding-left: 1em;
+}
+
+.my_1 {
+    margin: 0.5em 0;
+}
+
 .navbar ul > li.link.is-active {
     background-color: #9e3b49;
     font-weight: bold;

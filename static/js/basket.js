@@ -61,7 +61,6 @@ function status200() {
         modal_form_container.querySelector(":scope form").addEventListener("submit", post_basket);
 
         get_promo();
-        get_booking();
     } else {
         let div = document.createElement("div");
         let text = document.createTextNode("Votre panier est vide.");
@@ -91,7 +90,8 @@ function onload_promo() {
                 onload_bakset();
             } else if (data.hasOwnProperty("form_promo")) {
                 let div_spinner = document.createElement("div");
-                div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
+                div_spinner.classList.add('my_1', 'ps_1');
+                div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm " role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
                 let basket_form = modal_form_container.querySelector("form");
                 basket_form.insertAdjacentElement("afterend", div_spinner);
                 setTimeout(function () {
@@ -99,6 +99,7 @@ function onload_promo() {
                     let form_promo = div_spinner.querySelector("form");
                     form_promo.addEventListener("submit", post_promo);
                 }, 500);
+                get_booking();
             }
         } else {
             alert('Il y a eu un problème avec la requête.');
@@ -217,8 +218,9 @@ function post_promo(event) {
         return false;
     }
 
+    modal_form_container.querySelector(":scope > .modal-footer").remove();
     let form = event.currentTarget;
-    form.parent().parent().removeChild(form.parent());
+    form.parentElement.parentElement.removeChild(form.parentElement);
 
     httpRequest.onload = onload_promo;
     httpRequest.open('POST', url_get_promo, true);

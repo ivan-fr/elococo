@@ -1,6 +1,6 @@
 from django import forms
-from django.forms import BaseFormSet
 from django.conf import settings
+from django.forms import BaseFormSet
 
 from sale.bdd_calculations import get_promo
 
@@ -103,7 +103,8 @@ class UpdateBasketForm(AddToBasketForm):
 
 
 class PromoForm(forms.Form):
-    code_promo = forms.CharField(max_length=settings.PROMO_SECRET_LENGTH, min_length=4)
+    code_promo = forms.CharField(max_length=settings.PROMO_SECRET_LENGTH, min_length=4,
+                                 widget=forms.TextInput(attrs={"class": "form-control"}), )
 
     def __init__(self, *args, **kwargs):
         self.session = kwargs.pop('session', None)

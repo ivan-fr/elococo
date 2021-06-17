@@ -1,7 +1,10 @@
 import datetime
+from abc import ABC
+from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, Count, OuterRef, Sum
+from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Value, Subquery, \
+    IntegerField
 from django.db.models.functions import Now
 
 from catalogue.bdd_calculations import total_price_per_product_from_basket, price_exact_ht
@@ -9,29 +12,41 @@ from catalogue.models import Product
 from sale.models import Promo, Ordered
 
 
+class SQSum(Subquery, ABC):
+    template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
+    output_field = IntegerField()
+
+
 def get_promo(basket, code):
     if code is None:
         return None
+
+    aggregate = Product.objects.filter(
+        slug__in=tuple(basket.keys())
+    ).annotate(
+        price_exact_ht_with_quantity=total_price_per_product_from_basket(
+            basket, price_exact_ht(with_reduction=True)
+        )
+    ).aggregate(Sum("price_exact_ht_with_quantity"))["price_exact_ht_with_quantity__sum"]
 
     try:
         return Promo.objects.filter(code=code).filter(
             (Q(startOfLife__lte=Now()) & Q(endOfLife__gte=Now())) | (Q(startOfLife=None) & Q(endOfLife=None)) |
             (Q(startOfLife__lte=Now()) & Q(endOfLife=None)) | (Q(startOfLife=None) & Q(endOfLife__gte=Now()))
         ).filter(
-            max_time__gte=Count(Ordered.objects.filter(promo=OuterRef("code")), distinct=True),
+            Q(max_time__gt=SQSum(Ordered.objects.filter(promo=OuterRef("code")))) | Q(max_time=None),
             min_products_basket__lte=len(basket),
         ).annotate(
             price_exact_ht_with_quantity__sum=Case(
-                When(min_ht=None, then=None), default=Product.objects.filter(slug__in=tuple(basket.keys())).annotate(
-                    price_exact_ht_with_quantity=total_price_per_product_from_basket(
-                        basket, price_exact_ht(with_reduction=True)
-                    )
-                ).aggregate(Sum("price_exact_ht_with_quantity")))
+                When(
+                    min_ht=None, then=Value(Decimal(0))
+                ), default=aggregate
+            )
         ).filter(
             Q(min_ht__lte=F("price_exact_ht_with_quantity__sum")) | Q(min_ht=None)
         ).get()
     except Promo.DoesNotExist:
-        raise None
+        return None
 
 
 def time_delta():

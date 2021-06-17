@@ -1,8 +1,22 @@
 {% spaceless %}
     <form action="{% url "catalogue_basket_promo" %}" method="post">
         {% csrf_token %}
-        {{ form }}
-        <input type="submit" class="btn btn-primary" value="Envoyer"/>
+        <div class="grid grid_vertical_center my_1">
+            {% if form.code_promo.errors %}
+                <div class="span_12">
+                    {{ form.code_promo.errors }}
+                </div>
+            {% endif %}
+            <div class="span_2">
+                <label for="{{ form.code_promo.id_for_label }}">{{ form.code_promo.label }} : </label>
+            </div>
+            <div class="span_2">
+                {{ form.code_promo }}
+            </div>
+            <div class="span_2">
+                <input type="submit" class="btn btn-primary" value="Envoyer"/>
+            </div>
+        </div>
     </form>
 {% endspaceless %}
 

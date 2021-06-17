@@ -22,7 +22,7 @@ class Category(MP_Node):
     node_order_by = ['category']
 
     def __str__(self):
-        return '%s' % (self.category)
+        return '%s' % self.category
 
     class Meta:
         verbose_name_plural = "categories"

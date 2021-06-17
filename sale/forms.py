@@ -84,10 +84,10 @@ class OrderedForm(forms.Form):
 
 class PromoForm(forms.ModelForm):
     def clean_code(self):
-        if self.cleaned_data["code"] is None:
+        if not self.cleaned_data["code"]:
             self.cleaned_data["code"] = ''.join(secrets.choice(string.ascii_lowercase + string.ascii_uppercase)
                                                 for i in range(settings.PROMO_SECRET_LENGTH))
-        return super(PromoForm, self).clean_code()
+        return self.cleaned_data["code"]
 
     class Meta:
         model = Promo
