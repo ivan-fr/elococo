@@ -95,12 +95,14 @@ function dr(dr_grid, on_up) {
                 }
             }
 
-            let base_percentage, function_quotient;
+            let base_percentage, function_quotient, function_quotient_2;
             if (direction === 1) {
-                function_quotient = Math.ceil;
+                function_quotient = (dir_mouse === 1) ? Math.floor : Math.ceil;
+                function_quotient_2 = (dir_mouse === 1) ? Math.floor : Math.ceil;
                 base_percentage = Math.max(limit_min, Math.min((dr_main.getBoundingClientRect().right - event.pageX) / dr_main.getBoundingClientRect().width, limit_max));
             } else {
-                function_quotient = Math.floor;
+                function_quotient = (dir_mouse === 0) ? Math.floor : Math.ceil;
+                function_quotient_2 = (dir_mouse === 0) ? Math.ceil : Math.floor;
                 base_percentage = Math.max(limit_min, Math.min((event.pageX - dr_main.getBoundingClientRect().left) / dr_main.getBoundingClientRect().width, limit_max));
             }
 
@@ -112,10 +114,10 @@ function dr(dr_grid, on_up) {
             }
 
             let value = linear(start_bis, end_bis, base_percentage);
-            let quotient_relative = function_quotient((value - starter) / 2);
+            let quotient_relative = Math.sign(function_quotient_2((value - starter) / 2)) * function_quotient(Math.abs(value - starter) / 2);
 
             if (direction !== dir_mouse) {
-                quotient_relative *= -1
+                quotient_relative *= -1;
             }
 
             let func;
