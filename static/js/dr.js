@@ -68,7 +68,8 @@ function dr(dr_grid, on_up) {
                 } else if (event.pageX - t_minus_one_page_x < 0) {
                     dir_mouse = 1
                 } else {
-                    dir_mouse = last_dir_mouse
+                    t_minus_one_page_x = event.pageX;
+                    return;
                 }
             } else {
                 t_minus_one_page_x = event.pageX;
@@ -180,9 +181,9 @@ function dr(dr_grid, on_up) {
                 return;
             }
 
-            console.log(next_back_base_percentage, dir_mouse, quotient_relative)
+            console.log(dir_mouse)
 
-            if (next_back_base_percentage > limit_max || (next_back_base_percentage < limit_min && base_percentage)) {
+            if (next_back_base_percentage > limit_max) {
                 box.style.backgroundColor = '#ff6969';
             } else {
                 box.style.backgroundColor = null;
