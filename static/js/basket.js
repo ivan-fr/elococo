@@ -1,9 +1,10 @@
-// From IB - {% now "Y" %}
+// From IB
 let basket_modal = document.getElementById('basket-modal');
 let basket_modal_showed = false;
 let basket_save_button = false;
 let url_get_basket = document.getElementById("basket_urls").getAttribute("data-basket-url-1");
 let url_get_booking = document.getElementById("basket_urls").getAttribute("data-basket-url-2");
+let url_get_promo = document.getElementById("basket_urls").getAttribute("data-basket-url-3");
 let httpRequest = new XMLHttpRequest();
 let spinner = basket_modal.querySelector(".modal-body").cloneNode(true);
 let modal_footer_clone = basket_modal.querySelector(".modal-footer").cloneNode(true);
@@ -55,11 +56,11 @@ function status200() {
 
         let select = modal_form_container.querySelector(":scope form select");
         let input = modal_form_container.querySelector(":scope form table input");
-        console.log(input);
         select.addEventListener("change", add_save_button(modal_form_container_footer));
         input.addEventListener("change", add_save_button(modal_form_container_footer));
         modal_form_container.querySelector(":scope form").addEventListener("submit", post_basket);
 
+        get_promo();
         get_booking();
     } else {
         let div = document.createElement("div");
@@ -76,6 +77,25 @@ function onload_bakset() {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
             setTimeout(status200, 500);
+        } else {
+            alert('Il y a eu un problème avec la requête.');
+        }
+    }
+}
+
+function onload_promo() {
+    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 200) {
+            let data = httpRequest.response;
+            let div_spinner = document.createElement("div");
+            div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
+            let basket_form = modal_form_container.querySelector("form");
+            basket_form.insertAdjacentElement("afterend", div_spinner);
+            setTimeout(function () {
+                div_spinner.innerHTML = data["form_promo"];
+                let form_promo = div_spinner.querySelector("form");
+                form_promo.addEventListener("submit", post_promo);
+            }, 500);
         } else {
             alert('Il y a eu un problème avec la requête.');
         }
@@ -104,7 +124,7 @@ function onload_booking() {
                     let button_validation = document.createElement("button");
                     button_validation.setAttribute("type", "submit");
                     button_validation.classList.add("btn", "btn-success");
-                    text = document.createTextNode("Reserver");
+                    let text = document.createTextNode("Reserver");
                     button_validation.appendChild(text);
                     form.appendChild(button_validation);
                     form.addEventListener("submit", post_booking);
@@ -121,6 +141,19 @@ function onload_booking() {
             alert('Il y a eu un problème avec la requête.');
         }
     }
+}
+
+function get_promo() {
+    if (!httpRequest) {
+        alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+        return false;
+    }
+
+    httpRequest.onload = onload_promo;
+    httpRequest.open('GET', url_get_promo);
+    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    httpRequest.responseType = 'json';
+    httpRequest.send();
 }
 
 function get_booking() {
@@ -168,6 +201,20 @@ function post_basket(event) {
 
     httpRequest.onload = onload_bakset;
     httpRequest.open('POST', url_get_basket, true);
+    httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    httpRequest.responseType = 'json';
+    httpRequest.send(new FormData(event.currentTarget));
+}
+
+function post_promo(event) {
+    event.preventDefault();
+    if (!httpRequest) {
+        alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+        return false;
+    }
+
+    httpRequest.onload = onload_booking;
+    httpRequest.open('POST', url_get_promo, true);
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     httpRequest.responseType = 'json';
     httpRequest.send(new FormData(event.currentTarget));

@@ -1,6 +1,6 @@
 function dr(dr_grid, on_up) {
     let dr = dr_grid.querySelector(".dr_main .double_range");
-    let dr_temoin = dr_grid.querySelector(".dr_main .double_range_temoin");
+    let dr_witness = dr_grid.querySelector(".dr_main .double_range_temoin");
     let box_left = dr_grid.querySelector(".dr_main .dr_wrapper:nth-of-type(1) .dr_box");
     let box_right = dr_grid.querySelector(".dr_main .dr_wrapper:nth-of-type(2) .dr_box");
     let zIndex = 10;
@@ -211,7 +211,7 @@ function dr(dr_grid, on_up) {
 
     function update_bar() {
         let px_2 = Math.abs((box_right.getBoundingClientRect().right - box_left.getBoundingClientRect().left - box_left.getBoundingClientRect().width));
-        let px_3 = (box_left.getBoundingClientRect().left - dr_temoin.getBoundingClientRect().left + box_left.getBoundingClientRect().width);
+        let px_3 = (box_left.getBoundingClientRect().left - dr_witness.getBoundingClientRect().left + box_left.getBoundingClientRect().width);
         dr.style.width = `${px_2}px`;
         dr.style.left = `${px_3}px`;
     }

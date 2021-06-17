@@ -60,11 +60,9 @@ class PromoBasketView(FormView):
     success_url = reverse_lazy("catalogue_basket")
 
     def get(self, request, *args, **kwargs):
-        return JsonResponse(
-            {
-                "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), request)
-            }
-        )
+        return JsonResponse({
+            "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), request)
+        })
 
     def get_form_kwargs(self):
         kwargs = super(PromoBasketView, self).get_form_kwargs()
@@ -81,11 +79,9 @@ class PromoBasketView(FormView):
         return super(PromoBasketView, self).form_valid(form)
 
     def form_invalid(self, form):
-        return JsonResponse(
-            {
-                "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), self.request)
-            }
-        )
+        return JsonResponse({
+            "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), self.request)
+        })
 
 
 class BasketView(FormSetMixin, BaseListView):
