@@ -15,6 +15,7 @@ from catalogue.bdd_calculations import price_annotation_format, filled_category,
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product
 from elococo.generic import FormSetMixin
+from sale.bdd_calculations import get_promo
 
 
 def update_basket_session(session, form, set_quantity=False):
@@ -80,7 +81,7 @@ class PromoBasketView(FormView):
 
     def form_invalid(self, form):
         return JsonResponse({
-            "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), self.request)
+            "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), self.request),
         })
 
 
@@ -105,8 +106,7 @@ class BasketView(FormSetMixin, BaseListView):
             self.queryset = self.model.objects.filter(
                 enable_sale=True, stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
-            self.queryset = self.queryset.annotate(
-                **price_annotation_format(basket))[:settings.MAX_BASKET_PRODUCT]
+            self.queryset = self.queryset.annotate(**price_annotation_format(basket))
         else:
             self.queryset = None
 
@@ -161,11 +161,14 @@ class BasketView(FormSetMixin, BaseListView):
 
     def json_response(self, formset):
         data = {}
-        aggregate = self.queryset.aggregate(*total_price_from_all_product())
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+        promo = get_promo(basket, basket.get("code_promo", None))
+
+        aggregate = self.queryset.aggregate(*total_price_from_all_product(promo=promo))
 
         context = {"zip_products": list(zip(self.object_list, formset)), "aggregate": aggregate, "formset": formset}
 
-        data["form"] = render_to_string("catalogue/basket.html", context, self.request)
+        data["form_basket"] = render_to_string("catalogue/basket.html", context, self.request)
 
         return JsonResponse(data)
 

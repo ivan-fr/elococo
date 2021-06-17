@@ -86,7 +86,6 @@ def price_annotation_format(basket=None):
             basket, price_exact_ht_)
         my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(
             basket)
-
     return my_dict
 
 
@@ -94,8 +93,23 @@ def cast_annotate_to_decimal(dict_, key):
     dict_[key] = Cast(dict_[key], output_field=FloatField())
 
 
-def total_price_from_all_product():
-    return Sum(F("price_exact_ttc_with_quantity")), Sum(F("price_exact_ht_with_quantity"))
+def total_price_from_all_product(promo=None):
+    dict_ = {"price_exact_ttc_with_quantity__sum": Sum("price_exact_ttc_with_quantity"),
+             "price_exact_ht_with_quantity__sum": Sum("price_exact_ht_with_quantity")}
+    if promo is not None:
+        if promo.type == "pe":
+            promo_percentage = Decimal(1.) - promo.value * settings.BACK_TWO_PLACES
+            dict_.update({
+                "price_exact_ht_with_quantity_promo__sum": promo_percentage * F("price_exact_ttc_with_quantity__sum"),
+                "price_exact_ttc_with_quantity_promo__sum": F("price_exact_ht_with_quantity_promo__sum") * settings.TVA,
+            })
+        elif promo.type == "cu":
+            dict_.update({
+                "price_exact_ht_with_quantity_promo__sum": F("price_exact_ttc_with_quantity__sum") - Decimal(promo.value),
+                "price_exact_ttc_with_quantity_promo__sum": F("price_exact_ht_with_quantity_promo__sum") * settings.TVA,
+            })
+
+    return tuple_
 
 
 def data_from_all_product():

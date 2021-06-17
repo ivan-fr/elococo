@@ -47,10 +47,10 @@ function status200() {
     let basket = httpRequest.response;
     let modal_body = basket_modal.querySelector(":scope .modal-body");
 
-    if (basket.hasOwnProperty("form")) {
+    if (basket.hasOwnProperty("form_basket")) {
         let modal_form_container_footer = modal_footer_clone.cloneNode();
         basket_save_button = false;
-        modal_form_container.innerHTML = basket["form"];
+        modal_form_container.innerHTML = basket["form_basket"];
         modal_form_container.querySelector(":scope form").insertAdjacentElement("beforeend", modal_form_container_footer);
         modal_form_container_footer.classList.add("btn", "is-hidden");
 
@@ -87,15 +87,19 @@ function onload_promo() {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
             let data = httpRequest.response;
-            let div_spinner = document.createElement("div");
-            div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
-            let basket_form = modal_form_container.querySelector("form");
-            basket_form.insertAdjacentElement("afterend", div_spinner);
-            setTimeout(function () {
-                div_spinner.innerHTML = data["form_promo"];
-                let form_promo = div_spinner.querySelector("form");
-                form_promo.addEventListener("submit", post_promo);
-            }, 500);
+            if (data.hasOwnProperty("form_basket")) {
+                onload_bakset();
+            } else if (data.hasOwnProperty("form_promo")) {
+                let div_spinner = document.createElement("div");
+                div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
+                let basket_form = modal_form_container.querySelector("form");
+                basket_form.insertAdjacentElement("afterend", div_spinner);
+                setTimeout(function () {
+                    div_spinner.innerHTML = data["form_promo"];
+                    let form_promo = div_spinner.querySelector("form");
+                    form_promo.addEventListener("submit", post_promo);
+                }, 500);
+            }
         } else {
             alert('Il y a eu un problème avec la requête.');
         }
@@ -213,7 +217,10 @@ function post_promo(event) {
         return false;
     }
 
-    httpRequest.onload = onload_booking;
+    let form = event.currentTarget;
+    form.parent().parent().removeChild(form.parent());
+
+    httpRequest.onload = onload_promo;
     httpRequest.open('POST', url_get_promo, true);
     httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     httpRequest.responseType = 'json';
