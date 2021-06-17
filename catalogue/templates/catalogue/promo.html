@@ -1,0 +1,8 @@
+{% spaceless %}
+    <form action="{% url "catalogue_basket_promo" %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" class="btn btn-primary" value="Envoyer"/>
+    </form>
+{% endspaceless %}
+

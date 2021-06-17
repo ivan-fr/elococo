@@ -18,16 +18,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 
-from catalogue.bdd_calculations import TVA_PERCENT
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
-from catalogue.forms import BASKET_SESSION_KEY, MAX_BASKET_PRODUCT
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format
-from sale.forms import AddressForm, OrderedForm, OrderedInformation, BOOKING_SESSION_KEY, BOOKING_SESSION_FILL_KEY, \
-    CheckoutForm, \
-    RetrieveOrderForm, BOOKING_SESSION_FILL_2_KEY, WIDGETS_FILL_NEXT, AddressFormSet
-from sale.models import Ordered, OrderedProduct, Address, ORDER_SECRET_LENGTH
+from sale.forms import AddressForm, OrderedForm, OrderedInformation, CheckoutForm, \
+    RetrieveOrderForm, WIDGETS_FILL_NEXT, AddressFormSet
+from sale.models import Ordered, OrderedProduct, Address
 
 KEY_PAYMENT_ERROR = "payment_error"
 PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
@@ -41,9 +38,8 @@ class InvoiceView(TemplateView):
         try:
             order = Ordered.objects.filter(
                 pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
-            self.pdf_filename = f"invoice_{order.pk}"
             return super(InvoiceView, self).get_context_data(**{"ordered": order,
-                                                                "tva": TVA_PERCENT,
+                                                                "tva": settings.TVA_PERCENT,
                                                                 "website_title": settings.WEBSITE_TITLE})
         except Ordered.DoesNotExist:
             raise Http404()
@@ -60,7 +56,7 @@ class PaymentDoneView(TemplateView, View):
         return super(PaymentDoneView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
             raise Http404()
 
         try:
@@ -69,14 +65,14 @@ class PaymentDoneView(TemplateView, View):
         except Ordered.DoesNotExist:
             raise Http404()
 
-        if order.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+        if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
-        del request.session[BOOKING_SESSION_KEY]
-        if request.session.get(BOOKING_SESSION_FILL_KEY, None) is not None:
-            del request.session[BOOKING_SESSION_FILL_KEY]
-        if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is not None:
-            del request.session[BOOKING_SESSION_FILL_2_KEY]
+        del request.session[settings.BOOKING_SESSION_KEY]
+        if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
+            del request.session[settings.BOOKING_SESSION_FILL_KEY]
+        if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is not None:
+            del request.session[settings.BOOKING_SESSION_FILL_2_KEY]
 
         with transaction.atomic():
             order.payment_status = True
@@ -84,7 +80,7 @@ class PaymentDoneView(TemplateView, View):
             order.save()
 
             context_dict = {"ordered": order,
-                            "tva": TVA_PERCENT,
+                            "tva": settings.TVA_PERCENT,
                             "website_title": settings.WEBSITE_TITLE, "email": True}
             html_content = render_to_string(
                 "sale/invoice.html", context_dict, request)
@@ -166,18 +162,18 @@ class OrderedDetail(FormMixin, DetailView):
         return obj
 
     def get(self, request, *args, **kwargs):
-        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
             return HttpResponseBadRequest()
 
-        if request.session.get(BOOKING_SESSION_FILL_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is None:
             return HttpResponseBadRequest()
 
-        if request.session.get(BOOKING_SESSION_FILL_2_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is None:
             return HttpResponseBadRequest()
 
         self.object = self.get_object()
 
-        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+        if self.object.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
         if not self.object.payment_status and self.object.ordered_is_enable:
@@ -268,7 +264,7 @@ class FillAddressInformationOrdered(ModelFormSetView):
         return kwargs
 
     def get_object(self, queryset=None):
-        return get_object(self, queryset=Ordered.objects)
+        return get_object(self, queryset=Ordered.objects.all())
 
     def get_success_url(self):
         return reverse("sale:detail", kwargs={"pk": self.object.pk})
@@ -285,7 +281,7 @@ class FillAddressInformationOrdered(ModelFormSetView):
         self.object_list = self.object.order_address.all()
         formset = self.construct_formset()
         if formset.is_valid():
-            self.request.session[BOOKING_SESSION_FILL_2_KEY] = True
+            self.request.session[settings.BOOKING_SESSION_FILL_2_KEY] = True
             return self.formset_valid(formset)
         else:
             return self.formset_invalid(formset)
@@ -299,10 +295,10 @@ class FillAddressInformationOrdered(ModelFormSetView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
             return HttpResponseBadRequest()
 
-        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+        if self.object.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
         self.object_list = self.object.order_address.all()
@@ -329,7 +325,7 @@ class FillInformationOrdered(UpdateView):
 
         form = self.get_form()
         if form.is_valid():
-            self.request.session[BOOKING_SESSION_FILL_KEY] = True
+            self.request.session[settings.BOOKING_SESSION_FILL_KEY] = True
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
@@ -343,10 +339,10 @@ class FillInformationOrdered(UpdateView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        if request.session.get(BOOKING_SESSION_KEY, None) is None:
+        if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
             return HttpResponseBadRequest()
 
-        if self.object.pk.bytes != bytes(request.session[BOOKING_SESSION_KEY]):
+        if self.object.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
         return self.render_to_response(self.get_context_data())
@@ -357,13 +353,13 @@ class BookingBasketView(BaseFormView):
     model = Ordered
 
     def get_queryset(self):
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
             queryset = Product.objects.filter(enable_sale=True)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
             queryset = queryset.annotate(
-                **price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
+                **price_annotation_format(basket))[:settings.MAX_BASKET_PRODUCT]
         else:
             queryset = None
 
@@ -376,7 +372,7 @@ class BookingBasketView(BaseFormView):
         if self.product_list is None:
             return HttpResponseBadRequest()
 
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         basket_set = {product_slug for product_slug in basket.keys()}
         product_bdd_set = {product.slug for product in self.product_list}
@@ -389,7 +385,7 @@ class BookingBasketView(BaseFormView):
         return None
 
     def form_valid(self, form):
-        if self.request.session.get(BOOKING_SESSION_KEY, None) is not None:
+        if self.request.session.get(settings.BOOKING_SESSION_KEY, None) is not None:
             messages.warning(self.request,
                              'Vous avez déjà une commande en attente, une nouvelle reservation est impossible.')
             return JsonResponse({"reload": True})
@@ -401,7 +397,7 @@ class BookingBasketView(BaseFormView):
             return response
 
         aggregate = self.get_queryset().aggregate(*total_price_from_all_product())
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         try:
             with transaction.atomic():
@@ -415,7 +411,7 @@ class BookingBasketView(BaseFormView):
                         Decimal(100.)
                     ),
                     secrets=''.join(secrets.choice(string.ascii_lowercase)
-                                    for i in range(ORDER_SECRET_LENGTH))
+                                    for i in range(settings.ORDER_SECRET_LENGTH))
                 )
 
                 ordered_product = []
@@ -444,8 +440,8 @@ class BookingBasketView(BaseFormView):
                 Product.objects.bulk_update(self.product_list, ("stock",))
                 OrderedProduct.objects.bulk_create(ordered_product)
 
-            del self.request.session[BASKET_SESSION_KEY]
-            self.request.session[BOOKING_SESSION_KEY] = list(
+            del self.request.session[settings.BASKET_SESSION_KEY]
+            self.request.session[settings.BOOKING_SESSION_KEY] = list(
                 self.ordered.pk.bytes)
             self.request.session.modified = True
         except ValueError:

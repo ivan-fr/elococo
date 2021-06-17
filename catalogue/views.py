@@ -1,54 +1,91 @@
 from decimal import Decimal
 from operator import methodcaller
 
-from django.http import JsonResponse, Http404
+from django.conf import settings
+from django.http import JsonResponse, Http404, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import BaseListView
 
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, \
     data_from_all_product, cast_annotate_to_decimal
-from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, BASKET_SESSION_KEY, \
-    MAX_BASKET_PRODUCT, PRODUCT_INSTANCE_KEY
+from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product
 from elococo.generic import FormSetMixin
 
 
-def update_basket_session(session, form, change=False):
-    product = getattr(form, PRODUCT_INSTANCE_KEY)
+def update_basket_session(session, form, set_quantity=False):
+    product = getattr(form, settings.PRODUCT_INSTANCE_KEY)
 
     if form.cleaned_data.get("remove", False):
-        if session.get(BASKET_SESSION_KEY, None) is None:
+        if session.get(settings.BASKET_SESSION_KEY, None) is None:
             return
-        del session[BASKET_SESSION_KEY][product.slug]
+        del session[settings.BASKET_SESSION_KEY][product.slug]
         session.modified = True
         return
 
-    if change:
-        if session[BASKET_SESSION_KEY].get(product.slug, None) is not None:
-            session[BASKET_SESSION_KEY][product.slug]["quantity"] = form.cleaned_data["quantity"]
+    if set_quantity:
+        if session[settings.BASKET_SESSION_KEY].get(product.slug, None) is not None:
+            session[settings.BASKET_SESSION_KEY][product.slug]["quantity"] = form.cleaned_data["quantity"]
             session.modified = True
         return
 
-    if session.get(BASKET_SESSION_KEY, None) is None:
-        session[BASKET_SESSION_KEY] = {product.slug: {
+    if form.cleaned_data.get("code_promo", None) is not None:
+        session[settings.BASKET_SESSION_KEY]["code_promo"] = form.cleaned_data["code_promo"].code
+        return
+
+    if session.get(settings.BASKET_SESSION_KEY, None) is None:
+        session[settings.BASKET_SESSION_KEY] = {product.slug: {
             "product_name": product.name,
             "quantity": form.cleaned_data["quantity"]
         }}
     else:
-        if session[BASKET_SESSION_KEY].get(product.slug, None) is not None:
-            session[BASKET_SESSION_KEY][product.slug]["quantity"] = \
-                session[BASKET_SESSION_KEY][product.slug]["quantity"] + \
+        if session[settings.BASKET_SESSION_KEY].get(product.slug, None) is not None:
+            session[settings.BASKET_SESSION_KEY][product.slug]["quantity"] = \
+                session[settings.BASKET_SESSION_KEY][product.slug]["quantity"] + \
                 form.cleaned_data["quantity"]
         else:
-            session[BASKET_SESSION_KEY][product.slug] = {
+            session[settings.BASKET_SESSION_KEY][product.slug] = {
                 "product_name": product.name,
                 "quantity": form.cleaned_data["quantity"]
             }
         session.modified = True
+
+
+class PromoBasketView(FormView):
+    form_class = PromoForm
+    success_url = reverse_lazy("catalogue_basket")
+
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(
+            {
+                "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), request)
+            }
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super(PromoBasketView, self).get_form_kwargs()
+        kwargs.update({"session": self.request.session})
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if not request.is_ajax():
+            return HttpResponseForbidden()
+        return super(PromoBasketView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        update_basket_session(self.request.session, form)
+        return super(PromoBasketView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return JsonResponse(
+            {
+                "form_promo": render_to_string("catalogue/promo.html", self.get_context_data(), self.request)
+            }
+        )
 
 
 class BasketView(FormSetMixin, BaseListView):
@@ -59,21 +96,21 @@ class BasketView(FormSetMixin, BaseListView):
     form_class = UpdateBasketForm
     formset_class = ProductFormSet
     factory_kwargs = {'extra': 0,
-                      'absolute_max': MAX_BASKET_PRODUCT,
-                      'max_num': MAX_BASKET_PRODUCT, 'validate_max': True,
+                      'absolute_max': settings.MAX_BASKET_PRODUCT,
+                      'max_num': settings.MAX_BASKET_PRODUCT, 'validate_max': True,
                       'min_num': 1, 'validate_min': True,
                       'can_order': False,
                       'can_delete': False}
 
     def get_queryset(self):
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
             self.queryset = self.model.objects.filter(
                 enable_sale=True, stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
             self.queryset = self.queryset.annotate(
-                **price_annotation_format(basket))[:MAX_BASKET_PRODUCT]
+                **price_annotation_format(basket))[:settings.MAX_BASKET_PRODUCT]
         else:
             self.queryset = None
 
@@ -81,7 +118,7 @@ class BasketView(FormSetMixin, BaseListView):
 
     def get_factory_kwargs(self):
         kwargs = super(BasketView, self).get_factory_kwargs()
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
             basket_set = {product_slug for product_slug in basket.keys()}
@@ -92,7 +129,7 @@ class BasketView(FormSetMixin, BaseListView):
             if len(diff) > 0:
                 for product_slug in diff:
                     del basket[product_slug]
-                self.request.session[BASKET_SESSION_KEY] = basket
+                self.request.session[settings.BASKET_SESSION_KEY] = basket
                 self.request.session.modified = True
 
             for product in self.object_list:
@@ -110,10 +147,9 @@ class BasketView(FormSetMixin, BaseListView):
         return kwargs
 
     def get_formset_kwargs(self):
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        basket_enum = {product_slug: n for n,
-                                           product_slug in enumerate(basket.keys())}
+        basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
         self.object_list = sorted(self.object_list, key=methodcaller(
             'compute_basket_oder', basket_enum=basket_enum))
 
@@ -123,7 +159,7 @@ class BasketView(FormSetMixin, BaseListView):
 
     def formset_valid(self, formset):
         for form in formset:
-            update_basket_session(self.request.session, form, change=True)
+            update_basket_session(self.request.session, form, set_quantity=True)
 
         return super(BasketView, self).formset_valid(formset)
 
@@ -159,7 +195,7 @@ class BasketView(FormSetMixin, BaseListView):
         if not self.request.is_ajax():
             raise Http404()
 
-        basket = self.request.session.get(BASKET_SESSION_KEY, {})
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if not bool(basket):
             return JsonResponse({})
@@ -198,8 +234,7 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        queryset = self.model.objects.all().filter(
-            enable_sale=True, stock__gt=0)
+        queryset = self.model.objects.all().filter(enable_sale=True, stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))
         self.extra_context.update({"index": category_slug})
@@ -303,7 +338,7 @@ class ProductDetailView(FormMixin, DetailView):
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
         kwargs.update({"session": self.request.session,
-                       PRODUCT_INSTANCE_KEY: self.object})
+                       settings.PRODUCT_INSTANCE_KEY: self.object})
         return kwargs
 
     def form_valid(self, form):

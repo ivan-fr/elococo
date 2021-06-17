@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import json
+from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
 from pathlib import Path
-import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -182,3 +183,23 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = secrets["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = secrets["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = 587
+
+# SHOP setting DON'T CHANGE
+BOOKING_SESSION_KEY = "ordered_instance_pk"
+BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
+BOOKING_SESSION_FILL_2_KEY = "ordered_is_filled_next"
+ORDERED_INSTANCE_KEY = "ordered_instance_key"
+
+TIME_ORDERED_LIFE_MINUTES = 45
+TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
+ORDER_SECRET_LENGTH = 30
+PROMO_SECRET_LENGTH = 15
+
+BASKET_SESSION_KEY = "basket"
+BASKET_MAX_QUANTITY_PER_FORM = 3
+MAX_BASKET_PRODUCT = 8
+PRODUCT_INSTANCE_KEY = "product_instance"
+
+TVA_PERCENT = Decimal(20.)
+BACK_TWO_PLACES = Decimal(10) ** -2
+TVA = Decimal(120) * BACK_TWO_PLACES

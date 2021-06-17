@@ -1,15 +1,14 @@
 from decimal import Decimal
 
 from django import template
-
-from catalogue.bdd_calculations import TVA_PERCENT
+from django.conf import settings
 
 register = template.Library()
 
 
 @register.filter
 def deduce_tva(value):
-    return "{:.2f}".format(Decimal(value) * TVA_PERCENT * Decimal(10) ** -2)
+    return "{:.2f}".format(Decimal(value) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES)
 
 
 @register.filter

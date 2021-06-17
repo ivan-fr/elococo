@@ -1,19 +1,20 @@
 import datetime
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Product
 
-TIME_ORDERED_LIFE_MINUTES = 45
-TIME_ORDERED_CLOSE_PAYMENT_TIME_BEFORE_END = 15
-ORDER_SECRET_LENGTH = 30
+PROMO_CHOICES = [
+    ("cu", 'Currency'),
+    ("pe", 'Percentage'),
+]
 
 
 def phone_regex():
@@ -21,12 +22,35 @@ def phone_regex():
                           message="Le numéro ne respecte pas le bon format.")
 
 
+class Promo(models.Model):
+    code = models.CharField("Code promo", max_length=settings.PROMO_SECRET_LENGTH, blank=True,
+                            validators=[MinLengthValidator(4)], primary_key=True)
+    type = models.CharField("Type", choices=PROMO_CHOICES, default="currency", max_length=2)
+    value = models.PositiveSmallIntegerField("Valeur", validators=[MinValueValidator(1), MaxValueValidator(100)])
+
+    max_time = models.PositiveSmallIntegerField(
+        "Nombre d'utilisation max", null=True, blank=True,
+        validators=[MinValueValidator(1), ]
+    )
+
+    startOfLife = models.DateTimeField("Début d'activation", null=True, blank=True)
+    endOfLife = models.DateTimeField("Fin d'activation", null=True, blank=True)
+
+    min_ht = models.PositiveSmallIntegerField("Min TTC", null=True, blank=True, validators=[MinValueValidator(1), ])
+    min_products_basket = models.PositiveSmallIntegerField(
+        "Min products basket",
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(settings.MAX_BASKET_PRODUCT)],
+        default=1
+    )
+
+
 class Ordered(models.Model):
     order_number = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     email = models.EmailField(null=True)
     phone = models.CharField("téléphone", validators=(phone_regex(),), max_length=20)
-    secrets = models.CharField(max_length=ORDER_SECRET_LENGTH)
+    secrets = models.CharField(max_length=settings.ORDER_SECRET_LENGTH)
 
     products = models.ManyToManyField(Product,
                                       through='sale.OrderedProduct',
@@ -41,9 +65,14 @@ class Ordered(models.Model):
     createdAt = models.DateTimeField()
     endOfLife = models.DateTimeField()
 
+    promo = models.ForeignKey(Promo, on_delete=models.SET_NULL, null=True)
+    promo_value = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True)
+    promo_type = models.CharField(choices=PROMO_CHOICES, max_length=2, null=True)
+    price_exact_ttc_with_quantity_sum_promo = models.PositiveIntegerField(null=True)
+
     def save(self, *args, **kwargs):
         self.createdAt = now()
-        self.endOfLife = self.createdAt + datetime.timedelta(minutes=TIME_ORDERED_LIFE_MINUTES)
+        self.endOfLife = self.createdAt + datetime.timedelta(minutes=settings.TIME_ORDERED_LIFE_MINUTES)
         super().save(*args, **kwargs)
 
 
@@ -58,15 +87,21 @@ class Address(models.Model):
 
 
 class OrderedProduct(models.Model):
-    from_ordered = models.ForeignKey(Ordered, on_delete=models.CASCADE,
+    from_ordered = models.ForeignKey(Ordered,
+                                     on_delete=models.CASCADE,
                                      related_name='from_ordered')
-    to_product = models.ForeignKey(Product, on_delete=models.SET_NULL,
-                                   related_name="to_product", null=True)
+    to_product = models.ForeignKey(Product,
+                                   on_delete=models.SET_NULL,
+                                   related_name="to_product",
+                                   null=True)
     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1),
-                                                            MaxValueValidator(BASKET_MAX_QUANTITY_PER_FORM)])
+                                                            MaxValueValidator(settings.BASKET_MAX_QUANTITY_PER_FORM)])
 
     product_name = models.CharField(max_length=50)
-    effective_reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
+    effective_reduction = models.PositiveSmallIntegerField(
+        validators=(MaxValueValidator(100),),
+        default=0
+    )
     price_exact_ttc = models.PositiveIntegerField()
     price_exact_ht = models.PositiveIntegerField()
     price_exact_ttc_with_quantity = models.PositiveIntegerField()

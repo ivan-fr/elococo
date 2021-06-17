@@ -1,6 +1,7 @@
 from abc import ABC
 from decimal import Decimal
 
+from django.conf import settings
 from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import FloatField
 from django.db.models import Max, Min
@@ -9,12 +10,7 @@ from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
 
-from catalogue.forms import BASKET_MAX_QUANTITY_PER_FORM
 from catalogue.models import Category
-
-TVA_PERCENT = Decimal(20.)
-BACK_TWO_PLACES = Decimal(10) ** -2
-TVA = Decimal(120) * BACK_TWO_PLACES
 
 
 def reduction_from_bdd():
@@ -28,30 +24,31 @@ def price_exact(with_reduction=True):
     decimal_price = F('price')
     if with_reduction:
         reduction_percentage = Decimal(
-            1.) - reduction_from_bdd() * BACK_TWO_PLACES
-        return Ceil(decimal_price * reduction_percentage) * BACK_TWO_PLACES
-    return decimal_price * BACK_TWO_PLACES
+            1.) - reduction_from_bdd() * settings.BACK_TWO_PLACES
+        return Ceil(decimal_price * reduction_percentage) * settings.BACK_TWO_PLACES
+    return decimal_price * settings.BACK_TWO_PLACES
 
 
 def price_exact_ht(with_reduction=True):
     price = price_exact(with_reduction)
-    return Case(When(TTC_price=True, then=price * Decimal(100.) / (Decimal(100.) * TVA)), default=price)
+    return Case(When(TTC_price=True, then=price * Decimal(100.) / (Decimal(100.) * settings.TVA)), default=price)
 
 
 def price_exact_ttc(with_reduction=True):
     price = price_exact(with_reduction)
-    return Case(When(TTC_price=False, then=price * TVA), default=price)
+    return Case(When(TTC_price=False, then=price * settings.TVA), default=price)
 
 
 def range_ttc(with_reduction=True):
     price = price_exact(with_reduction)
     return When(
-        Case(When(TTC_price=False, then=price * TVA), default=price)
+        Case(When(TTC_price=False, then=price * settings.TVA), default=price)
     )
 
 
 def effective_quantity(data):
-    return Least(data["quantity"], BASKET_MAX_QUANTITY_PER_FORM, F("stock"), output_field=PositiveSmallIntegerField())
+    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, F("stock"),
+                 output_field=PositiveSmallIntegerField())
 
 
 def effective_quantity_per_product_from_basket(basket):

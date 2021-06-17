@@ -1,13 +1,16 @@
 from django.contrib import admin
-from sale.models import Ordered
-from catalogue.bdd_calculations import BACK_TWO_PLACES
+from django.conf import settings
+from sale.forms import PromoForm
+from sale.models import Ordered, Promo
+
 
 def price_exact_ttc(obj):
-    return "{:.2f} euros".format(obj.price_exact_ttc_with_quantity_sum * BACK_TWO_PLACES)
+    return "{:.2f} euros".format(obj.price_exact_ttc_with_quantity_sum * settings.BACK_TWO_PLACES)
 
 
 def price_exact_ht(obj):
-    return "{:.2f} euros".format(obj.price_exact_ht_with_quantity_sum * BACK_TWO_PLACES)
+    return "{:.2f} euros".format(obj.price_exact_ht_with_quantity_sum * settings.BACK_TWO_PLACES)
+
 
 @admin.register(Ordered)
 class ProductAdmin(admin.ModelAdmin):
@@ -30,3 +33,8 @@ class ProductAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Ordered
+
+
+@admin.register(Promo)
+class MyAdmin(admin.ModelAdmin):
+    form = PromoForm
