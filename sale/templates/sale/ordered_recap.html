@@ -47,6 +47,27 @@
             <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
             <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
         </tr>
+
+        {% if ordered.promo_value is not None %}
+            <tr>
+                <td><strong>Code promo</strong></td>
+                <td colspan="5"></td>
+                {% if ordered.promo_type == "pe" %}
+                    <td>-{{ ordered.promo_value }}%</td>
+                {% else %}
+                    <td>-{{ ordered.promo_value }}€</td>
+                {% endif %}
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>Total (code promo)</strong></td>
+                <td colspan="5"></td>
+                <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|floatformat:2 }}€</td>
+                <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum_promo|floatformat:2 }}€</strong></td>
+                <td></td>
+            </tr>
+        {% endif %}
         </tbody>
     </table>
 </div>

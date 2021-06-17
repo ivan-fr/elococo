@@ -11,11 +11,11 @@
 <body>
 
 {% if email %}
-{% include "sale/email_invoice.html" %}
+    {% include "sale/email_invoice.html" %}
 {% endif %}
 
-<h1>FACTURE</h1>
 <section>
+    <h1>FACTURE</h1>
     {% for order_adress in ordered.order_address.all %}
         {% if forloop.counter0 == 0 %}
             <h2>
@@ -23,7 +23,7 @@
             </h2>
         {% else %}
             h2>
-                <strong>Adresse de facturation</strong>
+            <strong>Adresse de facturation</strong>
             </h2>
         {% endif %}
         <p>
@@ -38,7 +38,7 @@
     {% endfor %}
 
     <p><strong>Tél</strong>: {{ ordered.phone }}</p>
-</div>
+</section>
 
 <table>
     <thead>
@@ -104,21 +104,48 @@
     </tbody>
     <tfoot>
     <tr>
-
         <td colspan="4"></td>
         <td><strong>Total (HT)</strong></td>
         <td>{{ ordered.price_exact_ht_with_quantity_sum|to_currency }}€</td>
     </tr>
-    <tr>
-        <td colspan="4"></td>
-        <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-        <td>{{ ordered.price_exact_ht_with_quantity_sum|deduce_tva|to_currency }}€</td>
-    </tr>
-    <tr>
-        <td colspan="4"></td>
-        <td><strong>TOTAL (TTC)</strong></td>
-        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
-    </tr>
+
+    {% if ordered.promo_value is not None %}
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>Code promo</strong></td>
+            {% if ordered.promo_type == "pe" %}
+                <td>-{{ ordered.promo_value }}%</td>
+            {% else %}
+                <td>-{{ ordered.promo_value }}€</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>Total (HT)</strong></td>
+            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|floatformat:2 }}€</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
+            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|deduce_tva|to_currency }}€</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>Total (TTC)</strong></td>
+            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|floatformat:2 }}€</td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
+            <td>{{ ordered.price_exact_ht_with_quantity_sum|deduce_tva|to_currency }}€</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>TOTAL (TTC)</strong></td>
+            <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+        </tr>
+    {% endif %}
     </tfoot>
 </table>
 

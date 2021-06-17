@@ -80,7 +80,7 @@
 
                 {% if promo is not None %}
                     <tr>
-                        <td><strong>Promo</strong></td>
+                        <td><strong>Code promo</strong></td>
                         <td colspan="5"></td>
                         {% if promo.type == "pe" %}
                             <td>-{{ promo.value }}%</td>
@@ -91,7 +91,7 @@
                         <td></td>
                     </tr>
                     <tr>
-                        <td><strong>Total (avec code promo)</strong></td>
+                        <td><strong>Total (code promo)</strong></td>
                         <td colspan="5"></td>
                         <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|floatformat:2 }}€</td>
                         <td><strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
