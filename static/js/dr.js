@@ -181,8 +181,6 @@ function dr(dr_grid, on_up) {
                 return;
             }
 
-            console.log(dir_mouse)
-
             if (next_back_base_percentage > limit_max) {
                 box.style.backgroundColor = '#ff6969';
             } else {
