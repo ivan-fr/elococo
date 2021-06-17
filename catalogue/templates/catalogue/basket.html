@@ -77,6 +77,29 @@
                     <td><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></td>
                     <td></td>
                 </tr>
+
+                {% if promo is not None %}
+                    <tr>
+                        <td><strong>Promo</strong></td>
+                        <td colspan="5"></td>
+                        {% if promo.type == "pe" %}
+                            <td>-{{ promo.value }}%</td>
+                        {% else %}
+                            <td>-{{ promo.value }}€</td>
+                        {% endif %}
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total (avec code promo)</strong></td>
+                        <td colspan="5"></td>
+                        <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|floatformat:2 }}€</td>
+                        <td><strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endif %}
+
                 </tbody>
             </table>
         </div>

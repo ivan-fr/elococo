@@ -109,7 +109,7 @@ def total_price_from_all_product(promo=None):
                 "price_exact_ttc_with_quantity_promo__sum": F("price_exact_ht_with_quantity_promo__sum") * settings.TVA,
             })
 
-    return tuple_
+    return dict_
 
 
 def data_from_all_product():

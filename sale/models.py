@@ -69,6 +69,7 @@ class Ordered(models.Model):
     promo_value = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True)
     promo_type = models.CharField(choices=PROMO_CHOICES, max_length=2, null=True)
     price_exact_ttc_with_quantity_sum_promo = models.PositiveIntegerField(null=True)
+    price_exact_ht_with_quantity_sum_promo = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
         self.createdAt = now()

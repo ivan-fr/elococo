@@ -10,6 +10,9 @@ from sale.models import Promo, Ordered
 
 
 def get_promo(basket, code):
+    if code is None:
+        return None
+
     try:
         return Promo.objects.filter(code=code).filter(
             (Q(startOfLife__lte=Now()) & Q(endOfLife__gte=Now())) | (Q(startOfLife=None) & Q(endOfLife=None)) |

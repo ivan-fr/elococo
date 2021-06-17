@@ -21,7 +21,7 @@ from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
-from sale.bdd_calculations import default_ordered_annotation_format
+from sale.bdd_calculations import default_ordered_annotation_format, get_promo
 from sale.forms import AddressForm, OrderedForm, OrderedInformation, CheckoutForm, \
     RetrieveOrderForm, WIDGETS_FILL_NEXT, AddressFormSet
 from sale.models import Ordered, OrderedProduct, Address
@@ -396,11 +396,23 @@ class BookingBasketView(BaseFormView):
         if response is not None:
             return response
 
-        aggregate = self.get_queryset().aggregate(*total_price_from_all_product())
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+        promo = get_promo(basket, basket.get("code_promo", None))
+
+        aggregate = self.get_queryset().aggregate(**total_price_from_all_product(promo=promo))
 
         try:
             with transaction.atomic():
+                if promo is not None:
+                    dict_ = {
+                        "promo": promo, "promo_value": promo.value, "promo_type": promo.type,
+                        "price_exact_ttc_with_quantity_sum_promo": aggregate[
+                            "price_exact_ttc_with_quantity_promo__sum"],
+                        "price_exact_ht_with_quantity_sum_promo": aggregate["price_exact_ht_with_quantity_promo__sum"],
+                    }
+                else:
+                    dict_ = {}
+
                 self.ordered = Ordered.objects.create(
                     price_exact_ht_with_quantity_sum=int(
                         aggregate["price_exact_ht_with_quantity__sum"] *
@@ -411,7 +423,8 @@ class BookingBasketView(BaseFormView):
                         Decimal(100.)
                     ),
                     secrets=''.join(secrets.choice(string.ascii_lowercase)
-                                    for i in range(settings.ORDER_SECRET_LENGTH))
+                                    for i in range(settings.ORDER_SECRET_LENGTH)),
+                    **dict_
                 )
 
                 ordered_product = []

@@ -164,9 +164,14 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
         promo = get_promo(basket, basket.get("code_promo", None))
 
-        aggregate = self.queryset.aggregate(*total_price_from_all_product(promo=promo))
+        aggregate = self.queryset.aggregate(**total_price_from_all_product(promo=promo))
 
-        context = {"zip_products": list(zip(self.object_list, formset)), "aggregate": aggregate, "formset": formset}
+        context = {
+            "zip_products": list(zip(self.object_list, formset)),
+            "aggregate": aggregate,
+            "formset": formset,
+            "promo": promo
+        }
 
         data["form_basket"] = render_to_string("catalogue/basket.html", context, self.request)
 
