@@ -99,14 +99,16 @@ def total_price_from_all_product(promo=None):
     if promo is not None:
         if promo.type == "pe":
             promo_percentage = Decimal(1.) - promo.value * settings.BACK_TWO_PLACES
+            ht_promo = promo_percentage * Sum("price_exact_ht_with_quantity")
             dict_.update({
-                "price_exact_ht_with_quantity_promo__sum": promo_percentage * F("price_exact_ttc_with_quantity__sum"),
-                "price_exact_ttc_with_quantity_promo__sum": F("price_exact_ht_with_quantity_promo__sum") * settings.TVA,
+                "price_exact_ht_with_quantity_promo__sum": ht_promo,
+                "price_exact_ttc_with_quantity_promo__sum": ht_promo * settings.TVA,
             })
         elif promo.type == "cu":
+            ht_promo = Sum("price_exact_ht_with_quantity") - Decimal(promo.value)
             dict_.update({
-                "price_exact_ht_with_quantity_promo__sum": F("price_exact_ttc_with_quantity__sum") - Decimal(promo.value),
-                "price_exact_ttc_with_quantity_promo__sum": F("price_exact_ht_with_quantity_promo__sum") * settings.TVA,
+                "price_exact_ht_with_quantity_promo__sum": ht_promo,
+                "price_exact_ttc_with_quantity_promo__sum": ht_promo * settings.TVA,
             })
 
     return dict_
