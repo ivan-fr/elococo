@@ -13,4 +13,4 @@ def deduce_tva(value):
 
 @register.filter
 def to_currency(value):
-    return "{:.2f}".format(Decimal(value) / Decimal(100.))
+    return "{:.2f}".format(Decimal(value) * settings.BACK_TWO_PLACES)

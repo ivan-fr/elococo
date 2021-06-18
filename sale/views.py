@@ -198,8 +198,10 @@ class OrderedDetail(FormMixin, DetailView):
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_ORDER_NOT_ENABLED
             return JsonResponse({"redirect": self.get_invalid_url()})
 
-        amount = Decimal(
-            self.object.price_exact_ttc_with_quantity_sum)
+        if self.object.price_exact_ttc_with_quantity_sum_promo is not None:
+            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum_promo)
+        else:
+            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum)
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -458,8 +460,8 @@ class BookingBasketView(BaseFormView):
                 OrderedProduct.objects.bulk_create(ordered_product)
 
             del self.request.session[settings.BASKET_SESSION_KEY]
-            self.request.session[settings.BOOKING_SESSION_KEY] = list(
-                self.ordered.pk.bytes)
+            self.request.session[settings.BOOKING_SESSION_KEY] = list(self.ordered.pk.bytes)
+            del self.request.session[settings.PROMO_SESSION_KEY]
             self.request.session.modified = True
         except ValueError:
             return HttpResponseBadRequest()
