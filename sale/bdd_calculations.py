@@ -1,9 +1,10 @@
 import datetime
 from abc import ABC
+from decimal import Decimal
 
 from django.conf import settings
 from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Subquery, \
-    IntegerField
+    IntegerField, DecimalField
 from django.db.models.functions import Now
 
 from catalogue.bdd_calculations import total_price_per_product_from_basket, price_exact_ht
@@ -24,9 +25,12 @@ def get_promo(basket, code):
         slug__in=tuple(basket.keys())
     ).annotate(
         price_exact_ht_with_quantity=total_price_per_product_from_basket(
-            basket, price_exact_ht(with_reduction=True)
+            basket,
+            price_exact_ht(with_reduction=True)
         )
-    ).aggregate(Sum("price_exact_ht_with_quantity"))["price_exact_ht_with_quantity__sum"]
+    ).aggregate(
+        Sum("price_exact_ht_with_quantity")
+    )["price_exact_ht_with_quantity__sum"]
 
     try:
         return Promo.objects.filter(code=code).filter(
@@ -37,6 +41,13 @@ def get_promo(basket, code):
             min_products_basket__lte=len(basket),
         ).filter(
             Q(min_ht__lte=aggregate) | Q(min_ht=None)
+        ).annotate(
+            must_positive=Case(
+                When(type="cu", then=aggregate - F("value")),
+                default=Decimal(0), output_field=DecimalField()
+            )
+        ).filter(
+            must_positive__gte=Decimal(0)
         ).get()
     except Promo.DoesNotExist:
         return None
