@@ -181,8 +181,13 @@ class OrderedDetail(FormMixin, DetailView):
         else:
             public_api_key = None
 
-        amount = Decimal(
-            self.object.price_exact_ttc_with_quantity_sum) * Decimal(1e-2)
+        if self.object.price_exact_ttc_with_quantity_sum_promo is not None:
+            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum_promo)
+        else:
+            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum)
+
+        amount *= settings.BACK_TWO_PLACES
+
         context = self.get_context_data(object=self.object, public_api_key=public_api_key,
                                         amount=str(amount.quantize(TWO_PLACES)))
         return self.render_to_response(context)

@@ -480,6 +480,10 @@ nav.navbar.navigation {
     padding-left: 1em;
 }
 
+.border_bottom {
+    border-bottom: 1px solid #dee2e6;
+}
+
 .my_1 {
     margin: 0.5em 0;
 }

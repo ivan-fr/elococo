@@ -52,7 +52,7 @@ function status200() {
         basket_save_button = false;
         modal_form_container.innerHTML = basket["form_basket"];
         modal_form_container.querySelector(":scope form").insertAdjacentElement("beforeend", modal_form_container_footer);
-        modal_form_container_footer.classList.add("btn", "is-hidden");
+        modal_form_container_footer.classList.add("is-hidden", "border_bottom");
 
         let select = modal_form_container.querySelector(":scope form select");
         let input = modal_form_container.querySelector(":scope form table input");

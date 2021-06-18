@@ -49,7 +49,8 @@ class OrderedInformation(forms.ModelForm):
                    'price_exact_ttc_with_quantity_sum',
                    'price_exact_ht_with_quantity_sum',
                    'createdAt',
-                   'endOfLife', 'secrets', 'invoice_date')
+                   'endOfLife', 'secrets', 'invoice_date', "promo", "promo_value", "promo_type",
+                   "price_exact_ttc_with_quantity_sum_promo", "price_exact_ht_with_quantity_sum_promo")
         widgets = {
             'phone': forms.TextInput(attrs={"class": "form-control"}),
             'email': forms.EmailInput(attrs={"class": "form-control"}),
