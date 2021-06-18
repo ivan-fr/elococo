@@ -1,9 +1,8 @@
 import datetime
 from abc import ABC
-from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Value, Subquery, \
+from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Subquery, \
     IntegerField
 from django.db.models.functions import Now
 
@@ -36,14 +35,8 @@ def get_promo(basket, code):
         ).filter(
             Q(max_time__gt=SQSum(Ordered.objects.filter(promo=OuterRef("code")))) | Q(max_time=None),
             min_products_basket__lte=len(basket),
-        ).annotate(
-            price_exact_ht_with_quantity__sum=Case(
-                When(
-                    min_ht=None, then=Value(Decimal(0))
-                ), default=aggregate
-            )
         ).filter(
-            Q(min_ht__lte=F("price_exact_ht_with_quantity__sum")) | Q(min_ht=None)
+            Q(min_ht__lte=aggregate) | Q(min_ht=None)
         ).get()
     except Promo.DoesNotExist:
         return None

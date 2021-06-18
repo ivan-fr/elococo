@@ -34,10 +34,6 @@ def update_basket_session(session, form, set_quantity=False):
             session.modified = True
         return
 
-    if form.cleaned_data.get("code_promo", None) is not None:
-        session[settings.BASKET_SESSION_KEY]["code_promo"] = form.cleaned_data["code_promo"].code
-        return
-
     if session.get(settings.BASKET_SESSION_KEY, None) is None:
         session[settings.BASKET_SESSION_KEY] = {product.slug: {
             "product_name": product.name,
@@ -76,7 +72,9 @@ class PromoBasketView(FormView):
         return super(PromoBasketView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        update_basket_session(self.request.session, form)
+        if form.cleaned_data.get("code_promo", None) is not None:
+            self.request.session[settings.PROMO_SESSION_KEY]["code_promo"] = form.cleaned_data["code_promo"].code
+            self.request.session.modified = True
         return super(PromoBasketView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -162,7 +160,8 @@ class BasketView(FormSetMixin, BaseListView):
     def json_response(self, formset):
         data = {}
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
-        promo = get_promo(basket, basket.get("code_promo", None))
+        promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
+        promo = get_promo(basket, promo_session.get("code_promo", None))
 
         aggregate = self.queryset.aggregate(**total_price_from_all_product(promo=promo))
 

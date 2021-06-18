@@ -397,7 +397,8 @@ class BookingBasketView(BaseFormView):
             return response
 
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
-        promo = get_promo(basket, basket.get("code_promo", None))
+        promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
+        promo = get_promo(basket, promo_session.get("code_promo", None))
 
         aggregate = self.get_queryset().aggregate(**total_price_from_all_product(promo=promo))
 
@@ -406,9 +407,12 @@ class BookingBasketView(BaseFormView):
                 if promo is not None:
                     dict_ = {
                         "promo": promo, "promo_value": promo.value, "promo_type": promo.type,
-                        "price_exact_ttc_with_quantity_sum_promo": aggregate[
-                            "price_exact_ttc_with_quantity_promo__sum"],
-                        "price_exact_ht_with_quantity_sum_promo": aggregate["price_exact_ht_with_quantity_promo__sum"],
+                        "price_exact_ttc_with_quantity_sum_promo": int(
+                            aggregate["price_exact_ttc_with_quantity_promo__sum"] * Decimal(100.)
+                        ),
+                        "price_exact_ht_with_quantity_sum_promo": int(
+                            aggregate["price_exact_ht_with_quantity_promo__sum"] * Decimal(100.)
+                        ),
                     }
                 else:
                     dict_ = {}

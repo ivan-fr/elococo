@@ -119,4 +119,4 @@ class PromoForm(forms.Form):
         self.cleaned_data["code_promo"] = get_promo(basket, self.cleaned_data["code_promo"])
         if self.cleaned_data["code_promo"] is None:
             raise forms.ValidationError("Ce code n'existe pas ou soit ne respecte pas certaines conditions.")
-        return super(PromoForm, self).clean_code_promo()
+        return self.cleaned_data["code_promo"]
