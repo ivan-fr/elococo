@@ -165,7 +165,7 @@ class BasketView(FormSetMixin, BaseListView):
         promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
         promo = get_promo(basket, promo_session.get("code_promo", None))
 
-        if promo is None:
+        if promo is None and self.request.session.get(settings.PROMO_SESSION_KEY, None) is not None:
             del self.request.session[settings.PROMO_SESSION_KEY]
 
         aggregate = self.queryset.aggregate(**total_price_from_all_product(promo=promo))
