@@ -73,7 +73,7 @@ class PromoBasketView(FormView):
 
     def form_valid(self, form):
         if form.cleaned_data.get("code_promo", None) is not None:
-            self.request.session[settings.PROMO_SESSION_KEY]["code_promo"] = form.cleaned_data["code_promo"].code
+            self.request.session[settings.PROMO_SESSION_KEY] = {"code_promo": form.cleaned_data["code_promo"].code}
             self.request.session.modified = True
         return super(PromoBasketView, self).form_valid(form)
 
