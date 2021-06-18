@@ -473,7 +473,12 @@ nav.navbar.navigation {
 }
 
 .grid_vertical_center {
-    place-items: center
+    align-items: center
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .ps_1 {

@@ -44,7 +44,7 @@ def get_promo(basket, code):
         ).annotate(
             must_positive=Case(
                 When(type="cu", then=aggregate - F("value")),
-                default=Decimal(0), output_field=DecimalField()
+                default=Decimal(1), output_field=DecimalField()
             )
         ).filter(
             must_positive__gte=Decimal(0)
