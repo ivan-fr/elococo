@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Subquery, \
-    IntegerField, DecimalField
+    IntegerField, FloatField
 from django.db.models.functions import Now
 
 from catalogue.bdd_calculations import total_price_per_product_from_basket, price_exact_ht
@@ -44,10 +44,10 @@ def get_promo(basket, code):
         ).annotate(
             must_positive=Case(
                 When(type="cu", then=aggregate - F("value")),
-                default=Decimal(1), output_field=DecimalField()
+                default=Decimal(1), output_field=FloatField()
             )
         ).filter(
-            must_positive__gte=Decimal(0)
+            must_positive__gte=0.
         ).get()
     except Promo.DoesNotExist:
         return None
