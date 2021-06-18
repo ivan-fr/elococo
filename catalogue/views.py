@@ -144,11 +144,13 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
-        self.object_list = sorted(self.object_list, key=methodcaller(
-            'compute_basket_oder', basket_enum=basket_enum))
+        self.object_list = sorted(
+            self.object_list, key=methodcaller('compute_basket_oder', basket_enum=basket_enum)
+        )
 
         self.formset_kwargs = {
-            "products_queryset": self.object_list, "session": self.request.session}
+            "products_queryset": self.object_list, "session": self.request.session
+        }
         return super(BasketView, self).get_formset_kwargs()
 
     def formset_valid(self, formset):
@@ -162,6 +164,9 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
         promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
         promo = get_promo(basket, promo_session.get("code_promo", None))
+
+        if promo is None:
+            del self.request.session[settings.PROMO_SESSION_KEY]
 
         aggregate = self.queryset.aggregate(**total_price_from_all_product(promo=promo))
 
