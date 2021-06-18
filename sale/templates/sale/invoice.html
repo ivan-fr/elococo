@@ -60,7 +60,11 @@
     <tfoot>
     <tr>
         <td><strong>À payer EUR</strong></td>
-        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+        {% if ordered.promo_value is not None %}
+            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
+        {% else %}
+            <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+        {% endif %}
     </tr>
     </tfoot>
 </table>
@@ -122,7 +126,7 @@
         <tr>
             <td colspan="4"></td>
             <td><strong>Total (HT)</strong></td>
-            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|floatformat:2 }}€</td>
+            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|to_currency }}€</td>
         </tr>
         <tr>
             <td colspan="4"></td>
@@ -132,7 +136,7 @@
         <tr>
             <td colspan="4"></td>
             <td><strong>Total (TTC)</strong></td>
-            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|floatformat:2 }}€</td>
+            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
         </tr>
     {% else %}
         <tr>
