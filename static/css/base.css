@@ -303,7 +303,7 @@ a:visited {
 }
 
 body {
-    background: #ffe2d1;
+    background: linear-gradient(90deg, #f7fafb -30%, #ffb183 120%);;
     font-family: \"Gill Sans\", sans-serif;
     font-size: 1.15em;
     font-weight: 400;
