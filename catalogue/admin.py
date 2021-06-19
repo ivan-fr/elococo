@@ -1,12 +1,13 @@
 from django.contrib import admin
-from catalogue.models import Product, ProductImage, Category
-from catalogue.bdd_calculations import price_annotation_format
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
+from catalogue.bdd_calculations import price_annotation_format
+from catalogue.models import Product, ProductImage, Category
+
 
 @admin.register(Category)
-class MyAdmin(TreeAdmin):    
+class MyAdmin(TreeAdmin):
     prepopulated_fields = {"slug": ("category",)}
     form = movenodeform_factory(Category)
 
@@ -40,7 +41,7 @@ class ProductAdmin(admin.ModelAdmin):
                     price_exact_ttc, categories, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', 'stock')
     inlines = (ProductImageAdmin,)
-    filter_horizontal = ('categories',)
+    filter_horizontal = ('categories', 'products')
     prepopulated_fields = {"slug": ("name",)}
     exclude = ('enable_sale',)
     change_form_template = "catalogue/admin/product_change_form.html"

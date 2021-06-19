@@ -76,7 +76,12 @@ def effective_stock():
         Product.objects.filter(
             elements__box=OuterRef("pk")
         ).annotate(
-            stock_for_box=F("elements__quantity") // F("stock")
+            stock_for_box=Case(
+                When(
+                    stock__gt=0, then=F("elements__quantity") / F("stock")
+                ),
+                default=0, output_field=PositiveSmallIntegerField()
+            )
         ).aggregate(
             Min("stock_for_box")
         ).values("stock_for_box__min")
@@ -85,8 +90,10 @@ def effective_stock():
     return Case(
         When(
             Exists(
-                Product.objects.filter(
-                    elements__box=OuterRef("pk")
+                Subquery(
+                    Product.objects.filter(
+                        elements__box=OuterRef("pk")
+                    )
                 )
             ),
             then=sub

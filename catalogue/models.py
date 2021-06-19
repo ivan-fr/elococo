@@ -45,7 +45,7 @@ class Product(models.Model):
     products = models.ManyToManyField(
         "self",
         through='catalogue.ProductToProduct',
-        through_fields=('from_product', 'to_product')
+        through_fields=('box', 'elements')
     )
 
     date = models.DateField(auto_now_add=True)
