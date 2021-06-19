@@ -47,7 +47,7 @@ def range_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
-    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, F("stock"),
+    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, effective_stock(),
                  output_field=PositiveSmallIntegerField())
 
 
@@ -71,10 +71,10 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
     )
 
 
-def effective_stock():
+def effective_stock(relative=""):
     sub = Subquery(
         Product.objects.filter(
-            to_product__from_product=OuterRef("from_product")
+            to_product__from_product=OuterRef(relative + "pk")
         ).annotate(
             stock_for_parent=F("to_product__quantity") // F("stock")
         ).aggregate(
@@ -85,7 +85,9 @@ def effective_stock():
     return Case(
         When(
             Exists(
-                Product.objects.filter(to_product=OuterRef("from_product"))
+                Product.objects.filter(
+                    to_product__from_product=OuterRef(relative + "pk")
+                )
             ),
             then=sub
         ),
@@ -144,7 +146,7 @@ def data_from_all_product():
 
 def get_descendants_categories(with_products=True, include_self=False, **filters):
     if with_products:
-        d1 = {"products__stock__gt": 0, "products__enable_sale": True}
+        d1 = {"products__effective_stock__gt": 0, "products__enable_sale": True}
     else:
         d1 = {}
 
@@ -153,12 +155,19 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     else:
         d3 = {"depth__gt": OuterRef("depth")}
 
-    return Category.objects.all().filter(
+    r = Category.objects.all()
+
+    if with_products:
+        r = r.annotate(products__effective_stock=effective_stock("products__"))
+
+    r = r.filter(
         path__startswith=OuterRef("path"),
         **d1, **d3, **filters
     ).values(
         'products__pk'
     ).distinct()
+
+    return r
 
 
 class SQSum(Subquery, ABC):
