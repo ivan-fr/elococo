@@ -328,8 +328,7 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(
-            enable_sale=True, stock__gt=0)
+        self.queryset = self.model.objects.filter(stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 

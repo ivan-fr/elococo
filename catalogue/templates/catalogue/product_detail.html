@@ -25,66 +25,68 @@
             {% endfor %}
         </div>
 
-        <div class="info_sale span_3 span_md_12">
-            <section class="box bg-white">
-                <h3>Informations de vente</h3>
-                <div class="content">
-                    <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
-                    </p>
-                    {% if product.effective_reduction > 0 %}
-                        <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
-                            produit.</p>
-                        <p>
-                            Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
-                            (Heure Europe/Paris, UTC+2).
+        {% if product.enable_sale %}
+            <div class="info_sale span_3 span_md_12">
+                <section class="box bg-white">
+                    <h3>Informations de vente</h3>
+                    <div class="content">
+                        <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
                         </p>
-                        <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
-                    {% endif %}
-                    <p>
-                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
-                        {% elif product.stock <= 5 %} Il ne reste plus que
-                            <strong>{{ product.stock }} unité(s)</strong> de
-                            ce produit en
-                            stock !
-                        {% else %}
-                            <strong>Ce produit est en stock !</strong>
+                        {% if product.effective_reduction > 0 %}
+                            <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
+                                produit.</p>
+                            <p>
+                                Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
+                                (Heure Europe/Paris, UTC+2).
+                            </p>
+                            <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
                         {% endif %}
-                    </p>
-                </div>
-            </section>
-            <section class="box bg-white">
-                <h3>Commandes</h3>
-                <div class="content">
-                    <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
-                          method="post">
-                        {% csrf_token %}
-                        {% if form.non_field_errors %}
-                            {{ form.non_field_errors }}
-                        {% endif %}
+                        <p>
+                            {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                            {% elif product.stock <= 5 %} Il ne reste plus que
+                                <strong>{{ product.stock }} unité(s)</strong> de
+                                ce produit en
+                                stock !
+                            {% else %}
+                                <strong>Ce produit est en stock !</strong>
+                            {% endif %}
+                        </p>
+                    </div>
+                </section>
+                <section class="box bg-white">
+                    <h3>Commandes</h3>
+                    <div class="content">
+                        <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
+                              method="post">
+                            {% csrf_token %}
+                            {% if form.non_field_errors %}
+                                {{ form.non_field_errors }}
+                            {% endif %}
 
-                        <div class="grid gap-3">
-                            <div class="quantity grid span_6 span_md_12">
-                                <label class="form-label span_6 span_md_7"
-                                       for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
-                                <div class="input-group span_6 span_md_5">
+                            <div class="grid gap-3">
+                                <div class="quantity grid span_6 span_md_12">
+                                    <label class="form-label span_6 span_md_7"
+                                           for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                    <div class="input-group span_6 span_md_5">
                                         <span class="input-group-text" id="basic-addon1"><i
                                                 class="bi-sort-numeric-down"></i></span>
-                                    {{ form.quantity }}
-                                </div>
+                                        {{ form.quantity }}
+                                    </div>
 
-                                <div class="form-text span_12">
-                                    {{ form.quantity.help_text }}
+                                    <div class="form-text span_12">
+                                        {{ form.quantity.help_text }}
+                                    </div>
+                                    {{ form.quantity.errors }}
                                 </div>
-                                {{ form.quantity.errors }}
+                                <div class="submit span_6 span_md_12">
+                                    <input type="submit" class="btn btn-success" value="Ajouter dans le panier"/>
+                                </div>
                             </div>
-                            <div class="submit span_6 span_md_12">
-                                <input type="submit" class="btn btn-success" value="Ajouter dans le panier"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        {% endif %}
 
         <div class="info_description start_2 end_10 span_md_12 card border-dark text-dark">
             <div class="card-body">

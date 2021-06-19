@@ -5,6 +5,19 @@ from django.forms import BaseFormSet
 from sale.bdd_calculations import get_promo
 
 
+def factor_clean(product_instance, basket):
+    if product_instance is None:
+        raise forms.ValidationError("Le produit n'existe pas.")
+
+    if not product_instance.enable_sale:
+        raise forms.ValidationError("Le produit n'est pas disponible à la vente.")
+
+    if len(basket) >= settings.MAX_BASKET_PRODUCT:
+        raise forms.ValidationError(
+            f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
+        )
+
+
 class ProductFormSet(BaseFormSet):
     def __init__(self, products_queryset, session, *args, **kwargs):
         super(ProductFormSet, self).__init__(*args, **kwargs)
@@ -47,15 +60,8 @@ class AddToBasketForm(forms.Form):
             raise forms.ValidationError("Valeur incompatible.")
 
     def clean(self):
-        if self.product_instance is None:
-            raise forms.ValidationError("Le produit n'existe pas.")
-
         basket = self.session.get(settings.BASKET_SESSION_KEY, {})
-
-        if len(basket) >= settings.MAX_BASKET_PRODUCT:
-            raise forms.ValidationError(
-                f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
-            )
+        factor_clean(self.product_instance, basket)
 
         if self.cleaned_data.get('quantity', None) is None:
             raise forms.ValidationError("Incohérence dans le formulaire.")
@@ -81,15 +87,8 @@ class UpdateBasketForm(AddToBasketForm):
         if self.cleaned_data.get("remove", False):
             return super(AddToBasketForm, self).clean()
 
-        if self.product_instance is None:
-            raise forms.ValidationError("Le produit n'existe pas.")
-
         basket = self.session.get(settings.BASKET_SESSION_KEY, {})
-
-        if len(basket) >= settings.MAX_BASKET_PRODUCT:
-            raise forms.ValidationError(
-                f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
-            )
+        factor_clean(self.product_instance, basket)
 
         if self.cleaned_data.get('quantity', None) is None:
             self.add_error("quantity", forms.ValidationError("Incohérence dans le formulaire."))

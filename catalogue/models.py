@@ -42,6 +42,8 @@ class Product(models.Model):
 
     stock = models.PositiveSmallIntegerField(default=0)
 
+    products = models.ManyToManyField("self")
+
     date = models.DateField(auto_now_add=True)
     dateUpdate = models.DateField(auto_now=True)
     categories = models.ManyToManyField(Category, related_name="products")
