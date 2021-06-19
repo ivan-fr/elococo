@@ -170,7 +170,7 @@ MEDIA_ROOT = BASE_DIR / "var/www/media/"
 MEDIA_URL = '/media/'
 
 # Website title
-WEBSITE_TITLE = "Carla's Cosmetique"
+WEBSITE_TITLE = "Carla's Cosmetic"
 
 # MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
