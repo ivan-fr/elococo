@@ -42,7 +42,7 @@ class Product(models.Model):
 
     stock = models.PositiveSmallIntegerField(default=0)
 
-    products = models.ManyToManyField(
+    subproducts = models.ManyToManyField(
         "self",
         through='catalogue.ProductToProduct',
         through_fields=('box', 'elements')
@@ -50,7 +50,7 @@ class Product(models.Model):
 
     date = models.DateField(auto_now_add=True)
     dateUpdate = models.DateField(auto_now=True)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField(Category, related_name="products")
     enable_comment = models.BooleanField(default=False)
     enable_sale = models.BooleanField(default=False)
 

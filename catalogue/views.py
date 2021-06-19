@@ -244,7 +244,7 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        queryset = self.model.objects.all().filter(enable_sale=True).annotate(**annotate_effective_stock())
+        queryset = self.model.objects.filter(enable_sale=True).annotate(**annotate_effective_stock())
         queryset = queryset.filter(effective_stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))

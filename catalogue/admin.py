@@ -41,7 +41,7 @@ class ProductAdmin(admin.ModelAdmin):
                     price_exact_ttc, categories, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', 'stock')
     inlines = (ProductImageAdmin,)
-    filter_horizontal = ('categories', 'products')
+    filter_horizontal = ('categories', 'subproducts')
     prepopulated_fields = {"slug": ("name",)}
     exclude = ('enable_sale',)
     change_form_template = "catalogue/admin/product_change_form.html"

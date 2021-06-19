@@ -2,7 +2,7 @@ from abc import ABC
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists, Prefetch
+from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import FloatField
 from django.db.models import Max, Min
 from django.db.models import PositiveSmallIntegerField, IntegerField
@@ -72,31 +72,27 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
 
 
 def effective_stock():
-    sub = Subquery(
-        Product.objects.filter(
-            elements__box=OuterRef("pk")
-        ).annotate(
-            stock_for_box=Case(
-                When(
-                    stock__gt=0, then=F("elements__quantity") / F("stock")
-                ),
-                default=0, output_field=PositiveSmallIntegerField()
-            )
-        ).aggregate(
-            Min("stock_for_box")
-        ).values("stock_for_box__min")
-    )
-
     return Case(
         When(
             Exists(
+                Product.objects.filter(
+                    elements__box=OuterRef("pk")
+                )
+            ),
+            then=Min(
                 Subquery(
                     Product.objects.filter(
                         elements__box=OuterRef("pk")
-                    )
+                    ).annotate(
+                        stock_for_box=Case(
+                            When(
+                                stock__gt=0, then=F("elements__quantity") / F("stock")
+                            ),
+                            default=0, output_field=PositiveSmallIntegerField()
+                        )
+                    ).values("stock_for_box")
                 )
-            ),
-            then=sub
+            )
         ),
         default=F("stock"),
         output_field=PositiveSmallIntegerField()
@@ -156,49 +152,39 @@ def data_from_all_product():
     return Min("price_exact_ttc"), Max("price_exact_ttc")
 
 
-def get_descendants_categories(with_products=True, include_self=False, **filters):
-    if with_products:
-        d1 = {"products_extra__effective_stock__gt": 0, "products_extra__enable_sale": True}
-    else:
-        d1 = {}
-
+def get_descendants_products(with_products=True, include_self=False, **filters):
     if include_self:
-        d3 = {"depth__gte": OuterRef("depth")}
+        d3 = {"categories__depth__gte": OuterRef("depth")}
     else:
-        d3 = {"depth__gt": OuterRef("depth")}
+        d3 = {"categories__depth__gt": OuterRef("depth")}
 
-    qs = Category.objects.all()
+    qs = Product.objects.all().annotate(
+        **annotate_effective_stock()
+    )
 
     if with_products:
-        qs = qs.prefetch_related(
-            Prefetch(
-                "products",
-                queryset=Product.objects.annotate(
-                    effective_stock=effective_stock()
-                ),
-                to_attr="products_extra"
-            )
+        qs = qs.filter(
+            effective_stock__gt=0, enable_sale=True
         )
 
     qs = qs.filter(
-        path__startswith=OuterRef("path"),
-        **d1, **d3, **filters
+        categories__path__startswith=OuterRef("path"), **d3, **filters
     ).values(
-        'products__pk'
+        'pk'
     ).distinct()
 
     return qs
 
 
-class SQSum(Subquery, ABC):
+class SQCount(Subquery, ABC):
     template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
     output_field = IntegerField()
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):
     filled_category_ = Category.get_root_nodes().filter(
-        Exists(get_descendants_categories(include_self=True))
-    ).annotate(products_count__sum=SQSum(get_descendants_categories(include_self=True)))[:limit]
+        Exists(get_descendants_products(include_self=True))
+    ).annotate(products_count__sum=SQCount(get_descendants_products(include_self=True)))[:limit]
 
     dict_ = {'filled_category': filled_category_, "selected_category_root": None, "related_products": None,
              "selected_category": None, "filter_list": None}
@@ -206,10 +192,10 @@ def filled_category(limit, selected_category=None, products_queryset=None):
     if selected_category is not None:
         dict_["selected_category_root"] = Category.objects.filter(pk__in=filled_category_).filter(
             Exists(
-                get_descendants_categories(
+                get_descendants_products(
                     with_products=False,
                     include_self=True,
-                    slug=selected_category
+                    categories__slug=selected_category
                 )
             )
         )
@@ -217,8 +203,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
-            selected_category = Category.objects.filter(
-                slug=selected_category).get()
+            selected_category = Category.objects.filter(slug=selected_category).get()
             if products_queryset is not None:
                 related_products = products_queryset.filter(
                     categories__slug__in=Subquery(
@@ -233,17 +218,19 @@ def filled_category(limit, selected_category=None, products_queryset=None):
             else:
                 dict_["related_products"] = None
 
-            annotated_lsit = Category.get_tree(
+            annotated_list = Category.get_tree(
                 obj
             ).filter(
                 depth__lte=2
             ).annotate(
-                products_count__sum=SQSum(
-                    get_descendants_categories(include_self=True))
+                products_count__sum=SQCount(
+                    get_descendants_products(include_self=True)
+                )
             )
 
             dict_["filter_list"] = Category.get_annotated_list_qs(
-                annotated_lsit)
+                annotated_list
+            )
 
             dict_["selected_category_root"] = obj
             dict_["selected_category"] = selected_category
