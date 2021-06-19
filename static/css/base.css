@@ -339,6 +339,10 @@ figure {
     margin: 0;
 }
 
+body.modal-open {
+    padding-right: 0 !important;
+}
+
 figure.hover_figure figcaption {
     bottom: 0;
     left: 0;
