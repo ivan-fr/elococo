@@ -25,7 +25,7 @@ class Command(BaseCommand):
             products = set()
             for order in orders:
                 for ordered_product in order.from_ordered.all():
-                    product = ordered_product.to_product
+                    product = ordered_product.elements
                     product.stock += ordered_product.quantity
                     products.add(product)
             Product.objects.bulk_update(list(products), ("stock",))

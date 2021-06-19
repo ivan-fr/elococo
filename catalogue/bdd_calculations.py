@@ -2,7 +2,7 @@ from abc import ABC
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
+from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists, Prefetch
 from django.db.models import FloatField
 from django.db.models import Max, Min
 from django.db.models import PositiveSmallIntegerField, IntegerField
@@ -71,22 +71,40 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
     )
 
 
-def effective_stock(relative=""):
+def effective_stock(model=None, relative=""):
     sub = Subquery(
         Product.objects.filter(
-            to_product__from_product=OuterRef(relative + "pk")
+            elements__box=OuterRef("pk")
         ).annotate(
-            stock_for_parent=F("to_product__quantity") // F("stock")
+            stock_for_box=F("elements__quantity") // F("stock")
         ).aggregate(
-            Min("stock_for_parent")
-        ).values("stock_for_parent__min")
+            Min("stock_for_box")
+        ).values("stock_for_box__min")
     )
+
+    if model is not None:
+        return Product.objects.filter(
+            slug__in=relative + "slug"
+        ).annotate(
+            effective_stock=Case(
+                When(
+                    Exists(
+                        Product.objects.filter(
+                            elements__box=OuterRef("pk")
+                        )
+                    ),
+                    then=sub
+                ),
+                default=F("stock"),
+                output_field=PositiveSmallIntegerField()
+            )
+        )
 
     return Case(
         When(
             Exists(
                 Product.objects.filter(
-                    to_product__from_product=OuterRef(relative + "pk")
+                    elements__box=OuterRef("pk")
                 )
             ),
             then=sub
@@ -146,7 +164,7 @@ def data_from_all_product():
 
 def get_descendants_categories(with_products=True, include_self=False, **filters):
     if with_products:
-        d1 = {"products__effective_stock__gt": 0, "products__enable_sale": True}
+        d1 = {"products_extra__effective_stock__gt": 0, "products_extra__enable_sale": True}
     else:
         d1 = {}
 
@@ -158,7 +176,15 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     qs = Category.objects.all()
 
     if with_products:
-        qs = qs.annotate(products__effective_stock=effective_stock("products__"))
+        qs = qs.prefetch_related(
+            Prefetch(
+                "products",
+                queryset=Product.objects.annotate(
+                    effective_stock=effective_stock()
+                ),
+                to_attr="products_extra"
+            )
+        )
 
     qs = qs.filter(
         path__startswith=OuterRef("path"),

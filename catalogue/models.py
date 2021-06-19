@@ -43,7 +43,7 @@ class Product(models.Model):
     stock = models.PositiveSmallIntegerField(default=0)
 
     products = models.ManyToManyField(
-        "self", related_name="parent_products",
+        "self",
         through='catalogue.ProductToProduct',
         through_fields=('from_product', 'to_product')
     )
@@ -90,10 +90,10 @@ class Comment(models.Model):
 
 
 class ProductToProduct(models.Model):
-    from_product = models.ForeignKey(Product,
-                                     on_delete=models.CASCADE,
-                                     related_name='from_product')
-    to_product = models.ForeignKey(Product,
-                                   on_delete=models.CASCADE,
-                                   related_name="to_product")
+    box = models.ForeignKey(Product,
+                            on_delete=models.CASCADE,
+                            related_name='box')
+    elements = models.ForeignKey(Product,
+                                 on_delete=models.CASCADE,
+                                 related_name="elements")
     quantity = models.PositiveSmallIntegerField(validators=(MinValueValidator(1),))
