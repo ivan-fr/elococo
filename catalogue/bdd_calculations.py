@@ -71,7 +71,7 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
     )
 
 
-def effective_stock(model=None, relative=""):
+def effective_stock():
     sub = Subquery(
         Product.objects.filter(
             elements__box=OuterRef("pk")
@@ -81,24 +81,6 @@ def effective_stock(model=None, relative=""):
             Min("stock_for_box")
         ).values("stock_for_box__min")
     )
-
-    if model is not None:
-        return Product.objects.filter(
-            slug__in=relative + "slug"
-        ).annotate(
-            effective_stock=Case(
-                When(
-                    Exists(
-                        Product.objects.filter(
-                            elements__box=OuterRef("pk")
-                        )
-                    ),
-                    then=sub
-                ),
-                default=F("stock"),
-                output_field=PositiveSmallIntegerField()
-            )
-        )
 
     return Case(
         When(
