@@ -10,7 +10,7 @@ from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
 
-from catalogue.models import Category
+from catalogue.models import Category, Product
 
 
 def reduction_from_bdd():
@@ -71,13 +71,37 @@ def total_price_per_product_from_basket(basket, price_exact_ttc_):
     )
 
 
+def effective_stock():
+    sub = Subquery(
+        Product.objects.filter(
+            to_product__from_product=OuterRef("from_product")
+        ).annotate(
+            stock_for_parent=F("to_product__quantity") // F("stock")
+        ).aggregate(
+            Min("stock_for_parent")
+        ).values("stock_for_parent__min")
+    )
+
+    return Case(
+        When(
+            Exists(
+                Product.objects.filter(to_product=OuterRef("from_product"))
+            ),
+            then=sub
+        ),
+        default=F("stock"),
+        output_field=PositiveSmallIntegerField()
+    )
+
+
 def price_annotation_format(basket=None):
     price_exact_ttc_ = price_exact_ttc()
     price_exact_ht_ = price_exact_ht()
     my_dict = {"price_exact_ttc": price_exact_ttc_,
                "price_exact_ht": price_exact_ht_,
                "price_base_ttc": price_exact_ttc(with_reduction=False),
-               "effective_reduction": reduction_from_bdd()}
+               "effective_reduction": reduction_from_bdd(),
+               "effective_stock": effective_stock()}
 
     if basket is not None and bool(basket):
         my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(

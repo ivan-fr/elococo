@@ -101,8 +101,7 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            self.queryset = self.model.objects.filter(
-                enable_sale=True, stock__gt=0)
+            self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
             self.queryset = self.queryset.annotate(**price_annotation_format(basket))
         else:

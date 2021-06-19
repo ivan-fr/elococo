@@ -4,7 +4,7 @@ import time
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -42,11 +42,15 @@ class Product(models.Model):
 
     stock = models.PositiveSmallIntegerField(default=0)
 
-    products = models.ManyToManyField("self")
+    products = models.ManyToManyField(
+        "self", related_name="parent_products",
+        through='catalogue.ProductToProduct',
+        through_fields=('from_product', 'to_product')
+    )
 
     date = models.DateField(auto_now_add=True)
     dateUpdate = models.DateField(auto_now=True)
-    categories = models.ManyToManyField(Category, related_name="products")
+    categories = models.ManyToManyField(Category)
     enable_comment = models.BooleanField(default=False)
     enable_sale = models.BooleanField(default=False)
 
@@ -83,3 +87,13 @@ class Comment(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     text = models.TextField(blank=False, null=False)
     date = models.DateField(auto_now_add=True)
+
+
+class ProductToProduct(models.Model):
+    from_product = models.ForeignKey(Product,
+                                     on_delete=models.CASCADE,
+                                     related_name='from_product')
+    to_product = models.ForeignKey(Product,
+                                   on_delete=models.CASCADE,
+                                   related_name="to_product")
+    quantity = models.PositiveSmallIntegerField(validators=(MinValueValidator(1),))
