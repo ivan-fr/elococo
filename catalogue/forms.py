@@ -49,7 +49,11 @@ class AddToBasketForm(forms.Form):
         super(AddToBasketForm, self).__init__(*args, **kwargs)
 
         if self.product_instance is not None:
-            self.choices = range(1, min(self.product_instance.stock, settings.BASKET_MAX_QUANTITY_PER_FORM) + 1)
+            self.choices = range(1,
+                                 min(
+                                     self.product_instance.effective_stock,
+                                     settings.BASKET_MAX_QUANTITY_PER_FORM) + 1
+                                 )
             self.fields["quantity"].choices = ((i, i) for i in self.choices)
 
     def clean_quantity(self):

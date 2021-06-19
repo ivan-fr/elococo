@@ -155,19 +155,19 @@ def get_descendants_categories(with_products=True, include_self=False, **filters
     else:
         d3 = {"depth__gt": OuterRef("depth")}
 
-    r = Category.objects.all()
+    qs = Category.objects.all()
 
     if with_products:
-        r = r.annotate(products__effective_stock=effective_stock("products__"))
+        qs = qs.annotate(products__effective_stock=effective_stock("products__"))
 
-    r = r.filter(
+    qs = qs.filter(
         path__startswith=OuterRef("path"),
         **d1, **d3, **filters
     ).values(
         'products__pk'
     ).distinct()
 
-    return r
+    return qs
 
 
 class SQSum(Subquery, ABC):
