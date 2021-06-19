@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 
-from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product
+from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product, annotate_effective_stock
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
@@ -364,9 +364,11 @@ class BookingBasketView(BaseFormView):
 
         if bool(basket):
             queryset = Product.objects.filter(enable_sale=True)
+            queryset = queryset.annotate(**annotate_effective_stock()).filter(effective_stock__gt=0)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
             queryset = queryset.annotate(
-                **price_annotation_format(basket))[:settings.MAX_BASKET_PRODUCT]
+                **price_annotation_format(basket)
+            )[:settings.MAX_BASKET_PRODUCT]
         else:
             queryset = None
 
@@ -393,8 +395,10 @@ class BookingBasketView(BaseFormView):
 
     def form_valid(self, form):
         if self.request.session.get(settings.BOOKING_SESSION_KEY, None) is not None:
-            messages.warning(self.request,
-                             'Vous avez déjà une commande en attente, une nouvelle reservation est impossible.')
+            messages.warning(
+                self.request,
+                "Vous avez déjà une commande en attente, une nouvelle reservation n'est pas possible."
+            )
             return JsonResponse({"reload": True})
 
         self.product_list = self.get_queryset()
@@ -443,7 +447,12 @@ class BookingBasketView(BaseFormView):
                     if product.effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
 
-                    product.stock -= basket[product.slug]["quantity"]
+                    if product.box is not None:
+                        for productToProduct in product.box:
+                            productToProduct.elements.stock -= productToProduct.quantity
+                    else:
+                        product.stock -= basket[product.slug]["quantity"]
+
                     ordered_product.append(
                         OrderedProduct(
                             from_ordered=self.ordered,
@@ -461,7 +470,7 @@ class BookingBasketView(BaseFormView):
                             quantity=basket[product.slug]["quantity"]
                         )
                     )
-                Product.objects.bulk_update(self.product_list, ("stock",))
+                Product.objects.bulk_update(self.product_list, ("stock", "box__elements__stock"))
                 OrderedProduct.objects.bulk_create(ordered_product)
 
             del self.request.session[settings.BASKET_SESSION_KEY]

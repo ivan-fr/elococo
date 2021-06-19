@@ -11,7 +11,7 @@ from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import BaseListView
 
 from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, \
-    data_from_all_product, cast_annotate_to_decimal
+    data_from_all_product, cast_annotate_to_decimal, annotate_effective_stock
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product
 from elococo.generic import FormSetMixin
@@ -101,9 +101,12 @@ class BasketView(FormSetMixin, BaseListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            self.queryset = self.model.objects.filter(enable_sale=True, stock__gt=0)
+            self.queryset = self.model.objects.filter(enable_sale=True).annotate(**annotate_effective_stock())
+            self.queryset = self.queryset.filter(effective_stock__gt=0)
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
-            self.queryset = self.queryset.annotate(**price_annotation_format(basket))
+            self.queryset = self.queryset.annotate(
+                **price_annotation_format(basket)
+            )[:settings.MAX_BASKET_PRODUCT]
         else:
             self.queryset = None
 
@@ -241,7 +244,8 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        queryset = self.model.objects.all().filter(enable_sale=True, stock__gt=0)
+        queryset = self.model.objects.all().filter(enable_sale=True).annotate(**annotate_effective_stock())
+        queryset = queryset.filter(effective_stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))
         self.extra_context.update({"index": category_slug})
@@ -251,7 +255,6 @@ class IndexView(ListView):
             self.extra_context.update({"index": selected_category_root.slug})
             queryset = self.extra_context["related_products"]
             self.extra_context["related_products"] = None
-            self.queryset = queryset.filter(enable_sale=True, stock__gt=0)
 
         annotation_p = price_annotation_format()
         cast_annotate_to_decimal(annotation_p, "price_exact_ttc")
@@ -327,7 +330,8 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(stock__gt=0)
+        self.queryset = self.model.objects.filter(stock__gt=0).annotate(**annotate_effective_stock())
+        self.queryset = self.queryset.filter(effective_stock__gt=0)
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 
