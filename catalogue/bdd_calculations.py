@@ -169,6 +169,22 @@ def data_from_all_product():
     return Min("price_exact_ttc"), Max("price_exact_ttc")
 
 
+def get_descendants_categories(include_self=False, **filters):
+    if include_self:
+        d3 = {"depth__gte": OuterRef("depth")}
+    else:
+        d3 = {"depth__gt": OuterRef("depth")}
+
+    qs = Category.objects.all()
+
+    qs = qs.filter(
+        path__startswith=OuterRef("path"),
+        **d3, **filters
+    )
+
+    return qs
+
+
 def get_descendants_products(with_products=True, include_self=False, **filters):
     if include_self:
         d3 = {"categories__depth__gte": OuterRef("depth")}
@@ -225,10 +241,9 @@ def filled_category(limit, selected_category=None, products_queryset=None):
     if selected_category is not None:
         dict_["selected_category_root"] = Category.objects.filter(pk__in=filled_category_).filter(
             Exists(
-                get_descendants_products(
-                    with_products=False,
+                get_descendants_categories(
                     include_self=True,
-                    categories__slug=selected_category
+                    slug=selected_category
                 )
             )
         )
