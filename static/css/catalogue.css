@@ -13,7 +13,7 @@
     -moz-appearance: none;
     appearance: none;
     border-radius: .25rem;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
 main .navbar ul > li {
@@ -45,7 +45,7 @@ main h2.is_colored {
 }
 
 #boutique article figure.hover_figure .info_price {
-    right: -1px;
+    right: 1px;
     top: 1px;
     position: absolute;
     border-top-right-radius: 0.25em;
@@ -57,8 +57,15 @@ main h2.is_colored {
     font-weight: bold;
 }
 
-figure.hover_figure.border figcaption, #boutique figure.hover_figure figcaption {
-    left: 1px;
+#boutique article figure.hover_figure .info_compo {
+    right: 1px;
+    top: 10em;
+    position: absolute;
+    background-color: #ffe2d1;
+    padding: 0.5em;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: bold;
 }
 
 #boutique article figure.hover_figure .info_reduction {

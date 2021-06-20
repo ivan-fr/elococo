@@ -71,15 +71,6 @@ input[type=submit] {
     display: inline-block;
 }
 
-dl, ol, ul {
-    margin-top: 0;
-    margin-bottom: 1rem;
-}
-
-ol, ul {
-    padding-left: 1rem;
-}
-
 .grid {
     display: grid;
     grid-auto-rows: auto;
@@ -348,19 +339,18 @@ figure.hover_figure figcaption {
     left: 0;
     position: absolute;
     display: none;
-    border-bottom-left-radius: 0.25em;
-    border-bottom-right-radius: 0.25em;
     background: rgba(255, 255, 255, 0.85);
     padding: 0.50em;
     box-sizing: border-box;
     width: 100%;
     font-weight: bold;
-    border-top: 0.1em solid black;
+    border: 1px solid black;
 }
 
 figure.hover_figure img {
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
 }
 
 figure.hover_figure {

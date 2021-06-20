@@ -244,7 +244,9 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        queryset = self.model.objects.filter(enable_sale=True).annotate(**annotate_effective_stock())
+        queryset = self.model.objects.prefetch_related(
+            'box'
+        ).filter(enable_sale=True).annotate(**annotate_effective_stock())
         queryset = queryset.filter(effective_stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
         self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))
@@ -330,8 +332,11 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
-        self.queryset = self.model.objects.filter(stock__gt=0).annotate(**annotate_effective_stock())
-        self.queryset = self.queryset.filter(effective_stock__gt=0)
+        self.queryset = self.model.objects.prefetch_related(
+            'box', 'box__elements', 'categories'
+        ).annotate(
+            **annotate_effective_stock()
+        )
         self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 
@@ -359,6 +364,15 @@ class ProductDetailView(FormMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if self.object.box is not None:
+            images = [self.object.productimage_set.first()]
+            for pToP in self.object.box.all():
+                try:
+                    images.append(pToP.elements.productimage_set.first())
+                except IndexError:
+                    continue
+        else:
+            images = self.object.productimage_set.all()
 
         updated = self.request.session.get("basket_updated", False)
         self.extra_context = {"basket_updated": updated}
@@ -366,7 +380,7 @@ class ProductDetailView(FormMixin, DetailView):
         if updated:
             self.request.session["basket_updated"] = False
 
-        context = self.get_context_data(object=self.object)
+        context = self.get_context_data(object=self.object, images=images)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):

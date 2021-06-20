@@ -35,17 +35,15 @@ class Product(models.Model):
     price = models.PositiveSmallIntegerField()
     TTC_price = models.BooleanField(default=False)
 
-    reduction = models.PositiveSmallIntegerField(
-        validators=(MaxValueValidator(100),), default=0
-    )
+    reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
     reduction_end = models.DateField(null=True, blank=True)
-
     stock = models.PositiveSmallIntegerField(default=0)
-
     subproducts = models.ManyToManyField(
         "self",
         through='catalogue.ProductToProduct',
-        through_fields=('box', 'elements')
+        through_fields=(
+            'box', 'elements'
+        )
     )
 
     date = models.DateField(auto_now_add=True)
@@ -96,4 +94,4 @@ class ProductToProduct(models.Model):
     elements = models.ForeignKey(Product,
                                  on_delete=models.CASCADE,
                                  related_name="elements")
-    quantity = models.PositiveSmallIntegerField(validators=(MinValueValidator(1),))
+    quantity = models.PositiveSmallIntegerField(validators=(MinValueValidator(1),), default=1)

@@ -5,12 +5,13 @@ from django.conf import settings
 from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import FloatField
 from django.db.models import Max, Min
-from django.db.models import PositiveSmallIntegerField, IntegerField
+from django.db.models import PositiveSmallIntegerField
 from django.db.models.functions import Cast
-from django.db.models.functions import Ceil, Least
+from django.db.models.functions import Ceil, Least, Floor
 from django.utils.timezone import now
 
-from catalogue.models import Category, Product
+from catalogue.models import Category, Product, ProductToProduct
+from sale.models import OrderedProduct
 
 
 def reduction_from_bdd():
@@ -76,22 +77,24 @@ def effective_stock():
         When(
             Exists(
                 Product.objects.filter(
-                    elements__box=OuterRef("pk")
+                    elements__box__pk=OuterRef("pk")
                 )
             ),
-            then=Min(
-                Subquery(
-                    Product.objects.filter(
-                        elements__box=OuterRef("pk")
-                    ).annotate(
-                        stock_for_box=Case(
-                            When(
-                                stock__gt=0, then=F("elements__quantity") / F("stock")
-                            ),
-                            default=0, output_field=PositiveSmallIntegerField()
-                        )
-                    ).values("stock_for_box")
-                )
+            then=SQMin(
+                Product.objects.filter(
+                    elements__box__pk=OuterRef("pk")
+                ).annotate(
+                    intermediate_quantity=Subquery(
+                        ProductToProduct.objects.filter(box__pk=OuterRef(OuterRef("pk")),
+                                                        elements__pk=OuterRef("pk")).values("quantity")
+                    )
+                ).annotate(
+                    stock_for_box=Floor(
+                        F("stock") / F("intermediate_quantity"),
+                        output_field=PositiveSmallIntegerField()
+                    )
+                ).values("stock_for_box"),
+                "stock_for_box"
             )
         ),
         default=F("stock"),
@@ -99,8 +102,23 @@ def effective_stock():
     )
 
 
+def stock_details(sold=False):
+    return Sum(
+        Subquery(
+            OrderedProduct.objects.filter(
+                to_product__pk=OuterRef("pk"),
+                from_ordered__payment_status=sold
+            ).values("quantity")
+        )
+    )
+
+
 def annotate_effective_stock():
-    return {"effective_stock": effective_stock()}
+    return {
+        "effective_stock": effective_stock(),
+        "stock_in_reservation": stock_details(),
+        "stock_sold": stock_details(True),
+    }
 
 
 def price_annotation_format(basket=None):
@@ -176,9 +194,17 @@ def get_descendants_products(with_products=True, include_self=False, **filters):
     return qs
 
 
+class SQMin(Subquery, ABC):
+    def __init__(self, queryset, column, output_field=None, **extra):
+        self.template = '(SELECT min({}) FROM (%(subquery)s) _min)'.format(column)
+        super(SQMin, self).__init__(queryset, output_field, **extra)
+
+    output_field = PositiveSmallIntegerField()
+
+
 class SQCount(Subquery, ABC):
     template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
-    output_field = IntegerField()
+    output_field = PositiveSmallIntegerField()
 
 
 def filled_category(limit, selected_category=None, products_queryset=None):

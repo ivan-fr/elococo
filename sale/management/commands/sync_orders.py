@@ -14,7 +14,9 @@ class Command(BaseCommand):
             **default_ordered_annotation_format()
         ).filter(
             ordered_is_ready_to_delete=True
-        ).prefetch_related("from_ordered", "from_ordered__to_product")
+        ).prefetch_related("from_ordered", "from_ordered__to_product",
+                           "from_ordered__to_product__box",
+                           "from_ordered__to_product__elements")
 
         count = orders.count()
         self.stdout.write(self.style.WARNING(
@@ -25,9 +27,14 @@ class Command(BaseCommand):
             products = set()
             for order in orders:
                 for ordered_product in order.from_ordered.all():
-                    product = ordered_product.elements
-                    product.stock += ordered_product.quantity
-                    products.add(product)
+                    product = ordered_product.to_product
+                    if product.box is not None:
+                        for box in product.box.all():
+                            box.elements.stock += box.quantity * ordered_product.quantity
+                            products.add(box.elements)
+                    else:
+                        product.effective_stock += ordered_product.quantity
+                        products.add(product)
             Product.objects.bulk_update(list(products), ("stock",))
             orders.delete()
 

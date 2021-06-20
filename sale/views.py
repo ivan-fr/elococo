@@ -363,8 +363,12 @@ class BookingBasketView(BaseFormView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            queryset = Product.objects.filter(enable_sale=True)
-            queryset = queryset.annotate(**annotate_effective_stock()).filter(effective_stock__gt=0)
+            queryset = Product.objects.prefetch_related(
+                'box', 'box__elements'
+            ).filter(enable_sale=True)
+            queryset = queryset.annotate(
+                **annotate_effective_stock()
+            ).filter(effective_stock__gt=0)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
             queryset = queryset.annotate(
                 **price_annotation_format(basket)
@@ -442,14 +446,18 @@ class BookingBasketView(BaseFormView):
                     **dict_
                 )
 
+                sub_products = []
                 ordered_product = []
                 for product in self.product_list:
                     if product.effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
 
                     if product.box is not None:
-                        for productToProduct in product.box:
-                            productToProduct.elements.stock -= productToProduct.quantity
+
+                        for productToProduct in product.box.all():
+                            productToProduct.elements.stock -= productToProduct.quantity * basket[product.slug][
+                                "quantity"]
+                            sub_products.append(productToProduct.elements)
                     else:
                         product.stock -= basket[product.slug]["quantity"]
 
@@ -470,13 +478,20 @@ class BookingBasketView(BaseFormView):
                             quantity=basket[product.slug]["quantity"]
                         )
                     )
-                Product.objects.bulk_update(self.product_list, ("stock", "box__elements__stock"))
-                OrderedProduct.objects.bulk_create(ordered_product)
 
             del self.request.session[settings.BASKET_SESSION_KEY]
             self.request.session[settings.BOOKING_SESSION_KEY] = list(self.ordered.pk.bytes)
-            del self.request.session[settings.PROMO_SESSION_KEY]
+            try:
+                del self.request.session[settings.PROMO_SESSION_KEY]
+            except KeyError:
+                pass
             self.request.session.modified = True
+
+            Product.objects.bulk_update(self.product_list, ("stock",))
+            if sub_products:
+                Product.objects.bulk_update(sub_products, ("stock",))
+            OrderedProduct.objects.bulk_create(ordered_product)
+
         except ValueError:
             return HttpResponseBadRequest()
 

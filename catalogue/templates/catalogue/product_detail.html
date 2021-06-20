@@ -9,12 +9,29 @@
     <article id="detail" class="grid start_2 end_10 start_md_2 end_md_11 gap-3">
         <h3 class="is-hidden">Details</h3>
 
-        <div class="image_produit span_4 span_md_12">
-            <div class="spinner-border text-info" role="status"></div>
+        <div class="span_4 span_md_12 grid gap-3">
+            {% if product.box.all|length > 0 %}
+                <div class="info_sale span_12">
+                    <section class="box bg-white">
+                        <h3>Composition du coffret</h3>
+                        <ul>
+                            {% for pTp in product.box.all %}
+                                <li>
+                                    <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+            {% endif %}
+            <div class="image_produit span_12">
+                <div class="spinner-border text-info" role="status">
+                </div>
+            </div>
         </div>
 
         <div class="image_produits grid gap-3 span_md_12 row_md_1 span_5">
-            {% for product_image in product.productimage_set.all %}
+            {% for product_image in images %}
                 <figure class="hover_figure span_6 border">
                     <img src="{{ product_image.image.url }}"
                          alt="product_{{ forloop.counter }}_{{ product.name }}"/>
@@ -42,9 +59,9 @@
                             <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
                         {% endif %}
                         <p>
-                            {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
-                            {% elif product.stock <= 5 %} Il ne reste plus que
-                                <strong>{{ product.stock }} unité(s)</strong> de
+                            {% if product.effective_stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                            {% elif product.effective_stock <= 5 %} Il ne reste plus que
+                                <strong>{{ product.effective_stock }} unité(s)</strong> de
                                 ce produit en
                                 stock !
                             {% else %}
@@ -88,7 +105,7 @@
             </div>
         {% endif %}
 
-        <div class="info_description start_2 end_10 span_md_12 card border-dark text-dark">
+        <div class="info_description start_1 end_9 span_md_12 card border-dark text-dark">
             <div class="card-body">
                 <div class="card-text">{{ product.description|safe }}</div>
             </div>
