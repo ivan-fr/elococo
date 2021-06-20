@@ -1,5 +1,5 @@
 function dr(dr_grid, on_up) {
-    if (dr_grid == null) {
+    if (dr_grid === null) {
         return
     }
     let dr = dr_grid.querySelector(".dr_main .double_range");
