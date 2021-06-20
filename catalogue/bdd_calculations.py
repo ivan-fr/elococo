@@ -230,8 +230,7 @@ class SQCount(Subquery, ABC):
     output_field = PositiveSmallIntegerField()
 
 
-def get_related_products(selected_category=None, products_queryset=None):
-    selected_category = Category.objects.filter(slug=selected_category).get()
+def get_related_products(selected_category, products_queryset=None):
     related_products = None
     if products_queryset is not None:
         related_products = products_queryset.filter(
@@ -267,7 +266,7 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
-
+            selected_category = Category.objects.filter(slug=selected_category).get()
             dict_["related_products"] = get_related_products(selected_category, products_queryset)
 
             annotated_list = Category.get_tree(
