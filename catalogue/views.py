@@ -10,8 +10,9 @@ from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import BaseListView
 
-from catalogue.bdd_calculations import price_annotation_format, filled_category, total_price_from_all_product, \
-    data_from_all_product, cast_annotate_to_decimal, annotate_effective_stock
+from catalogue.bdd_calculations import price_annotation_format, filled_category, get_related_products, \
+    total_price_from_all_product, \
+    data_from_all_product, cast_annotate_to_float, annotate_effective_stock
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product
 from elococo.generic import FormSetMixin
@@ -249,17 +250,29 @@ class IndexView(ListView):
         ).filter(enable_sale=True).annotate(**annotate_effective_stock())
         queryset = queryset.filter(effective_stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
-        self.extra_context.update(filled_category(5, category_slug, products_queryset=queryset))
+
+        if self.request.is_ajax():
+            self.extra_context.update(
+                {
+                    "related_products": get_related_products(category_slug, products_queryset=queryset)
+                }
+            )
+        else:
+            self.extra_context.update(
+                filled_category(5, category_slug, products_queryset=queryset)
+            )
         self.extra_context.update({"index": category_slug})
         selected_category_root = self.extra_context.get("selected_category_root", None)
 
         if selected_category_root is not None:
             self.extra_context.update({"index": selected_category_root.slug})
+
+        if self.extra_context["related_products"] is not None:
             queryset = self.extra_context["related_products"]
             self.extra_context["related_products"] = None
 
         annotation_p = price_annotation_format()
-        cast_annotate_to_decimal(annotation_p, "price_exact_ttc")
+        cast_annotate_to_float(annotation_p, "price_exact_ttc")
 
         queryset = queryset.annotate(**annotation_p)
         self.extra_context.update(queryset.aggregate(*data_from_all_product()))

@@ -140,7 +140,7 @@ def price_annotation_format(basket=None):
     return my_dict
 
 
-def cast_annotate_to_decimal(dict_, key):
+def cast_annotate_to_float(dict_, key):
     dict_[key] = Cast(dict_[key], output_field=FloatField())
 
 
@@ -230,6 +230,22 @@ class SQCount(Subquery, ABC):
     output_field = PositiveSmallIntegerField()
 
 
+def get_related_products(selected_category=None, products_queryset=None):
+    selected_category = Category.objects.filter(slug=selected_category).get()
+    related_products = None
+    if products_queryset is not None:
+        related_products = products_queryset.filter(
+            categories__slug__in=Subquery(
+                Category.objects.filter(
+                    path__startswith=selected_category.path,
+                    depth__gte=selected_category.depth
+                ).values("slug")
+            )
+        ).distinct()
+
+    return related_products
+
+
 def filled_category(limit, selected_category=None, products_queryset=None):
     filled_category_ = Category.get_root_nodes().filter(
         Exists(get_descendants_products(include_self=True))
@@ -251,20 +267,8 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
-            selected_category = Category.objects.filter(slug=selected_category).get()
-            if products_queryset is not None:
-                related_products = products_queryset.filter(
-                    categories__slug__in=Subquery(
-                        Category.objects.filter(
-                            path__startswith=selected_category.path,
-                            depth__gte=selected_category.depth
-                        ).values("slug")
-                    )
-                ).distinct()
 
-                dict_["related_products"] = related_products
-            else:
-                dict_["related_products"] = None
+            dict_["related_products"] = get_related_products(selected_category, products_queryset)
 
             annotated_list = Category.get_tree(
                 obj
