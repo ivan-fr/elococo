@@ -1,33 +1,23 @@
 {% load static %}
 
-<footer class="footer grid column_centered gap-5 py-4">
-    <section class="span_5 span_md_6 span_xs_12">
+<footer class="footer column_centered grid py-4 gap-5">
+    <section class="span_3 span_md_6 span_xs_12">
         <h3 class="is-hidden">Logos</h3>
-        <div class="grid">
-            <figure class="fig1 span_md_12 span_6">
-                <img class="logos" src="{% static "images/Carla_logo.png" %}" alt="logo">
-            </figure>
-            <div class="grid span_md_12 span_6 gap-3">
-                <figure class="span_6 span_md_4">
-                    <a target="_blank"
-                       href="https://validator.w3.org/nu/?doc={{ request.scheme }}://{{ request.get_host }}{% url "index" %}">
-                        <img src="{% static "images/html5-validator-badge-blue.svg" %}" class="logos" alt="html_valide"/>
-                    </a>
-                    <figcaption>
-                        HTML valide
-                    </figcaption>
-                </figure>
-                <figure class="span_6 span_md_4">
-                    <a href="https://www.djangoproject.com/"  target="_blank"><img class="logos" src="{% static "images/logo-django1.png" %}"
-                                                                                   alt="html_valide"/></a>
-                    <figcaption>
-                        Django backend
-                    </figcaption>
-                </figure>
-            </div>
+        <figure class="fig1 span_md_12 span_6">
+            <img class="logos" src="{% static "images/Carla_logo.png" %}" alt="logo">
+        </figure>
+        <div class="grid span_md_12 span_6 gap-3">
         </div>
     </section>
-    <section class="start_7 end_9 span_md_6 span_xs_12">
+    <section class="span_3 span_md_6 span_xs_12">
+        <h3>Nos engagements</h3>
+        <ul>
+            <li>Livraison offerte dès 35€</li>
+            <li>Paiement 100% sécurisé</li>
+            <li>Produits en stock</li>
+        </ul>
+    </section>
+    <section class="span_3 span_md_6 span_xs_12">
         <h3>À Propos</h3>
         <p class="m-0">Développé par <a target="_blank" href="{% url 'ivan_cv' %}">BESEVIC Ivan</a>.</p>
         <p> Tous droits réservés. {% now "Y" %}</p>

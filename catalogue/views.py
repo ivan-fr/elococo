@@ -14,7 +14,7 @@ from catalogue.bdd_calculations import (
     total_price_from_all_product,
     data_from_all_product, cast_annotate_to_float, annotate_effective_stock)
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
-from catalogue.models import Product
+from catalogue.models import Product, Category
 from elococo.generic import FormSetMixin
 from sale.bdd_calculations import get_promo
 
@@ -253,9 +253,10 @@ class IndexView(ListView):
 
         if self.request.is_ajax():
             if category_slug is not None:
+                selected_category = Category.objects.filter(slug=category_slug).get()
                 self.extra_context.update(
                     {
-                        "related_products": get_related_products(category_slug, products_queryset=queryset)
+                        "related_products": get_related_products(selected_category, products_queryset=queryset)
                     }
                 )
         else:

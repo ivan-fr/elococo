@@ -157,7 +157,7 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR / "var/www/static/"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / secrets["STATICFILES_DIR"],
 ]
 
 # Default primary key field type
@@ -170,7 +170,7 @@ MEDIA_ROOT = BASE_DIR / "var/www/media/"
 MEDIA_URL = '/media/'
 
 # Website title
-WEBSITE_TITLE = "Carla's Cosmetic"
+WEBSITE_TITLE = secrets["WEBSITE_TITLE"]
 
 # MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'

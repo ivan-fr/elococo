@@ -254,7 +254,7 @@ a:visited {
     position: absolute;
     text-align: center;
     z-index: 1;
-    background: linear-gradient(60deg, #ff7916 0%, #ffb183 100%);
+    background: linear-gradient(60deg, #FF8E01 0%, #FFE6C8 100%);
     color: white;
     width: 100%;
 }
@@ -294,15 +294,16 @@ a:visited {
 }
 
 body {
-    background: linear-gradient(90deg, #f7fafb -30%, #ffb183 120%);;
-    font-family: \"Gill Sans\", sans-serif;
+    background: linear-gradient(90deg, #FFE6C8 -30%, #FF8E01 120%);
     font-size: 1.15em;
+    font-family: novel-mono-pro, sans-serif;
     font-weight: 400;
+    font-style: normal;
     margin: 0;
 }
 
 body > footer {
-    border-top: 2px solid #ff6c00;
+    border-top: 2px solid #d77539;
 }
 
 div.covered_image.image1 {
@@ -417,7 +418,7 @@ thead, tbody, tfoot, tr, td, th {
 
 .modal-header {
     background-color: #ffe2d1;
-    border-bottom: 0.1em solid #ff6c00;
+    border-bottom: 1px solid #ff3c00;
 }
 
 nav.navbar.navigation {
@@ -434,7 +435,7 @@ nav.navbar.navigation {
 }
 
 .logos {
-    height: 84px;
+    height: 105px;
 }
 
 .navbar:not(.navigation_form) ul > li {
@@ -453,7 +454,7 @@ nav.navbar.navigation {
 
 .navbar ul > li.brand {
     margin-right: 1em;
-    font-family: cursive;
+    font-family: soap, sans-serif;
 }
 
 .navbar ul > li.link a {
@@ -496,14 +497,14 @@ nav.navbar.navigation {
 }
 
 .navbar ul > li.link.is-active {
-    background-color: #9e3b49;
+    background-color: #bb3b04;
     font-weight: bold;
     color: white;
 }
 
 .navbar ul > li.link:hover {
-    background-color: #ba6c6d;
-    color: white;
+    background-color: #ffba8c;
+    color: black;
 }
 
 .navbar ul > li.logo {

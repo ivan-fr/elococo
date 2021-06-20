@@ -1,0 +1,38 @@
+html {
+    -webkit-print-color-adjust: exact;
+}
+
+body {
+    font-family: "Gill Sans", sans-serif;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+.text_right {
+    text-align: right;
+}
+
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    border: 1px solid black;
+    margin-bottom: 3em;
+}
+
+thead, tbody, tfoot, tr, td, th {
+    border-color: inherit;
+    border-style: solid;
+    padding: 0.5rem 0.5rem;
+}
+
+tfoot {
+    background: #ebebeb;
+}
+
+tbody tr:nth-child(odd) {
+    background: #ffe6dc;
+}
+
+tbody tr:nth-child(even) {
+    background: #ffffff;
+}
