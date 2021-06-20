@@ -108,7 +108,7 @@ def stock_details(sold=False):
             OrderedProduct.objects.filter(
                 to_product__pk=OuterRef("pk"),
                 from_ordered__payment_status=sold
-            ).values("quantity")
+            ).values("quantity")[:1]
         )
     )
 
