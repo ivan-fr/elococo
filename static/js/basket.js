@@ -90,7 +90,7 @@ function onload_promo() {
                 onload_bakset();
             } else if (data.hasOwnProperty("form_promo")) {
                 let div_spinner = document.createElement("div");
-                div_spinner.classList.add('my_1', 'ps_1');
+                div_spinner.classList.add('my_1', 'ps_1', 'pe_1');
                 div_spinner.innerHTML = '<span class="spinner-grow spinner-grow-sm " role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
                 let basket_form = modal_form_container.querySelector("form");
                 basket_form.insertAdjacentElement("afterend", div_spinner);
