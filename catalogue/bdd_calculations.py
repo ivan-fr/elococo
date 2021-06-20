@@ -103,13 +103,12 @@ def effective_stock():
 
 
 def stock_details(sold=False):
-    return Sum(
-        Subquery(
-            OrderedProduct.objects.filter(
-                to_product__pk=OuterRef("pk"),
-                from_ordered__payment_status=sold
-            ).values("quantity")[:1]
-        )
+    return SQSum(
+        OrderedProduct.objects.filter(
+            to_product__pk=OuterRef("pk"),
+            from_ordered__payment_status=sold
+        ).values("quantity"),
+        "quantity"
     )
 
 
@@ -192,6 +191,14 @@ def get_descendants_products(with_products=True, include_self=False, **filters):
     ).distinct()
 
     return qs
+
+
+class SQSum(Subquery, ABC):
+    def __init__(self, queryset, column, output_field=None, **extra):
+        self.template = '(SELECT SUM({}) FROM (%(subquery)s) _min)'.format(column)
+        super(SQSum, self).__init__(queryset, output_field, **extra)
+
+    output_field = PositiveSmallIntegerField()
 
 
 class SQMin(Subquery, ABC):
