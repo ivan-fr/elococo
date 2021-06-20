@@ -1,4 +1,3 @@
-from decimal import Decimal
 from operator import methodcaller
 
 from django.conf import settings
@@ -10,9 +9,10 @@ from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import BaseListView
 
-from catalogue.bdd_calculations import price_annotation_format, filled_category, get_related_products, \
-    total_price_from_all_product, \
-    data_from_all_product, cast_annotate_to_float, annotate_effective_stock
+from catalogue.bdd_calculations import (
+    price_annotation_format, filled_category, get_related_products,
+    total_price_from_all_product,
+    data_from_all_product, cast_annotate_to_float, annotate_effective_stock)
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product
 from elococo.generic import FormSetMixin
@@ -252,11 +252,12 @@ class IndexView(ListView):
         category_slug = self.kwargs.get('slug_category', None)
 
         if self.request.is_ajax():
-            self.extra_context.update(
-                {
-                    "related_products": get_related_products(category_slug, products_queryset=queryset)
-                }
-            )
+            if category_slug is not None:
+                self.extra_context.update(
+                    {
+                        "related_products": get_related_products(category_slug, products_queryset=queryset)
+                    }
+                )
         else:
             self.extra_context.update(
                 filled_category(5, category_slug, products_queryset=queryset)
@@ -267,7 +268,7 @@ class IndexView(ListView):
         if selected_category_root is not None:
             self.extra_context.update({"index": selected_category_root.slug})
 
-        if self.extra_context["related_products"] is not None:
+        if self.extra_context.get("related_products", None) is not None:
             queryset = self.extra_context["related_products"]
             self.extra_context["related_products"] = None
 
@@ -288,8 +289,8 @@ class IndexView(ListView):
                 and self.request.GET.get("max_ttc_price", None) is not None:
             queryset = queryset.filter(
                 price_exact_ttc__range=(
-                    Decimal.from_float(float(self.request.GET["min_ttc_price"])),
-                    Decimal.from_float(float(self.request.GET["max_ttc_price"]))
+                    float(self.request.GET["min_ttc_price"]) - 1e-1,
+                    float(self.request.GET["max_ttc_price"]) + 1e-1
                 )
             )
 
@@ -302,8 +303,6 @@ class IndexView(ListView):
                 self.extra_context.update({"order": 1})
         else:
             self.extra_context.update({"order": -1})
-
-            self.extra_context.update({"slug_category": category_slug})
 
         ordering = self.get_ordering()
         if ordering:
