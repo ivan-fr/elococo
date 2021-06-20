@@ -1,4 +1,8 @@
 function dr(dr_grid, on_up) {
+    if (dr_grid == null) {
+        return
+    }
+
     let dr = dr_grid.querySelector(".dr_main .double_range");
     let dr_witness = dr_grid.querySelector(".dr_main .double_range_temoin");
     let box_left = dr_grid.querySelector(".dr_main .dr_wrapper:nth-of-type(1) .dr_box");
