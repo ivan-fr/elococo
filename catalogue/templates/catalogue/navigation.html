@@ -1,33 +1,31 @@
-<nav class="navbar navigation border bg-white mb-3 span_12 rounded-2">
-    <ul class="d-flex">
-        {% if index is None %}
+<ul class="d-flex">
+    {% if index is None %}
+        <li class="link is-active">
+            <a href="{% url 'catalogue_index' %}">
+                Tous les produits
+            </a>
+        </li>
+    {% else %}
+        <li class="link">
+            <a href="{% url 'catalogue_index' %}">
+                Tous les produits
+            </a>
+        </li>
+    {% endif %}
+
+    {% for category in categories %}
+        {% if index == category.slug %}
             <li class="link is-active">
-                <a href="{% url 'catalogue_index' %}">
-                    Tous les produits
+                <a href="{% url 'catalogue_navigation_categories' category.slug %}">
+                    {{ category.category|title }} ({{ category.products_count__sum }})
                 </a>
             </li>
         {% else %}
             <li class="link">
-                <a href="{% url 'catalogue_index' %}">
-                    Tous les produits
+                <a href="{% url 'catalogue_navigation_categories' category.slug %}">
+                    {{ category.category|title }} ({{ category.products_count__sum }})
                 </a>
             </li>
         {% endif %}
-
-        {% for category in categories %}
-            {% if index == category.slug %}
-                <li class="link is-active">
-                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">
-                        {{ category.category|title }} ({{ category.products_count__sum }})
-                    </a>
-                </li>
-            {% else %}
-                <li class="link">
-                    <a href="{% url 'catalogue_navigation_categories' category.slug %}">
-                        {{ category.category|title }} ({{ category.products_count__sum }})
-                    </a>
-                </li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-</nav>
+    {% endfor %}
+</ul>

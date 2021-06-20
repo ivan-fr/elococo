@@ -1,12 +1,9 @@
-{% extends 'elococo/base_grid_wrapper.html' %}
+{% extends 'elococo/base.html' %}
 {% load static %}
 
-{% block title %}
-    <h2 class="start_2 end_12">{{ product.name|title }}</h2>
-{% endblock %}
-
 {% block base_container %}
-    <article id="detail" class="grid start_2 end_10 start_md_2 end_md_11 gap-3">
+    <h2 class="text-center start_3 end_12">{{ product.name|title }}</h2>
+    <article id="detail" class="grid start_2 end_11 start_md_2 end_md_11 gap-3">
         <h3 class="is-hidden">Details</h3>
 
         <div class="span_4 span_md_12 grid gap-3">
@@ -116,7 +113,6 @@
             <figcaption>Images Licence</figcaption>
         </figure>
     </article>
-    <div class="covered_image image2 span_2 is-hidden-md"></div>
 {% endblock %}
 
 {% block body_js %}

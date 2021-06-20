@@ -6,19 +6,21 @@
 {% endblock %}
 
 {% block base_container %}
-    <h2 class="text-center start_2 end_12">Boutique</h2>
+    <h2 class="text-center start_3 end_12">Boutique</h2>
     {% if product_list %}
-        {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+        <nav class="navbar navigation border bg-white mb-3 column_centered rounded-2">
+            {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
+        </nav>
         {% include "catalogue/filtres.html" %}
         {% if filter_list is None %}
-            <div id="boutique" class="grid span_12 span_md_12 gap-3">
+            <div id="boutique" class="grid column_centered span_md_12 gap-3">
         {% else %}
-            <div id="boutique" class="grid span_9 span_md_12 gap-3">
+            <div id="boutique" class="grid start_2 span_e_8 span_md_12 gap-3">
         {% endif %}
     {% include "catalogue/products_list.html" %}
     </div>
         {% if filter_list is not None %}
-            <section class="span_3 span_md_12 row_md_3 border-start border-primary border-3 ps-3">
+            <section class="span_2 span_md_12 row_md_3 border-start border-primary border-3 ps-3">
                 <h2>Filtres associés</h2>
                 {% for category, info in filter_list %}
                     {% if info.open %}
@@ -58,6 +60,7 @@
     <script src="{% static "js/dr.js" %}"></script>
     <script>
         let filter_request = false;
+
         function on_up_dr_produtts(left, right) {
             if (!httpRequest) {
                 alert('Abandon :( Impossible de créer une instance de XMLHTTP');

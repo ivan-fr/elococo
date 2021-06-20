@@ -15,7 +15,7 @@
             <a href="{% url 'sale:retrieve' %}" class="btn btn-light">Retrouver une commande</a>
         </li>
         {% if url_my_ordered %}
-            <li>
+            <li class="text-white">
                 {% if url_my_ordered_detail %}
                     <a href="{{ url_my_ordered_detail }}" class="btn btn-success"><i
                             class="bi-info-circle"></i> Paiement de ma commande (3/3)
