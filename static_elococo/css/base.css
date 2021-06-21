@@ -298,7 +298,7 @@ a:visited {
     position: absolute;
     text-align: center;
     z-index: 1;
-    background: linear-gradient(60deg, #FF8E01 0%, #FFE6C8 100%);
+    background: linear-gradient(60deg, #FF8E01 0%, #FDC583 100%);
     color: white;
     width: 100%;
 }
@@ -501,7 +501,7 @@ main .navbar ul > li {
 
 .navbar ul > li.brand {
     margin-right: 1em;
-    padding: 4px 0 0 0;
+    padding: calc(0.5em + 4px) 0.5em 0.5em 0.5em;
     font-family: chennai-slab, serif;
 }
 
