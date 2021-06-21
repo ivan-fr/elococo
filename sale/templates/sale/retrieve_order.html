@@ -6,7 +6,7 @@
 
 {% block base_container %}
     {% if ordered %}
-        <section class="start_2 span_e_6 column_md_centered">
+        <section class="start_2 w-100 span_e_6 column_md_centered">
             <h2>Commande #{{ ordered.order_number }}</h2>
             <section>
                 <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
@@ -15,7 +15,9 @@
         </section>
         <div class="covered_image span_2 is-hidden-md">
         </div>
-        {% include "sale/ordered_informations.html" with ordered=ordered %}
+        <section class="section-border-right span_5 column_md_centered">
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
+        </section>
     {% else %}
         <section class="start_2 span_e_6 column_md_centered">
             <h2>Retrouver une commande</h2>

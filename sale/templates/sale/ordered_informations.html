@@ -1,75 +1,73 @@
-<section class="section-border-right span_5 column_md_centered">
-    <h2 class="is_colored">Informations à propos de cette commande</h2>
+<h2 class="is_colored">Informations à propos de cette commande</h2>
+<p>
+    Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>.
+</p>
+{% if ordered.payment_status %}
     <p>
-        Cette réservation a été crée le <strong>{{ ordered.createdAt }}</strong>.
+        <stong>
+            Cette commande a été payée.
+        </stong>
     </p>
-    {% if ordered.payment_status %}
-        <p>
-            <stong>
-                Cette commande a été payée.
-            </stong>
-        </p>
-        <p>
-            Vous pouvez retrouver un <strong>duplicata de votre facture <a
-                href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
-        </p>
-        {% for order_adress in ordered.order_address.all %}
-            {% if forloop.counter0 == 0 %}
-                <p>
-                    <strong>Adresse de livraison</strong>
-                </p>
-            {% else %}
-                <p>
-                    <strong>Adresse de facturation</strong>
-                </p>
-            {% endif %}
+    <p>
+        Vous pouvez retrouver un <strong>duplicata de votre facture <a
+            href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
+    </p>
+    {% for order_adress in ordered.order_address.all %}
+        {% if forloop.counter0 == 0 %}
             <p>
-                <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
-                {{ order_adress.address }}<br>
-                {% if order_adress.address2 %}
-                    {{ order_adress.address2 }}<br>
-                {% endif %}
-                {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
-                France<br>
-            </p>
-        {% endfor %}
-
-        <p>Tél: {{ ordered.phone }}</p>
-
-    {% else %}
-        <p>
-            Notre site e-commerce prend en considération un stock disponible.<br>
-            Nous ne vendons pas un produit qui n'est pas en stock.<br>
-            Vos quantités réservées seront donc disponible pendant un temps restreint.<br>
-            Si le paiement de la reservation est effective, la reservation sera permanent.
-        </p>
-        {% if ordered.ordered_is_enable %}
-            <p>
-                Cette réservation est <strong>active</strong>
-                jusqu'au <strong>{{ ordered.effective_end_time_payment }}</strong>.
-            </p>
-            <p>
-                Si vous ne procédez pas au paiement de cette commande avant l'échéance, la réservation sera annulée
-                et les quantités des produits demandés seront restituées en boutique.
-            </p>
-            <p>
-                <strong>Tous nos produits sont envoyés avec colissimo</strong>. Avec suivi.<br>
-                Il y a donc pas de choix de mode de livraisons.
+                <strong>Adresse de livraison</strong>
             </p>
         {% else %}
             <p>
-                Cette réservation est <strong>inactive</strong>.<br>
-                Son échéance était le {{ ordered.effective_end_time_payment }}.
-            </p>
-            <p>
-                Vous ne pouvez plus procéder au paiement ni renseigner vos coordonnées.<br>
-                Les quantités réservées ont été restitués en boutique.
-            </p>
-            <p>
-                Vous pourrez <strong>refaire une autre réservation dans au plus 25 minutes.</strong><br>
-                Cette réservation sera bien entendue supprimer de nos bases données.
+                <strong>Adresse de facturation</strong>
             </p>
         {% endif %}
+        <p>
+            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+            {{ order_adress.address }}<br>
+            {% if order_adress.address2 %}
+                {{ order_adress.address2 }}<br>
+            {% endif %}
+            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+            France<br>
+        </p>
+    {% endfor %}
 
+    <p>Tél: {{ ordered.phone }}</p>
+
+{% else %}
+    <p>
+        Notre site e-commerce prend en considération un stock disponible.<br>
+        Nous ne vendons pas un produit qui n'est pas en stock.<br>
+        Vos quantités réservées seront donc disponible pendant un temps restreint.<br>
+        Si le paiement de la reservation est effective, la reservation sera permanent.
+    </p>
+    {% if ordered.ordered_is_enable %}
+        <p>
+            Cette réservation est <strong>active</strong>
+            jusqu'au <strong>{{ ordered.effective_end_time_payment }}</strong>.
+        </p>
+        <p>
+            Si vous ne procédez pas au paiement de cette commande avant l'échéance, la réservation sera annulée
+            et les quantités des produits demandés seront restituées en boutique.
+        </p>
+        <p>
+            <strong>Tous nos produits sont envoyés avec colissimo</strong>. Avec suivi.<br>
+            Il y a donc pas de choix de mode de livraisons.
+        </p>
+    {% else %}
+        <p>
+            Cette réservation est <strong>inactive</strong>.<br>
+            Son échéance était le {{ ordered.effective_end_time_payment }}.
+        </p>
+        <p>
+            Vous ne pouvez plus procéder au paiement ni renseigner vos coordonnées.<br>
+            Les quantités réservées ont été restitués en boutique.
+        </p>
+        <p>
+            Vous pourrez <strong>refaire une autre réservation dans au plus 25 minutes.</strong><br>
+            Cette réservation sera bien entendue supprimer de nos bases données.
+        </p>
     {% endif %}
-</section>
+
+{% endif %}

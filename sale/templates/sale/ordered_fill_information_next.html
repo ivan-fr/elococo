@@ -14,7 +14,9 @@
         </div>
         <div class="covered_image span_2 is-hidden-md">
         </div>
-        {% include "sale/ordered_informations.html" with ordered=ordered %}
+        <section class="section-border-right span_5 span_md_12">
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
+        </section>
         {% if formset %}
             <section class="span_5 span_md_12 row_md_2" id="order-fill">
                 <h2 class="no-flex is_colored">Pour passer au
@@ -68,7 +70,8 @@
 
                     {% endfor %}
                     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        <button type="button" id="fill_next_config" class="mt-3 btn btn-warning">Facturation identique à la
+                        <button type="button" id="fill_next_config" class="mt-3 btn btn-warning">Facturation identique à
+                            la
                             livraison
                         </button>
                         <button type="submit" class="mt-3 btn btn-success">Envoyer mes coordonnées</button>
