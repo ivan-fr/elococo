@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="icon" href="{% static random_footer_logo %}"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ website_title }}</title>
+    {% block head_js %}
+    {% endblock %}
+    <link rel="stylesheet" href="https://use.typekit.net/pkk7ngs.css">
+    <link rel="stylesheet" href="{% static "sass/bootstrap_custom.css" %}">
+    <link rel="stylesheet" href="{% static "css/base.css" %}">
+    <link rel="stylesheet" href="{% static "css/catalogue.css" %}">
+    <link rel="stylesheet" href="{% static "css/responsive.css" %}">
+    <link rel="stylesheet" href="{% static "css/presentation.css" %}">
+    {% block head_css %}
+    {% endblock %}
+</head>
+<body class="grid gap-3">
+
+<div class="wrapper pb-5 grid span_12">
+    <header class="header">
+        <div class="inner-header small_inner">
+        </div>
+        <div class="waves">
+        </div>
+    </header>
+
+    {% include "elococo/navbar.html" with index=1 %}
+
+    <video class="span_12" autoplay loop muted>
+        <source src="{% static "videos/intro_1.mp4" %}" type="video/mp4">
+        Sorry, your browser doesn't support embedded videos.
+    </video>
+</div>
+
+{% include "elococo/footer.html" %}
+
+</body>
+</html>

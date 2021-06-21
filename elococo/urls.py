@@ -25,7 +25,7 @@ def trigger_error(request):
     division_by_zero = 1 / 0
 
 urlpatterns = [
-    path('', IndexRedirectionView.as_view(), name="index"),
+    path('', TemplateView.as_view(template_name="elococo/presentation.html"), name="index"),
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),

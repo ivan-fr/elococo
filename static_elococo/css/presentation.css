@@ -1,0 +1,32 @@
+.wrapper {
+    padding-bottom: 0;
+    width: 100%;
+}
+
+.header {
+    background: unset;
+}
+
+.inner-header {
+    background: linear-gradient(60deg, #FF8E01 0%, #FDC583 100%);
+}
+
+.inner-header.small_inner {
+    height: 75px;
+}
+
+.waves {
+    width: 100%;
+    clip-path: polygon(50% 0%, 100% 0, 100% 44%, 85% 54%, 68% 57%, 53% 64%, 34% 63%, 14% 59%, 0 49%, 0 0);
+    background: linear-gradient(60deg, #FF8E01 0%, #FDC583 100%);
+}
+
+#gentle-wave {
+    fill: white;
+}
+
+video {
+    position: relative;
+    width: 100%;
+    z-index: 0 !important;
+}

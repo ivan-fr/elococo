@@ -300,7 +300,6 @@ a:visited {
 
 .header {
     position: absolute;
-    text-align: center;
     z-index: 1;
     background: linear-gradient(60deg, #FF8E01 0%, #FDC583 100%);
     color: white;
@@ -316,7 +315,6 @@ a:visited {
 
 .wrapper {
     background: #f7fafb;
-    z-index: 0;
     gap: 1em;
 }
 
