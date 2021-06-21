@@ -298,6 +298,11 @@ a:visited {
     color: unset;
 }
 
+.navbar ul > li.link.is-active:hover {
+    background-color: #bb3b04;
+    color: white;
+}
+
 .header {
     position: absolute;
     z-index: 1;
