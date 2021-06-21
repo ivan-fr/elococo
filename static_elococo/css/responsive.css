@@ -213,6 +213,10 @@
     main :is(h1, h2, h3, h4, h5, h6) {
         word-break: break-word;
     }
+
+    .column_md_centered {
+        grid-column: 2 / span 10;
+    }
 }
 
 @media screen and (max-width: 768px) {

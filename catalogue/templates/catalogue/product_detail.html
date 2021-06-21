@@ -3,7 +3,7 @@
 
 {% block base_container %}
     <h2 class="text-center start_3 end_12">{{ product.name|title }}</h2>
-    <article id="detail" class="grid start_2 end_11 start_md_2 end_md_11 gap-3">
+    <article id="detail" class="grid column_md_centered gap-3">
         <h3 class="is-hidden">Details</h3>
 
         <div class="span_4 span_md_12 grid gap-3">
@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="image_produits grid gap-3 span_md_12 row_md_1 span_5">
+        <div class="image_produits grid gap-3 span_md_12 span_5">
             {% for product_image in images %}
                 <figure class="hover_figure span_6 border">
                     <img src="{{ product_image.image.url }}"

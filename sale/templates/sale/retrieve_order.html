@@ -6,7 +6,7 @@
 
 {% block base_container %}
     {% if ordered %}
-        <section class="start_2 span_e_6 span_md_12">
+        <section class="start_2 span_e_6 column_md_centered">
             <h2>Commande #{{ ordered.order_number }}</h2>
             <section>
                 <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
@@ -17,7 +17,7 @@
         </div>
         {% include "sale/ordered_informations.html" with ordered=ordered %}
     {% else %}
-        <section class="start_2 span_e_6 span_md_12">
+        <section class="start_2 span_e_6 column_md_centered">
             <h2>Retrouver une commande</h2>
             <div class="alert alert-primary">
                 Ses informations sont disponible dans l'email contenant votre facture.

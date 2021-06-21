@@ -1,4 +1,4 @@
-<nav class="navbar navigation border bg-white mb-3 start_2 span_e_5 span_md_12 rounded-2">
+<nav class="navbar navigation border bg-white mb-3 start_2 span_e_5 column_md_centered rounded-2">
     <ul class="d-flex filters">
         {% if order is not None and order == 0 %}
             <li class="link is-active">
@@ -30,7 +30,7 @@
     </ul>
 </nav>
 
-<nav class="start_8 span_e_4 span_md_12 navbar navigation navigation_form border bg-white mb-3 rounded-2">
+<nav class="start_8 span_e_4 column_md_centered navbar navigation navigation_form border bg-white mb-3 rounded-2">
     <ul class="d-flex">
         <li class="grid dr_grid" id="products_dr">
             <div class="dr_value_left span_2 span_md_12 text-left" data-dr-left="{{ price_exact_ttc__min|floatformat:2 }}">

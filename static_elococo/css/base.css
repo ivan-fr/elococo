@@ -94,6 +94,10 @@ input[type=submit] {
     grid-column: 1/-1;
 }
 
+.w-100 {
+    width: 100%;
+}
+
 .span_e_2 {
     grid-column-end: 2 span;
 }
