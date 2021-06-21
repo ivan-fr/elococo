@@ -18,9 +18,9 @@
                 {% else %}
             <li class="link is-active">
         {% endif %}
-            <a href="{% url 'catalogue_index' %}">
-                Boutique
-            </a>
+        <a href="{% url 'catalogue_index' %}">
+            Boutique
+        </a>
         </li>
     </ul>
     <ul class="d-xs-flex">
@@ -44,11 +44,13 @@
                 {% endif %}
             </li>
         {% endif %}
-        <li>
-            <button data-bs-toggle="modal" data-bs-target="#basket-modal" class="btn btn-primary"><i
-                    class="bi-basket"></i> Mon Panier <span id="basket_len"
-                                                            class="badge bg-white text-dark">{{ basket_len }}</span>
-            </button>
-        </li>
+        {% if not index %}
+            <li>
+                <button data-bs-toggle="modal" data-bs-target="#basket-modal" class="btn btn-primary"><i
+                        class="bi-basket"></i> Mon Panier <span id="basket_len"
+                                                                class="badge bg-white text-dark">{{ basket_len }}</span>
+                </button>
+            </li>
+        {% endif %}
     </ul>
 </nav>
