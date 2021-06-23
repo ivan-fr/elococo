@@ -59,6 +59,7 @@ def webhook_view(request):
 
 def capture_order(request, session):
     if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
+        stripe.PaymentIntent.cancel(session["id"])
         return HttpResponse(status=400)
 
     ordered_uuid = uuid.UUID(
@@ -67,16 +68,19 @@ def capture_order(request, session):
     products = Product.objects.prefetch_related(
         'box', 'box__elements', "to_product", "to_product__from_ordered"
     ).filter(
-        enable_sale=True, to_product__from_ordered__pk=ordered_uuid, to_product__from_ordered__payment_status=False
+        to_product__from_ordered__pk=ordered_uuid, to_product__from_ordered__payment_status=False
     )
-    products = products.annotate(
-        **annotate_effective_stock()
-    ).filter(effective_stock__gt=0)
+
+    if not products.exists():
+        stripe.PaymentIntent.cancel(session["id"])
+        return HttpResponse(status=200)
 
     sub_products = []
 
     try:
         for product in products:
+            if not product.enable_sale:
+                raise ValueError()
             if product.box is not None:
                 for productToProduct in product.box.all():
                     productToProduct.elements.stock -= productToProduct.quantity * product.to_product.quantity
