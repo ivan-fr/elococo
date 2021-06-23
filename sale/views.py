@@ -59,40 +59,36 @@ def webhook_view(request):
 
 
 def capture_order(session):
-    ordered_uuid = uuid.UUID(
-        bytes=bytes(session["metadata"]["pk_order"])
-    )
-    products = Product.objects.prefetch_related(
-        'box', 'box__elements', "to_product", "to_product__from_ordered"
+    ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    order = Ordered.objects.prefetch_related(
+        "from_ordered", "from_ordered__to_product", "from_ordered__to_product__box",
+        "from_ordered__to_product__box__elements"
     ).filter(
-        to_product__from_ordered__pk=ordered_uuid, to_product__from_ordered__payment_status=False
+        pk=ordered_uuid
     )
 
-    if not products.exists():
+    if not order.exists():
         stripe.PaymentIntent.cancel(session["id"])
         return HttpResponse(status=200)
 
-    sub_products = []
-
     try:
-        for product in products:
-            if not product.enable_sale:
-                raise ValueError()
+        products = set()
+        for ordered_product in order.from_ordered.all():
+            product = ordered_product.to_product
             if product.box is not None:
-                for productToProduct in product.box.all():
-                    productToProduct.elements.stock -= productToProduct.quantity * product.to_product.quantity
-                    if productToProduct.elements.stock < 0:
+                for box in product.box.all():
+                    box.elements.stock -= box.quantity * ordered_product.quantity
+                    if box.elements.stock < 0:
                         raise ValueError()
-                    sub_products.append(productToProduct.elements)
+                    products.add(box.elements)
             else:
-                product.stock -= product.to_product.quantity
+                product.stock -= ordered_product.quantity
                 if product.stock < 0:
                     raise ValueError()
+                products.add(product)
 
         with transaction.atomic():
-            Product.objects.bulk_update(products, ("stock",))
-            if sub_products:
-                Product.objects.bulk_update(sub_products, ("stock",))
+            Product.objects.bulk_update(list(products), ("stock",))
             stripe.PaymentIntent.capture(session["id"])
     except ValueError:
         stripe.PaymentIntent.cancel(session["id"])
@@ -106,11 +102,7 @@ def fulfill_order(request, session):
     if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
         return HttpResponse(status=400)
 
-    ordered_uuid = uuid.UUID(
-        bytes=bytes(
-            session["metadata"]["pk_order"]
-        )
-    )
+    ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
 
     try:
         order = Ordered.objects.filter(
@@ -118,10 +110,7 @@ def fulfill_order(request, session):
             payment_status=False
         ).prefetch_related("order_address").get()
     except Ordered.DoesNotExist:
-        raise Http404()
-
-    if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
-        return HttpResponseBadRequest()
+        return HttpResponse(status=400)
 
     with transaction.atomic():
         order.payment_status = True
@@ -244,12 +233,8 @@ class RetrieveOrderedDetail(FormMixin, DetailView):
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_object_form(self, form, queryset=None):
-        return get_object(
-            self, queryset, {
-                "pk": form.cleaned_data["pk"],
-                "secrets": form.cleaned_data["secrets"],
-            }
-        )
+        return get_object(self, queryset,
+                          {"pk": form.cleaned_data["pk"], "secrets": form.cleaned_data["secrets"]})
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -337,11 +322,11 @@ class OrderedDetail(FormMixin, DetailView):
                 payment_intent_data={
                     "capture_method": "manual",
                     "metadata": {
-                        "pk_order": list(self.object.pk.bytes)
+                        "pk_order": self.object.pk
                     }
                 },
                 metadata={
-                    "pk_order": list(self.object.pk.bytes)
+                    "pk_order": self.object.pk
                 },
                 customer_email=self.object.email,
                 mode='payment',

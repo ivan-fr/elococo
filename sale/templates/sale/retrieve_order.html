@@ -21,10 +21,11 @@
                 <p>Le paiement a échoué. Vous n'avez pas été débité.</p>
                 <p>Le manque de stock d'un des produits de votre commande a invalidé votre paiement.</p>
             </section>
+        {% else %}
+            <section class="section-border-right start_2 span_e_5 column_md_centered">
+                {% include "sale/ordered_informations.html" with ordered=ordered %}
+            </section>
         {% endif %}
-        <section class="section-border-right start_2 span_e_5 column_md_centered">
-            {% include "sale/ordered_informations.html" with ordered=ordered %}
-        </section>
     {% else %}
         <section class="start_2 span_e_6 column_md_centered">
             <h2>Retrouver une commande</h2>
