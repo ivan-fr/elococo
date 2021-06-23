@@ -50,10 +50,9 @@ def webhook_view(request):
     if event["type"] == "payment_intent.amount_capturable_updated":
         session = event['data']['object']
         return capture_order(session)
-    elif event['type'] == 'checkout.session.completed':
+    elif event['type'] == 'charge.captured':
         session = event['data']['object']
-        if session.payment_status == "paid":
-            return fulfill_order(request, session)
+        return fulfill_order(request, session)
 
     return HttpResponse(status=200)
 
