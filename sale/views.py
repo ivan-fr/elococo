@@ -20,7 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 
-from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product, annotate_effective_stock
+from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product, annotate_effective_stock, \
+    get_quantity_from_basket_box, get_stock_with_basket, post_price_annotation_format, post_effective_basket_quantity
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
@@ -474,9 +475,17 @@ class BookingBasketView(BaseFormView):
                 **annotate_effective_stock()
             ).filter(effective_stock__gt=0)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
-            queryset = queryset.annotate(
+            self.queryset = self.queryset.annotate(
                 **price_annotation_format(basket)
-            )[:settings.MAX_BASKET_PRODUCT]
+            ).annotate(
+                **get_quantity_from_basket_box(basket)
+            ).annotate(
+                **get_stock_with_basket(), **post_effective_basket_quantity()
+            ).filter(
+                post_effective_stock_with_basket__gt=0
+            ).annotate(
+                **post_price_annotation_format()
+            )
         else:
             queryset = None
 
@@ -546,13 +555,13 @@ class BookingBasketView(BaseFormView):
                         Decimal(100.)
                     ),
                     secrets=''.join(secrets.choice(string.ascii_lowercase)
-                                    for i in range(settings.ORDER_SECRET_LENGTH)),
+                                    for _ in range(settings.ORDER_SECRET_LENGTH)),
                     **dict_
                 )
 
                 ordered_product = []
                 for product in self.product_list:
-                    if product.effective_basket_quantity != basket[product.slug]["quantity"]:
+                    if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
 
                     ordered_product.append(
@@ -569,7 +578,7 @@ class BookingBasketView(BaseFormView):
                                 product.price_exact_ht_with_quantity * Decimal(100.)),
                             price_exact_ttc_with_quantity=int(
                                 product.price_exact_ttc_with_quantity * Decimal(100.)),
-                            quantity=basket[product.slug]["quantity"]
+                            quantity=product.post_effective_basket_quantity
                         )
                     )
 

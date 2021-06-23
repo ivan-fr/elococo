@@ -54,10 +54,14 @@ function status200() {
         modal_form_container.querySelector(":scope form").insertAdjacentElement("beforeend", modal_form_container_footer);
         modal_form_container_footer.classList.add("is-hidden", "border_bottom");
 
-        let select = modal_form_container.querySelector(":scope form select");
-        let input = modal_form_container.querySelector(":scope form table input");
-        select.addEventListener("change", add_save_button(modal_form_container_footer));
-        input.addEventListener("change", add_save_button(modal_form_container_footer));
+        let select = modal_form_container.querySelectorAll(":scope table select");
+        let input = modal_form_container.querySelectorAll(":scope table input");
+        for (const inputElement of input) {
+            inputElement.addEventListener("change", add_save_button(modal_form_container_footer));
+        }
+        for (const selectElement of select) {
+            selectElement.addEventListener("change", add_save_button(modal_form_container_footer));
+        }
         modal_form_container.querySelector(":scope form").addEventListener("submit", post_basket);
 
         get_promo();

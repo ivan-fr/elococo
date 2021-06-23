@@ -66,31 +66,43 @@ def effective_quantity_per_product_from_basket(basket):
 def get_quantity_from_basket_box(basket):
     whens = (
         When(
-            pk=slug, then=F("intermediate_quantity") * OuterRef("elements__box__effective_basket_quantity")
+            pk=slug, then=F("intermediate_quantity") * Least(
+                data["quantity"],
+                settings.BASKET_MAX_QUANTITY_PER_FORM,
+                F("effective_stock"),
+                output_field=PositiveSmallIntegerField()
+            )
         ) for slug, data in basket.items()
     )
 
-    cases = Case(*whens, default=Value(0), output_field=PositiveSmallIntegerField())
+    cases = Case(*whens, default=Value(0))
 
     return {
         "quantity_from_basket_box": Case(
-            When(Exists(Product.objects.filter(
-                slug__in=basket.keys(), box__elements=OuterRef("pk"))),
+            When(
+                Exists(
+                    Product.objects.filter(
+                        slug__in=basket.keys(), box__elements=OuterRef("pk")
+                    )
+                ),
                 then=SQSum(
                     Product.objects.filter(
-                        slug__in=basket.keys(), box__elements=OuterRef("pk")).annotate(
+                        slug__in=basket.keys(), box__elements=OuterRef("pk")
+                    ).annotate(
                         intermediate_quantity=Subquery(
                             ProductToProduct.objects.filter(
                                 box__pk=OuterRef("pk"),
                                 elements__pk=OuterRef(OuterRef("pk"))
                             ).values("quantity")
-                        )
+                        ),
+                        effective_stock=effective_stock()
                     ).annotate(
                         total_intermediate_quantity=cases
                     ).values("total_intermediate_quantity"),
                     "total_intermediate_quantity"
                 )
-            ), default=Value(0)
+            ),
+            default=Value(0)
         )
     }
 
@@ -107,7 +119,7 @@ def post_effective_basket_quantity():
     return {
         "post_effective_basket_quantity": Case(
             When(
-                stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
+                effective_stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
                 then=F("effective_basket_quantity")
             ), default=F("effective_stock") - F("quantity_from_basket_box") - F("effective_basket_quantity")
         )

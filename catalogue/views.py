@@ -108,13 +108,15 @@ class BasketView(FormSetMixin, BaseListView):
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
             self.queryset = self.queryset.annotate(
                 **price_annotation_format(basket)
-            ).annotate(
+            )
+
+            self.queryset = self.queryset.annotate(
                 **get_quantity_from_basket_box(basket)
             ).annotate(
                 **post_effective_basket_quantity(), **get_stock_with_basket()
             ).annotate(
                 **post_price_annotation_format()
-            )[:settings.MAX_BASKET_PRODUCT]
+            )
         else:
             self.queryset = None
 
@@ -130,9 +132,12 @@ class BasketView(FormSetMixin, BaseListView):
 
             diff = basket_set.difference(product_bdd_set)
 
+            product_to_delete = diff
+
             if len(diff) > 0:
                 for product_slug in diff:
                     del basket[product_slug]
+                self.object_list = filter(lambda product: product.slug not in product_to_delete, self.object_list)
                 self.request.session[settings.BASKET_SESSION_KEY] = basket
                 self.request.session.modified = True
 
@@ -140,13 +145,17 @@ class BasketView(FormSetMixin, BaseListView):
                 if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
                     if product.post_effective_basket_quantity <= 0:
                         del basket[product.slug]
+                        product_to_delete.add(product.slug)
                     else:
                         basket[product.slug]["quantity"] = product.post_effective_basket_quantity
                     self.request.session.modified = True
 
+            self.object_list = filter(lambda product_filter: product_filter.slug not in product_to_delete,
+                                      self.object_list)
             self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
                             for product_slug in basket.keys()]
 
+            self.product_to_delete = product_to_delete
         kwargs["max_num"] = len(basket)
         return kwargs
 
@@ -178,7 +187,9 @@ class BasketView(FormSetMixin, BaseListView):
         if promo is None and self.request.session.get(settings.PROMO_SESSION_KEY, None) is not None:
             del self.request.session[settings.PROMO_SESSION_KEY]
 
-        aggregate = self.queryset.aggregate(**total_price_from_all_product(promo=promo))
+        aggregate = self.queryset.exclude(slug__in=self.product_to_delete).aggregate(
+            **total_price_from_all_product(promo=promo)
+        )
 
         context = {
             "zip_products": list(zip(self.object_list, formset)),
@@ -358,9 +369,12 @@ class ProductDetailView(FormMixin, DetailView):
             'box', 'box__elements', 'categories'
         ).annotate(
             **annotate_effective_stock()
-        ).annotate(
-            **price_annotation_format()
-        ).annotate(
+        )
+        self.queryset = self.queryset.annotate(
+            **price_annotation_format(basket)
+        )
+
+        self.queryset = self.queryset.annotate(
             **get_quantity_from_basket_box(basket)
         ).annotate(
             **get_stock_with_basket()

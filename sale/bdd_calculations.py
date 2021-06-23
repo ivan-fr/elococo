@@ -7,7 +7,8 @@ from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField,
     IntegerField, FloatField
 from django.db.models.functions import Now
 
-from catalogue.bdd_calculations import total_price_per_product_from_basket, price_exact_ht
+from catalogue.bdd_calculations import total_price_per_product_from_basket, post_effective_basket_quantity, \
+    get_quantity_from_basket_box, price_annotation_format
 from catalogue.models import Product
 from sale.models import Promo, Ordered
 
@@ -24,9 +25,14 @@ def get_promo(basket, code):
     aggregate = Product.objects.filter(
         slug__in=tuple(basket.keys())
     ).annotate(
+        **price_annotation_format(basket)
+    ).annotate(
+        **get_quantity_from_basket_box(basket)
+    ).annotate(
+        **post_effective_basket_quantity()
+    ).annotate(
         price_exact_ht_with_quantity=total_price_per_product_from_basket(
-            basket,
-            price_exact_ht(with_reduction=True)
+            "price_exact_ht"
         )
     ).aggregate(
         Sum("price_exact_ht_with_quantity")
