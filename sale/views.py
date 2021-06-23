@@ -23,8 +23,8 @@ from catalogue.bdd_calculations import price_annotation_format, total_price_from
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
-from sale.forms import AddressForm, OrderedForm, OrderedInformation, CheckoutForm, \
-    RetrieveOrderForm, WIDGETS_FILL_NEXT, AddressFormSet
+from sale.forms import (AddressForm, OrderedForm, OrderedInformation, CheckoutForm, RetrieveOrderForm,
+                        WIDGETS_FILL_NEXT, AddressFormSet)
 from sale.models import Ordered, OrderedProduct, Address
 
 KEY_PAYMENT_ERROR = "payment_error"
