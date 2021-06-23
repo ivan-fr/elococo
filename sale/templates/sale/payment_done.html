@@ -4,8 +4,8 @@
     <section class="column_centered">
         <h2>Commande #{{ pk }}</h2>
         <section>
-            <h3>Bonne nouvelle ! Paiement réussi !</h3>
-            <p>Un mail contenant une facture va vous être envoyé. Pensez à regarder dans vos SPAM.</p>
+            <h3>En cours de traitement !</h3>
+            <p>Le paiement est en cours de traitement, nous avons bien reçu votre requête.</p>
             <div class="spinner-border text-success" role="status">
             </div>
             <p>
@@ -44,7 +44,8 @@
             post("{% url 'sale:retrieve' %}", {
                 secrets: "{{ secrets }}",
                 pk: "{{ pk }}",
-                csrfmiddlewaretoken: "{{ csrf_token }}"
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                attempt: true
             });
         }, 10000);
     </script>

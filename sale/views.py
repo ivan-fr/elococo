@@ -7,6 +7,7 @@ import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
+from django.db import IntegrityError
 from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
@@ -48,7 +49,7 @@ def webhook_view(request):
 
     if event["type"] == "payment_intent.amount_capturable_updated":
         session = event['data']['object']
-        return capture_order(request, session)
+        return capture_order(session)
     elif event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         if session.payment_status == "paid":
@@ -57,11 +58,7 @@ def webhook_view(request):
     return HttpResponse(status=200)
 
 
-def capture_order(request, session):
-    if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
-        stripe.PaymentIntent.cancel(session["id"])
-        return HttpResponse(status=400)
-
+def capture_order(session):
     ordered_uuid = uuid.UUID(
         bytes=bytes(session["metadata"]["pk_order"])
     )
@@ -108,7 +105,9 @@ def fulfill_order(request, session):
         return HttpResponse(status=400)
 
     ordered_uuid = uuid.UUID(
-        bytes=bytes(session["metadata"]["pk_order"])
+        bytes=bytes(
+            session["metadata"]["pk_order"]
+        )
     )
 
     try:
@@ -331,11 +330,11 @@ class OrderedDetail(FormMixin, DetailView):
                 payment_intent_data={
                     "capture_method": "manual",
                     "metadata": {
-                        "pk_order": self.object.pk
+                        "pk_order": list(self.object.pk.bytes)
                     }
                 },
                 metadata={
-                    "pk_order": self.object.pk
+                    "pk_order": list(self.object.pk.bytes)
                 },
                 customer_email=self.object.email,
                 mode='payment',
@@ -364,14 +363,18 @@ class FillAddressInformationOrdered(ModelFormSetView):
     formset_class = AddressFormSet
     form_class = AddressForm
     pk_url_kwarg = "pk"
-    fields = ("first_name", "last_name", "address",
-              "address2", "postal_code", "city")
-    factory_kwargs = {'extra': 1,
-                      'absolute_max': 2,
-                      'max_num': 2, 'validate_max': True,
-                      'min_num': 1, 'validate_min': True,
-                      'can_order': False,
-                      'can_delete': False}
+    fields = (
+        "first_name", "last_name", "address",
+        "address2", "postal_code", "city"
+    )
+    factory_kwargs = {
+        'extra': 1,
+        'absolute_max': 2,
+        'max_num': 2, 'validate_max': True,
+        'min_num': 1, 'validate_min': True,
+        'can_order': False,
+        'can_delete': False
+    }
     template_name = "sale/ordered_fill_information_next.html"
 
     def get_formset_kwargs(self):
@@ -595,6 +598,8 @@ class BookingBasketView(BaseFormView):
             OrderedProduct.objects.bulk_create(ordered_product)
 
         except ValueError:
+            return HttpResponseBadRequest()
+        except IntegrityError():
             return HttpResponseBadRequest()
 
         messages.success(
