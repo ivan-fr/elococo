@@ -12,7 +12,8 @@ from django.views.generic.list import BaseListView
 from catalogue.bdd_calculations import (
     price_annotation_format, filled_category, get_related_products,
     total_price_from_all_product,
-    data_from_all_product, cast_annotate_to_float, annotate_effective_stock)
+    data_from_all_product, cast_annotate_to_float, annotate_effective_stock, post_price_annotation_format,
+    get_quantity_from_basket_box, post_effective_basket_quantity, get_stock_with_basket)
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product, Category
 from elococo.generic import FormSetMixin
@@ -107,6 +108,12 @@ class BasketView(FormSetMixin, BaseListView):
             self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
             self.queryset = self.queryset.annotate(
                 **price_annotation_format(basket)
+            ).annotate(
+                **get_quantity_from_basket_box(basket)
+            ).annotate(
+                **post_effective_basket_quantity(), **get_stock_with_basket()
+            ).annotate(
+                **post_price_annotation_format()
             )[:settings.MAX_BASKET_PRODUCT]
         else:
             self.queryset = None
@@ -130,11 +137,11 @@ class BasketView(FormSetMixin, BaseListView):
                 self.request.session.modified = True
 
             for product in self.object_list:
-                if product.effective_basket_quantity != basket[product.slug]["quantity"]:
-                    if product.effective_basket_quantity <= 0:
+                if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
+                    if product.post_effective_basket_quantity <= 0:
                         del basket[product.slug]
                     else:
-                        basket[product.slug]["quantity"] = product.effective_basket_quantity
+                        basket[product.slug]["quantity"] = product.post_effective_basket_quantity
                     self.request.session.modified = True
 
             self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
@@ -345,12 +352,19 @@ class ProductDetailView(FormMixin, DetailView):
     slug_field = 'slug'
 
     def get_queryset(self):
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+
         self.queryset = self.model.objects.prefetch_related(
             'box', 'box__elements', 'categories'
         ).annotate(
             **annotate_effective_stock()
+        ).annotate(
+            **price_annotation_format()
+        ).annotate(
+            **get_quantity_from_basket_box(basket)
+        ).annotate(
+            **get_stock_with_basket()
         )
-        self.queryset = self.queryset.annotate(**price_annotation_format())
         return super(ProductDetailView, self).get_queryset()
 
     def get_success_url(self):

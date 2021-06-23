@@ -43,10 +43,6 @@ def effective_stock(obj):
     return obj.effective_stock
 
 
-def stock_in_reservation(obj):
-    return obj.stock_in_reservation
-
-
 def stock_sold(obj):
     return obj.stock_sold
 
@@ -67,8 +63,7 @@ class ElementProductToProduct(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dateUpdate', 'stock', effective_stock,
-                    stock_in_reservation, stock_sold, reductions, price_exact_ht,
+    list_display = ('name', 'dateUpdate', 'stock', effective_stock, stock_sold, reductions, price_exact_ht,
                     price_exact_ttc, categories, sub_products, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', "stock")
     filter_horizontal = ('categories',)

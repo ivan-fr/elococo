@@ -42,8 +42,6 @@ def webhook_view(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK
         )
-    except ValueError as e:
-        return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError as e:
         return HttpResponse(status=400)
 
@@ -99,15 +97,11 @@ def capture_order(session):
 
 
 def fulfill_order(request, session):
-    if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
-        return HttpResponse(status=400)
-
     ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
 
     try:
         order = Ordered.objects.filter(
             pk=ordered_uuid,
-            payment_status=False
         ).prefetch_related("order_address").get()
     except Ordered.DoesNotExist:
         return HttpResponse(status=400)

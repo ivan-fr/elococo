@@ -7,7 +7,7 @@ from django.db.models import FloatField
 from django.db.models import Max, Min
 from django.db.models import PositiveSmallIntegerField
 from django.db.models.functions import Cast
-from django.db.models.functions import Ceil, Least, Floor
+from django.db.models.functions import Ceil, Least, Floor, Greatest
 from django.utils.timezone import now
 
 from catalogue.models import Category, Product, ProductToProduct
@@ -48,13 +48,14 @@ def range_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
-    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, effective_stock(),
+    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, F("effective_stock"),
                  output_field=PositiveSmallIntegerField())
 
 
 def effective_quantity_per_product_from_basket(basket):
     whens = (When(
-        slug=slug, then=effective_quantity(data)
+        slug=slug,
+        then=effective_quantity(data)
     ) for slug, data in basket.items())
     return Case(
         *whens,
@@ -62,14 +63,54 @@ def effective_quantity_per_product_from_basket(basket):
     )
 
 
-def total_price_per_product_from_basket(basket, price_exact_ttc_):
-    whens = (When(
-        slug=slug, then=price_exact_ttc_ * effective_quantity(data)
-    ) for slug, data in basket.items())
-    return Case(
-        *whens,
-        default=Value(Decimal(0.))
+def get_quantity_from_basket_box(basket):
+    whens = (
+        When(
+            pk=slug, then=F("intermediate_quantity") * OuterRef("elements__box__effective_basket_quantity")
+        ) for slug, data in basket.items()
     )
+
+    cases = Case(*whens, default=Value(0))
+
+    return {
+        "quantity_from_basket_box": SQSum(
+            Product.objects.filter(
+                slug__in=basket.keys(), box__elements=OuterRef("pk")).annotate(
+                intermediate_quantity=Subquery(
+                    ProductToProduct.objects.filter(
+                        box__pk=OuterRef("pk"),
+                        elements__pk=OuterRef(OuterRef("pk"))
+                    ).values("quantity")
+                )
+            ).annotate(
+                total_intermediate_quantity=cases
+            ).values("total_intermediate_quantity"),
+            "total_intermediate_quantity"
+        )
+    }
+
+
+def get_stock_with_basket():
+    return {
+        "post_effective_stock_with_basket": Greatest(
+            F("stock") - F("quantity_from_basket_box"), 0
+        )
+    }
+
+
+def post_effective_basket_quantity():
+    return {
+        "post_effective_basket_quantity": Case(
+            When(
+                stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
+                then=F("effective_basket_quantity")
+            ), default=F("stock") - F("quantity_from_basket_box") - F("effective_basket_quantity")
+        )
+    }
+
+
+def total_price_per_product_from_basket(f):
+    return F(f) * F("post_effective_basket_quantity")
 
 
 def effective_stock():
@@ -115,7 +156,6 @@ def stock_details(sold=False):
 def annotate_effective_stock():
     return {
         "effective_stock": effective_stock(),
-        "stock_in_reservation": stock_details(),
         "stock_sold": stock_details(True),
     }
 
@@ -131,12 +171,13 @@ def price_annotation_format(basket=None):
     }
 
     if basket is not None and bool(basket):
-        my_dict["price_exact_ttc_with_quantity"] = total_price_per_product_from_basket(
-            basket, price_exact_ttc_)
-        my_dict["price_exact_ht_with_quantity"] = total_price_per_product_from_basket(
-            basket, price_exact_ht_)
-        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(
-            basket)
+        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(basket)
+    return my_dict
+
+
+def post_price_annotation_format():
+    my_dict = {"price_exact_ttc_with_quantity": total_price_per_product_from_basket("price_exact_ttc"),
+               "price_exact_ht_with_quantity": total_price_per_product_from_basket("price_exact_ht")}
     return my_dict
 
 
