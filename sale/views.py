@@ -37,11 +37,9 @@ def webhook_view(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
 
-    webhook_secret = "whsec_QTIm8uxVMldCYGXeIVOX1iNUlpOjDxet"
-
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, webhook_secret
+            payload, sig_header, settings.STRIPE_WEBHOOK
         )
     except ValueError as e:
         return HttpResponse(status=400)

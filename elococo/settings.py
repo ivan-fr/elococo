@@ -207,3 +207,4 @@ BACK_TWO_PLACES = Decimal(10) ** -2
 TVA = Decimal(120) * BACK_TWO_PLACES
 
 CSRF_COOKIE_SECURE = secrets["CSRF_COOKIE_SECURE"]
+STRIPE_WEBHOOK = secrets["stripe"]["webhook"]
