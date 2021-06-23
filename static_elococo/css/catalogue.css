@@ -25,7 +25,6 @@ main .navbar ul > li.link a {
 }
 
 main .navbar ul > li.link.is-active {
-    background-color: #ff943b;
     color: white;
 }
 

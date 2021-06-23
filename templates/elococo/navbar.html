@@ -4,7 +4,7 @@
     <ul class="d-flex flex-grow-1 flex-shrink-1">
         <li class="logo is-hidden-md"><img src="{% static random_footer_logo %}" width="28" alt="nav_logo"></li>
         <li class="brand">{{ website_title }}</li>
-        {% if index == 1 %}
+        {% if index_nav == 1 %}
             <li class="link is-active">
                 {% else %}
             <li class="link">
@@ -13,7 +13,7 @@
             Présentation
         </a>
         </li>
-        {% if index %}
+        {% if index_nav %}
             <li class="link">
                 {% else %}
             <li class="link is-active">
@@ -44,7 +44,7 @@
                 {% endif %}
             </li>
         {% endif %}
-        {% if not index %}
+        {% if not index_nav %}
             <li>
                 <button data-bs-toggle="modal" data-bs-target="#basket-modal" class="btn btn-primary"><i
                         class="bi-basket"></i> Mon Panier <span id="basket_len"

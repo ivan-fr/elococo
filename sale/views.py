@@ -1,5 +1,6 @@
 import secrets
 import string
+import uuid
 from decimal import Decimal
 
 import stripe
@@ -7,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect, HttpResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -31,16 +32,141 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
+@csrf_exempt
+def webhook_view(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    event = None
+
+    webhook_secret = "whsec_QTIm8uxVMldCYGXeIVOX1iNUlpOjDxet"
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HttpResponse(status=400)
+
+    if event["type"] == "payment_intent.amount_capturable_updated":
+        session = event['data']['object']
+        capture_order(request, session)
+    elif event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        if session.payment_status == "paid":
+            fulfill_order(request, session)
+
+    return HttpResponse(status=200)
+
+
+def capture_order(request, session):
+    if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
+        return HttpResponse(status=400)
+
+    ordered_uuid = uuid.UUID(
+        bytes=bytes(session["metadata"]["pk_order"])
+    )
+    products = Product.objects.prefetch_related(
+        'box', 'box__elements', "to_product", "to_product__from_ordered"
+    ).filter(
+        enable_sale=True, to_product__from_ordered__pk=ordered_uuid, to_product__from_ordered__payment_status=False
+    )
+    products = products.annotate(
+        **annotate_effective_stock()
+    ).filter(effective_stock__gt=0)
+
+    sub_products = []
+
+    try:
+        for product in products:
+            if product.box is not None:
+                for productToProduct in product.box.all():
+                    productToProduct.elements.stock -= productToProduct.quantity * product.to_product.quantity
+                    if productToProduct.elements.stock < 0:
+                        raise ValueError()
+                    sub_products.append(productToProduct.elements)
+            else:
+                product.stock -= product.to_product.quantity
+                if product.stock < 0:
+                    raise ValueError()
+
+        with transaction.atomic():
+            Product.objects.bulk_update(products, ("stock",))
+            if sub_products:
+                Product.objects.bulk_update(sub_products, ("stock",))
+            stripe.PaymentIntent.capture(session["id"])
+    except ValueError:
+        stripe.PaymentIntent.cancel(session["id"])
+
+
+def fulfill_order(request, session):
+    if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
+        return HttpResponse(status=400)
+
+    ordered_uuid = uuid.UUID(
+        bytes=bytes(session["metadata"]["pk_order"])
+    )
+
+    try:
+        order = Ordered.objects.filter(
+            pk=ordered_uuid,
+            payment_status=False
+        ).prefetch_related("order_address").get()
+    except Ordered.DoesNotExist:
+        raise Http404()
+
+    if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
+        return HttpResponseBadRequest()
+
+    del request.session[settings.BOOKING_SESSION_KEY]
+    if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
+        del request.session[settings.BOOKING_SESSION_FILL_KEY]
+    if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is not None:
+        del request.session[settings.BOOKING_SESSION_FILL_2_KEY]
+
+    with transaction.atomic():
+        order.payment_status = True
+        order.invoice_date = now()
+        order.save()
+
+        context_dict = {
+            "ordered": order,
+            "tva": settings.TVA_PERCENT,
+            "website_title": settings.WEBSITE_TITLE,
+            "email": True
+        }
+        html_content = render_to_string(
+            "sale/invoice.html", context_dict, request)
+        email = EmailMessage(
+            f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+            html_content,
+            settings.EMAIL_HOST_USER,
+            [order.email, settings.EMAIL_HOST_USER]
+        )
+        email.content_subtype = "html"
+        email.send()
+
+
 class InvoiceView(TemplateView):
     template_name = "sale/invoice.html"
 
     def get_context_data(self, **kwargs):
         try:
             order = Ordered.objects.filter(
-                pk=kwargs["pk"], secrets=kwargs["secrets_"], payment_status=True).get()
-            return super(InvoiceView, self).get_context_data(**{"ordered": order,
-                                                                "tva": settings.TVA_PERCENT,
-                                                                "website_title": settings.WEBSITE_TITLE})
+                pk=kwargs["pk"],
+                secrets=kwargs["secrets_"],
+                payment_status=True
+            ).get()
+            return super(InvoiceView, self).get_context_data(
+                **{
+                    "ordered": order,
+                    "tva": settings.TVA_PERCENT,
+                    "website_title": settings.WEBSITE_TITLE
+                }
+            )
         except Ordered.DoesNotExist:
             raise Http404()
 
@@ -60,38 +186,15 @@ class PaymentDoneView(TemplateView, View):
             raise Http404()
 
         try:
-            order = Ordered.objects.filter(pk=kwargs["pk"], secrets=kwargs["secrets_"],
-                                           payment_status=False).prefetch_related("order_address").get()
+            order = Ordered.objects.filter(
+                pk=kwargs["pk"],
+                secrets=kwargs["secrets_"],
+            ).prefetch_related("order_address").get()
         except Ordered.DoesNotExist:
             raise Http404()
 
         if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
-
-        del request.session[settings.BOOKING_SESSION_KEY]
-        if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
-            del request.session[settings.BOOKING_SESSION_FILL_KEY]
-        if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is not None:
-            del request.session[settings.BOOKING_SESSION_FILL_2_KEY]
-
-        with transaction.atomic():
-            order.payment_status = True
-            order.invoice_date = now()
-            order.save()
-
-            context_dict = {"ordered": order,
-                            "tva": settings.TVA_PERCENT,
-                            "website_title": settings.WEBSITE_TITLE, "email": True}
-            html_content = render_to_string(
-                "sale/invoice.html", context_dict, request)
-            email = EmailMessage(
-                f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-                html_content,
-                settings.EMAIL_HOST_USER,
-                [order.email, settings.EMAIL_HOST_USER]
-            )
-            email.content_subtype = "html"
-            email.send()
 
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
 
@@ -223,6 +326,16 @@ class OrderedDetail(FormMixin, DetailView):
                         'quantity': 1,
                     },
                 ],
+                payment_intent_data={
+                    "capture_method": "manual",
+                    "metadata": {
+                        "pk_order": self.object.pk
+                    }
+                },
+                metadata={
+                    "pk_order": self.object.pk
+                },
+                customer_email=self.object.email,
                 mode='payment',
                 success_url=self.request.build_absolute_uri(
                     self.get_success_url()),
@@ -446,20 +559,10 @@ class BookingBasketView(BaseFormView):
                     **dict_
                 )
 
-                sub_products = []
                 ordered_product = []
                 for product in self.product_list:
                     if product.effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
-
-                    if product.box is not None:
-
-                        for productToProduct in product.box.all():
-                            productToProduct.elements.stock -= productToProduct.quantity * basket[product.slug][
-                                "quantity"]
-                            sub_products.append(productToProduct.elements)
-                    else:
-                        product.stock -= basket[product.slug]["quantity"]
 
                     ordered_product.append(
                         OrderedProduct(
@@ -487,16 +590,14 @@ class BookingBasketView(BaseFormView):
                 pass
             self.request.session.modified = True
 
-            Product.objects.bulk_update(self.product_list, ("stock",))
-            if sub_products:
-                Product.objects.bulk_update(sub_products, ("stock",))
             OrderedProduct.objects.bulk_create(ordered_product)
 
         except ValueError:
             return HttpResponseBadRequest()
 
         messages.success(
-            self.request, 'Votre panier a été correctement réservé.')
+            self.request, 'Votre panier a été correctement réservé.'
+        )
         return JsonResponse({"redirect": self.get_success_url()})
 
     def form_invalid(self, form):

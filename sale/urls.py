@@ -10,4 +10,5 @@ urlpatterns = [
     path('payment-cancelled/<uuid:pk>/', sale.views.payment_canceled, name='paypal_cancel'),
     path('retrieve/', sale.views.RetrieveOrderedDetail.as_view(), name='retrieve'),
     path('invoice/<uuid:pk>/<str:secrets_>', sale.views.InvoiceView.as_view(), name='invoice'),
+    path('webhook/', sale.views.webhook_view, name='webhook'),
 ]
