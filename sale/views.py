@@ -135,8 +135,7 @@ def fulfill_order(request, session):
             "website_title": settings.WEBSITE_TITLE,
             "email": True
         }
-        html_content = render_to_string(
-            "sale/invoice.html", context_dict, request)
+        html_content = render_to_string("sale/invoice.html", context_dict, request)
         email = EmailMessage(
             f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
             html_content,
