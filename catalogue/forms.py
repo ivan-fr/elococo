@@ -47,7 +47,6 @@ class AddToBasketForm(forms.Form):
         self.product_instance = kwargs.pop(settings.PRODUCT_INSTANCE_KEY, None)
 
         super(AddToBasketForm, self).__init__(*args, **kwargs)
-        print(type(self.product_instance.quantity_from_basket_box))
         if self.product_instance is not None:
             self.choices = range(
                 1,
