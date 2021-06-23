@@ -48,11 +48,11 @@ def webhook_view(request):
 
     if event["type"] == "payment_intent.amount_capturable_updated":
         session = event['data']['object']
-        capture_order(request, session)
+        return capture_order(request, session)
     elif event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         if session.payment_status == "paid":
-            fulfill_order(request, session)
+            return fulfill_order(request, session)
 
     return HttpResponse(status=200)
 
@@ -95,6 +95,8 @@ def capture_order(request, session):
             stripe.PaymentIntent.capture(session["id"])
     except ValueError:
         stripe.PaymentIntent.cancel(session["id"])
+
+    return HttpResponse(status=200)
 
 
 def fulfill_order(request, session):
@@ -143,6 +145,8 @@ def fulfill_order(request, session):
         )
         email.content_subtype = "html"
         email.send()
+
+    return HttpResponse(status=200)
 
 
 class InvoiceView(TemplateView):
