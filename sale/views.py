@@ -475,7 +475,7 @@ class BookingBasketView(BaseFormView):
                 **annotate_effective_stock()
             ).filter(effective_stock__gt=0)
             queryset = queryset.filter(slug__in=tuple(basket.keys()))
-            self.queryset = self.queryset.annotate(
+            queryset = queryset.annotate(
                 **price_annotation_format(basket)
             ).annotate(
                 **get_quantity_from_basket_box(basket)

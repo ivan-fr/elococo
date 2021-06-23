@@ -8,7 +8,7 @@ from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField,
 from django.db.models.functions import Now
 
 from catalogue.bdd_calculations import total_price_per_product_from_basket, post_effective_basket_quantity, \
-    get_quantity_from_basket_box, price_annotation_format
+    get_quantity_from_basket_box, price_annotation_format, annotate_effective_stock
 from catalogue.models import Product
 from sale.models import Promo, Ordered
 
@@ -24,6 +24,8 @@ def get_promo(basket, code):
 
     aggregate = Product.objects.filter(
         slug__in=tuple(basket.keys())
+    ).annotate(
+        **annotate_effective_stock()
     ).annotate(
         **price_annotation_format(basket)
     ).annotate(
