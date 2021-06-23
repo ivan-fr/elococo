@@ -60,16 +60,17 @@ def webhook_view(request):
 
 def capture_order(session):
     ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
-    order = Ordered.objects.prefetch_related(
-        "from_ordered", "from_ordered__to_product", "from_ordered__to_product__box",
-        "from_ordered__to_product__box__elements"
-    ).filter(
-        pk=ordered_uuid
-    )
 
-    if not order.exists():
+    try:
+        order = Ordered.objects.filter(
+            pk=ordered_uuid
+        ).prefetch_related(
+            "from_ordered", "from_ordered__to_product",
+            "from_ordered__to_product__box", "from_ordered__to_product__box__elements"
+        ).get()
+    except Ordered.DoesNotExist:
         stripe.PaymentIntent.cancel(session["id"])
-        return HttpResponse(status=200)
+        return HttpResponse(status=400)
 
     try:
         products = set()
