@@ -23,18 +23,6 @@ class Command(BaseCommand):
         ))
 
         with transaction.atomic():
-            products = set()
-            for order in orders:
-                for ordered_product in order.from_ordered.all():
-                    product = ordered_product.to_product
-                    if product.box is not None:
-                        for box in product.box.all():
-                            box.elements.stock += box.quantity * ordered_product.quantity
-                            products.add(box.elements)
-                    else:
-                        product.effective_stock += ordered_product.quantity
-                        products.add(product)
-            Product.objects.bulk_update(list(products), ("stock",))
             orders.delete()
 
         self.stdout.write(self.style.SUCCESS(
