@@ -15,6 +15,13 @@
         </section>
         <div class="covered_image span_2 is-hidden-md">
         </div>
+        {% if form.cleaned_data.attempt and not ordered.payment_status %}
+            <section class="section-border-right start_2 span_e_5 column_md_centered">
+                <h2 class="is_colored">Informations à propos de cette commande</h2>
+                <p>Le paiement a échoué. Vous n'avez pas été débité.</p>
+                <p>Le manque de stock d'un des produits de votre commande a invalidé votre paiement.</p>
+            </section>
+        {% endif %}
         <section class="section-border-right start_2 span_e_5 column_md_centered">
             {% include "sale/ordered_informations.html" with ordered=ordered %}
         </section>

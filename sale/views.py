@@ -244,8 +244,12 @@ class RetrieveOrderedDetail(FormMixin, DetailView):
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_object_form(self, form, queryset=None):
-        return get_object(self, queryset,
-                          {"pk": form.cleaned_data["pk"], "secrets": form.cleaned_data["secrets"]})
+        return get_object(
+            self, queryset, {
+                "pk": form.cleaned_data["pk"],
+                "secrets": form.cleaned_data["secrets"],
+            }
+        )
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
