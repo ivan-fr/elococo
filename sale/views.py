@@ -96,6 +96,8 @@ def capture_order(session):
             stripe.PaymentIntent.capture(session["id"])
     except ValueError:
         stripe.PaymentIntent.cancel(session["id"])
+    except IntegrityError:
+        stripe.PaymentIntent.cancel(session["id"])
 
     return HttpResponse(status=200)
 
