@@ -123,12 +123,6 @@ def fulfill_order(request, session):
     if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
         return HttpResponseBadRequest()
 
-    del request.session[settings.BOOKING_SESSION_KEY]
-    if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
-        del request.session[settings.BOOKING_SESSION_FILL_KEY]
-    if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is not None:
-        del request.session[settings.BOOKING_SESSION_FILL_2_KEY]
-
     with transaction.atomic():
         order.payment_status = True
         order.invoice_date = now()
@@ -199,6 +193,12 @@ class PaymentDoneView(TemplateView, View):
         if order.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
+        del request.session[settings.BOOKING_SESSION_KEY]
+        if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
+            del request.session[settings.BOOKING_SESSION_FILL_KEY]
+        if request.session.get(settings.BOOKING_SESSION_FILL_2_KEY, None) is not None:
+            del request.session[settings.BOOKING_SESSION_FILL_2_KEY]
+
         return render(request, 'sale/payment_done.html', {"pk": order.pk, 'secrets': order.secrets})
 
 
@@ -234,6 +234,7 @@ class RetrieveOrderedDetail(FormMixin, DetailView):
     model = Ordered
     form_class = RetrieveOrderForm
     template_name = "sale/retrieve_order.html"
+    initial = {"attempt": False}
 
     def get_object(self, queryset=None):
         return False

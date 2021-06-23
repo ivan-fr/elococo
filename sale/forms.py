@@ -29,6 +29,7 @@ class RetrieveOrderForm(forms.Form):
         max_length=settings.ORDER_SECRET_LENGTH,
         widget=forms.TextInput(attrs={"class": "form-control"})
     )
+    attempt = forms.BooleanField()
 
 
 WIDGETS_FILL_NEXT = {
