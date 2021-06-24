@@ -136,7 +136,7 @@ def post_effective_basket_quantity():
 
 
 def total_price_per_product_from_basket(f):
-    return Round(Cast(F(f) * F("post_effective_basket_quantity"), DecimalField()), 2)
+    return Round(F(f) * F("post_effective_basket_quantity"), 2, output_field=DecimalField())
 
 
 def effective_stock():
