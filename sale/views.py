@@ -568,14 +568,10 @@ class BookingBasketView(BaseFormView):
                             to_product=product,
                             product_name=product.name,
                             effective_reduction=product.effective_reduction,
-                            price_exact_ht=int(
-                                product.price_exact_ht * Decimal(100.)),
-                            price_exact_ttc=int(
-                                product.price_exact_ttc * Decimal(100.)),
-                            price_exact_ht_with_quantity=int(
-                                product.price_exact_ht_with_quantity * Decimal(100.)),
-                            price_exact_ttc_with_quantity=int(
-                                product.price_exact_ttc_with_quantity * Decimal(100.)),
+                            price_exact_ht=int(product.price_exact_ht * Decimal(100.)),
+                            price_exact_ttc=int(product.price_exact_ttc * Decimal(100.)),
+                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * Decimal(100.)),
+                            price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * Decimal(100.)),
                             quantity=product.post_effective_basket_quantity
                         )
                     )
