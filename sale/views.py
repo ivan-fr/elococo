@@ -545,11 +545,11 @@ class BookingBasketView(BaseFormView):
 
                 self.ordered = Ordered.objects.create(
                     price_exact_ht_with_quantity_sum=int(
-                        aggregate["price_exact_ht_with_quantity__sum"] *
+                        aggregate["price_exact_ht_with_quantity__sum"].quantize(settings.BACK_TWO_PLACES) *
                         Decimal(100.)
                     ),
                     price_exact_ttc_with_quantity_sum=int(
-                        aggregate["price_exact_ttc_with_quantity__sum"] *
+                        aggregate["price_exact_ttc_with_quantity__sum"].quantize(settings.BACK_TWO_PLACES) *
                         Decimal(100.)
                     ),
                     secrets=''.join(secrets.choice(string.ascii_lowercase)
@@ -568,10 +568,20 @@ class BookingBasketView(BaseFormView):
                             to_product=product,
                             product_name=product.name,
                             effective_reduction=product.effective_reduction,
-                            price_exact_ht=int(product.price_exact_ht * Decimal(100.)),
-                            price_exact_ttc=int(product.price_exact_ttc * Decimal(100.)),
-                            price_exact_ht_with_quantity=int(product.price_exact_ht_with_quantity * Decimal(100.)),
-                            price_exact_ttc_with_quantity=int(product.price_exact_ttc_with_quantity * Decimal(100.)),
+                            price_exact_ht=int(
+                                product.price_exact_ht.quantize(settings.BACK_TWO_PLACES) * Decimal(100.)
+                            ),
+                            price_exact_ttc=int(
+                                product.price_exact_ttc.quantize(settings.BACK_TWO_PLACES) * Decimal(100.)
+                            ),
+                            price_exact_ht_with_quantity=int(
+                                product.price_exact_ht_with_quantity.quantize(settings.BACK_TWO_PLACES) *
+                                Decimal(100.)
+                            ),
+                            price_exact_ttc_with_quantity=int(
+                                product.price_exact_ttc_with_quantity.quantize(settings.BACK_TWO_PLACES) *
+                                Decimal(100.)
+                            ),
                             quantity=product.post_effective_basket_quantity
                         )
                     )

@@ -2,21 +2,16 @@ from abc import ABC
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists, Func
+from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import FloatField
 from django.db.models import Max, Min
-from django.db.models import PositiveIntegerField, DecimalField
+from django.db.models import PositiveIntegerField
 from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least, Floor, Greatest
 from django.utils.timezone import now
 
 from catalogue.models import Category, Product, ProductToProduct
 from sale.models import OrderedProduct
-
-
-class Round(Func, ABC):
-    function = 'ROUND'
-    arity = 2
 
 
 def reduction_from_bdd():
@@ -53,8 +48,12 @@ def range_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
-    return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, F("effective_stock"),
-                 output_field=PositiveIntegerField())
+    return Least(
+        data["quantity"],
+        settings.BASKET_MAX_QUANTITY_PER_FORM,
+        F("effective_stock"),
+        output_field=PositiveIntegerField()
+    )
 
 
 def effective_quantity_per_product_from_basket(basket):
@@ -136,7 +135,7 @@ def post_effective_basket_quantity():
 
 
 def total_price_per_product_from_basket(f):
-    return Round(F(f) * F("post_effective_basket_quantity"), 2, output_field=DecimalField())
+    return F(f) * F("post_effective_basket_quantity")
 
 
 def effective_stock():
@@ -152,8 +151,10 @@ def effective_stock():
                     elements__box__pk=OuterRef("pk")
                 ).annotate(
                     intermediate_quantity=Subquery(
-                        ProductToProduct.objects.filter(box__pk=OuterRef(OuterRef("pk")),
-                                                        elements__pk=OuterRef("pk")).values("quantity")
+                        ProductToProduct.objects.filter(
+                            box__pk=OuterRef(OuterRef("pk")),
+                            elements__pk=OuterRef("pk")
+                        ).values("quantity")
                     )
                 ).annotate(
                     stock_for_box=Floor(
