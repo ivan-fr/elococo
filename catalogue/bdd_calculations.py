@@ -102,7 +102,8 @@ def get_quantity_from_basket_box(basket):
                     "total_intermediate_quantity"
                 )
             ),
-            default=Value(0)
+            default=Value(0),
+            output_field=PositiveSmallIntegerField()
         )
     }
 
@@ -121,7 +122,8 @@ def post_effective_basket_quantity():
             When(
                 effective_stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
                 then=F("effective_basket_quantity")
-            ), default=F("effective_stock") - F("quantity_from_basket_box") - F("effective_basket_quantity")
+            ), default=F("effective_stock") - F("quantity_from_basket_box") - F("effective_basket_quantity"),
+            output_field=PositiveSmallIntegerField()
         )
     }
 

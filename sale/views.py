@@ -325,10 +325,8 @@ class OrderedDetail(FormMixin, DetailView):
                 },
                 customer_email=self.object.email,
                 mode='payment',
-                success_url=self.request.build_absolute_uri(
-                    self.get_success_url()),
-                cancel_url=self.request.build_absolute_uri(
-                    self.get_invalid_url()),
+                success_url=self.request.build_absolute_uri(self.get_success_url()),
+                cancel_url=self.request.build_absolute_uri(self.get_invalid_url()),
             )
 
             return JsonResponse({"id": checkout_session.id})
@@ -482,7 +480,7 @@ class BookingBasketView(BaseFormView):
             ).annotate(
                 **get_stock_with_basket(), **post_effective_basket_quantity()
             ).filter(
-                post_effective_stock_with_basket__gt=0
+                post_effective_basket_quantity__gt=0
             ).annotate(
                 **post_price_annotation_format()
             )
