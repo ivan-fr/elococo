@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
 from django.db.models import FloatField
 from django.db.models import Max, Min
-from django.db.models import PositiveSmallIntegerField
+from django.db.models import PositiveIntegerField
 from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least, Floor, Greatest
 from django.utils.timezone import now
@@ -49,7 +49,7 @@ def range_ttc(with_reduction=True):
 
 def effective_quantity(data):
     return Least(data["quantity"], settings.BASKET_MAX_QUANTITY_PER_FORM, F("effective_stock"),
-                 output_field=PositiveSmallIntegerField())
+                 output_field=PositiveIntegerField())
 
 
 def effective_quantity_per_product_from_basket(basket):
@@ -70,7 +70,7 @@ def get_quantity_from_basket_box(basket):
                 data["quantity"],
                 settings.BASKET_MAX_QUANTITY_PER_FORM,
                 F("effective_stock"),
-                output_field=PositiveSmallIntegerField()
+                output_field=PositiveIntegerField()
             )
         ) for slug, data in basket.items()
     )
@@ -103,7 +103,7 @@ def get_quantity_from_basket_box(basket):
                 )
             ),
             default=Value(0),
-            output_field=PositiveSmallIntegerField()
+            output_field=PositiveIntegerField()
         )
     }
 
@@ -123,7 +123,7 @@ def post_effective_basket_quantity():
                 effective_stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
                 then=F("effective_basket_quantity")
             ), default=F("effective_stock") - F("quantity_from_basket_box") - F("effective_basket_quantity"),
-            output_field=PositiveSmallIntegerField()
+            output_field=PositiveIntegerField()
         )
     }
 
@@ -151,14 +151,14 @@ def effective_stock():
                 ).annotate(
                     stock_for_box=Floor(
                         F("stock") / F("intermediate_quantity"),
-                        output_field=PositiveSmallIntegerField()
+                        output_field=PositiveIntegerField()
                     )
                 ).values("stock_for_box"),
                 "stock_for_box"
             )
         ),
         default=F("stock"),
-        output_field=PositiveSmallIntegerField()
+        output_field=PositiveIntegerField()
     )
 
 
@@ -274,7 +274,7 @@ class SQSum(Subquery, ABC):
         self.template = '(SELECT SUM({}) FROM (%(subquery)s) _min)'.format(column)
         super(SQSum, self).__init__(queryset, output_field, **extra)
 
-    output_field = PositiveSmallIntegerField()
+    output_field = PositiveIntegerField()
 
 
 class SQMin(Subquery, ABC):
@@ -282,12 +282,12 @@ class SQMin(Subquery, ABC):
         self.template = '(SELECT min({}) FROM (%(subquery)s) _min)'.format(column)
         super(SQMin, self).__init__(queryset, output_field, **extra)
 
-    output_field = PositiveSmallIntegerField()
+    output_field = PositiveIntegerField()
 
 
 class SQCount(Subquery, ABC):
     template = "(SELECT COUNT(*) FROM (%(subquery)s) _count)"
-    output_field = PositiveSmallIntegerField()
+    output_field = PositiveIntegerField()
 
 
 def get_related_products(selected_category, products_queryset=None):
