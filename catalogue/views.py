@@ -264,7 +264,7 @@ class IndexView(ListView):
 
     def get_queryset(self):
         queryset = self.model.objects.prefetch_related(
-            'box'
+            'box', "productimage_set"
         ).filter(enable_sale=True).annotate(**annotate_effective_stock())
         queryset = queryset.filter(effective_stock__gt=0)
         category_slug = self.kwargs.get('slug_category', None)
@@ -366,7 +366,7 @@ class ProductDetailView(FormMixin, DetailView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         self.queryset = self.model.objects.prefetch_related(
-            'box', 'box__elements', 'categories'
+            'box', 'box__elements', 'categories', "productimage_set", "box__elements__productimage_set"
         ).annotate(
             **annotate_effective_stock()
         )
@@ -409,7 +409,7 @@ class ProductDetailView(FormMixin, DetailView):
             images = [self.object.productimage_set.first()]
             for pToP in self.object.box.all():
                 try:
-                    images.append(pToP.elements.productimage_set.first())
+                    images.append(pToP.elements.productimage_set.all()[0])
                 except IndexError:
                     continue
         else:

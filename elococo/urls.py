@@ -13,16 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from catalogue.views import IndexRedirectionView
 
 def trigger_error(request):
     division_by_zero = 1 / 0
+
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name="elococo/presentation.html"), name="index"),
@@ -35,5 +36,6 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
 else:
     urlpatterns += [path('sentry-debug/', trigger_error)]

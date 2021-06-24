@@ -1,7 +1,7 @@
 {% for product in product_list %}
     <article class="span_3 span_md_6 span_xs_12">
         <h3 class="is-hidden">{{ product.name|title }}</h3>
-        {% with product_image=product.productimage_set.first %}
+        {% with product_image=product.productimage_set.all.0 %}
             {% if product_image %}
                 <figure class="hover_figure">
                     <a href="{% url 'catalogue_product_detail' product.slug %}">
