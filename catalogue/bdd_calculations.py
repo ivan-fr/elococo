@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists, Func
 from django.db.models import FloatField
 from django.db.models import Max, Min
-from django.db.models import PositiveIntegerField
+from django.db.models import PositiveIntegerField, DecimalField
 from django.db.models.functions import Cast
 from django.db.models.functions import Ceil, Least, Floor, Greatest
 from django.utils.timezone import now
@@ -136,7 +136,7 @@ def post_effective_basket_quantity():
 
 
 def total_price_per_product_from_basket(f):
-    return Round(F(f) * F("post_effective_basket_quantity"), 2)
+    return Round(F(f) * F("post_effective_basket_quantity"), 2, output_field=DecimalField())
 
 
 def effective_stock():
