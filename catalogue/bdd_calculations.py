@@ -2,7 +2,7 @@ from abc import ABC
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists
+from django.db.models import F, Case, When, Value, Sum, OuterRef, Subquery, Exists, Func
 from django.db.models import FloatField
 from django.db.models import Max, Min
 from django.db.models import PositiveIntegerField
@@ -12,6 +12,11 @@ from django.utils.timezone import now
 
 from catalogue.models import Category, Product, ProductToProduct
 from sale.models import OrderedProduct
+
+
+class Round(Func, ABC):
+    function = 'ROUND'
+    arity = 2
 
 
 def reduction_from_bdd():
@@ -53,10 +58,12 @@ def effective_quantity(data):
 
 
 def effective_quantity_per_product_from_basket(basket):
-    whens = (When(
-        slug=slug,
-        then=effective_quantity(data)
-    ) for slug, data in basket.items())
+    whens = (
+        When(
+            slug=slug,
+            then=effective_quantity(data)
+        ) for slug, data in basket.items()
+    )
     return Case(
         *whens,
         default=Value(0)
@@ -129,7 +136,7 @@ def post_effective_basket_quantity():
 
 
 def total_price_per_product_from_basket(f):
-    return F(f) * F("post_effective_basket_quantity")
+    return Round(F(f) * F("post_effective_basket_quantity"), 2)
 
 
 def effective_stock():
