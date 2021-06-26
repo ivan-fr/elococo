@@ -13,45 +13,47 @@
         </nav>
         {% include "catalogue/filtres.html" %}
         {% if filter_list is None %}
-            <div id="boutique">
+            <div id="boutique-container">
         {% else %}
-            <div id="boutique">
+            <div id="boutique-container" class="with_filters">
         {% endif %}
-    {% include "catalogue/products_list.html" %}
+    <div id="boutique">
+        {% include "catalogue/products_list.html" %}
     </div>
-        {% if filter_list is not None %}
-            <section>
-                <h2>Filtres associés</h2>
-                {% for category, info in filter_list %}
-                    {% if info.open %}
-                        <ul>
+    {% if filter_list is not None %}
+        <section class="product_categories-right">
+            <h2>Filtres associés</h2>
+            {% for category, info in filter_list %}
+                {% if info.open %}
+                    <ul>
 
-                        {% if selected_category.slug == category.slug %}
-                            <li>
-                                {% else %}
-                            <li>
-                        {% endif %}
-
-                    {% else %}
-                    </li>
-                        {% if selected_category.slug == category.slug %}
-                            <li>
-                                {% else %}
-                            <li>
-                        {% endif %}
+                    {% if selected_category.slug == category.slug %}
+                        <li>
+                            {% else %}
+                        <li>
                     {% endif %}
 
-                <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}
-                    ({{ category.products_count__sum }})
-                </a>
+                {% else %}
+                </li>
+                    {% if selected_category.slug == category.slug %}
+                        <li>
+                            {% else %}
+                        <li>
+                    {% endif %}
+                {% endif %}
 
-                {% for close in info.close %}
-                    </li></ul>
-                {% endfor %}
-                {% endfor %}
-            </section>
-        {% endif %}
-        <span id="current_url_products" data-url="{{ current_url }}"></span>
+            <a href="{% url 'catalogue_navigation_categories' category.slug %}">{{ category.category }}
+                ({{ category.products_count__sum }})
+            </a>
+
+            {% for close in info.close %}
+                </li></ul>
+            {% endfor %}
+            {% endfor %}
+        </section>
+    {% endif %}
+    <span id="current_url_products" data-url="{{ current_url }}"></span>
+    </div>
     {% else %}
         <div>Il n'y a plus de produits en stocks ! Revennez un autre jour.</div>
     {% endif %}

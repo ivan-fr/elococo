@@ -1,23 +1,24 @@
 {% for product in product_list %}
-    <article>
-        <h3>{{ product.name|title }}</h3>
-        {% with product_image=product.productimage_set.all.0 %}
-            {% if product_image %}
-                <figure>
+    {% with product_image=product.productimage_set.all.0 %}
+        {% if product_image %}
+            <article>
+                <h3>{{ product.name|title }}</h3>
+
+                <figure class="hover_figure">
                     <a href="{% url 'catalogue_product_detail' product.slug %}">
                         <img src="{{ product_image.image.url }}"
                              alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                     </a>
                     {% if product.effective_reduction > 0 %}
-                        <div>
+                        <div class="info_reduction">
                             - {{ product.effective_reduction }}%
                         </div>
                     {% endif %}
-                    <div>
+                    <div class="info_price">
                         {{ product.price_exact_ttc|floatformat:2 }} € TTC
                     </div>
                     {% if product.box.all|length > 0 %}
-                        <div>
+                        <div class="info_compo">
                             Compo !
                         </div>
                     {% endif %}
@@ -25,9 +26,10 @@
                         {{ product.name|title }}
                     </figcaption>
                 </figure>
-            {% endif %}
-        {% endwith %}
-    </article>
+
+            </article>
+        {% endif %}
+    {% endwith %}
 {% empty %}
     <h3>Aucun résultats pour ses filtres.</h3>
 {% endfor %}

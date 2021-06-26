@@ -6,7 +6,7 @@
             <img src="{% static "images/Carla_logo.png" %}" alt="nav_logo">
         </li>
         {% if index_nav == 1 %}
-            <li>
+            <li class="is-active">
                 {% else %}
             <li>
         {% endif %}
@@ -14,8 +14,8 @@
             Présentation
         </a>
         </li>
-        {% if index_nav %}
-            <li>
+        {% if not index_nav %}
+            <li class="is-active">
                 {% else %}
             <li>
         {% endif %}
