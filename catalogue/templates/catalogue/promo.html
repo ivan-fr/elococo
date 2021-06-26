@@ -1,18 +1,18 @@
 {% spaceless %}
     <form action="{% url "catalogue_basket_promo" %}" method="post">
         {% csrf_token %}
-        <div class="grid gap-3">
+        <div>
             {% if form.code_promo.errors %}
-                <div class="span_12">
+                <div>
                     {{ form.code_promo.errors }}
                 </div>
             {% endif %}
-            <div class="span_12">
+            <div>
                 <label for="{{ form.code_promo.id_for_label }}">{{ form.code_promo.label }} : </label>
                 {{ form.code_promo }}
             </div>
-            <div class="span_12">
-                <input type="submit" class="btn btn-primary" value="Envoyer"/>
+            <div>
+                <input type="submit" value="Envoyer"/>
             </div>
         </div>
     </form>

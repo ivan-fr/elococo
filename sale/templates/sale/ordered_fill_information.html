@@ -1,42 +1,33 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <div class="grid gap-3 column_centered">
-        <section class="span_10 span_md_12 w-100">
-            <h2>Commande #{{ ordered.order_number }}</h2>
-            <section>
-                <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
-                {% include "sale/ordered_recap.html" with ordered=ordered %}
-            </section>
+    <h2>Commande #{{ ordered.order_number }}</h2>
+    <section>
+        <h3>Récapitulatif de cette commande</h3>
+        {% include "sale/ordered_recap.html" with ordered=ordered %}
+    </section>
+    <section>
+        {% include "sale/ordered_informations.html" with ordered=ordered %}
+    </section>
+    {% if ordered.ordered_is_enable %}
+        <section>
+            <h2>Formulaire d'informations générales</h2>
+            <form action="{% url 'sale:fill' ordered.pk %}" method="post">
+                {% csrf_token %}
+                <div>
+                    {{ form.email.errors }}
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
+                    {{ form.email }}
+                </div>
+
+                <div>
+                    {{ form.phone.errors }}
+                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
+                    {{ form.phone }}
+                </div>
+
+                <input type="submit" value="Suivant"/>
+            </form>
         </section>
-        <div class="covered_image image1 span_2 is-hidden-md">
-        </div>
-        <div class="covered_image span_2 is-hidden-md">
-        </div>
-        <section class="section-border-right span_5 span_md_12">
-            {% include "sale/ordered_informations.html" with ordered=ordered %}
-        </section>
-        {% if ordered.ordered_is_enable %}
-            <section class="span_5 span_md_12">
-                <h2 class="is_colored">Formulaire d'informations générales</h2>
-                <form class="grid gap-3" action="{% url 'sale:fill' ordered.pk %}" method="post">
-                    {% csrf_token %}
-                    <div class="span_9">
-                        {{ form.email.errors }}
-                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
-                        {{ form.email }}
-                    </div>
-
-                    <div class="span_9">
-                        {{ form.phone.errors }}
-                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
-                        {{ form.phone }}
-                    </div>
-
-                    <input type="submit" class="btn btn-success span_5" value="Suivant"/>
-                </form>
-            </section>
-        {% endif %}
-    </div>
-
+    {% endif %}
 {% endblock %}

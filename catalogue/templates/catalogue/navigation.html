@@ -1,12 +1,12 @@
-<ul class="d-flex">
+<ul>
     {% if index is None %}
-        <li class="link is-active">
+        <li class="is-active">
             <a href="{% url 'catalogue_index' %}">
                 Tous les produits
             </a>
         </li>
     {% else %}
-        <li class="link">
+        <li>
             <a href="{% url 'catalogue_index' %}">
                 Tous les produits
             </a>
@@ -15,13 +15,13 @@
 
     {% for category in categories %}
         {% if index == category.slug %}
-            <li class="link is-active">
+            <li class="is-active">
                 <a href="{% url 'catalogue_navigation_categories' category.slug %}">
                     {{ category.category|title }} ({{ category.products_count__sum }})
                 </a>
             </li>
         {% else %}
-            <li class="link">
+            <li>
                 <a href="{% url 'catalogue_navigation_categories' category.slug %}">
                     {{ category.category|title }} ({{ category.products_count__sum }})
                 </a>

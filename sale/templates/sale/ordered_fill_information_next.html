@@ -2,84 +2,78 @@
 {% load static %}
 
 {% block base_container %}
-    <div class="column_centered grid gap-3">
-        <section class="span_10 span_md_12 w-100">
-            <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
-            <section>
-                <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
-                {% include "sale/ordered_recap.html" with ordered=ordered %}
-            </section>
+    <section>
+        <h2>Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h3>Récapitulatif de cette commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
         </section>
-        <div class="covered_image image1 span_2 is-hidden-md">
-        </div>
-        <div class="covered_image span_2 is-hidden-md">
-        </div>
-        <section class="section-border-right span_5 span_md_12">
-            {% include "sale/ordered_informations.html" with ordered=ordered %}
-        </section>
-        {% if formset %}
-            <section class="span_5 span_md_12 row_md_2" id="order-fill">
-                <h2 class="no-flex is_colored">Pour passer au
-                    paiement, il vous faut remplir vos coordonnées</h2>
-                <form action="{% url 'sale:fill_next' ordered.pk %}" class="border-start  border-primary border-2 ps-3"
-                      method="post">
-                    {% csrf_token %}
-                    {{ formset.management_form }}
-                    {% for form in formset %}
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-                        {% if forloop.counter0 == 0 %}
-                            <section id="delivery_address" class="grid gap-3">
-                            <h3 class="span_12">Adresse de livraison</h3>
-                        {% else %}
-                            <section id="facturation_address" class="grid gap-3">
-                            <h3 class="span_12">Adresse de facturation</h3>
-                        {% endif %}
-                    <div class="span_6">
-                        {{ form.first_name.errors }}
-                        <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} : </label>
-                        {{ form.first_name }}
-                    </div>
-                    <div class="span_6">
-                        {{ form.last_name.errors }}
-                        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }} : </label>
-                        {{ form.last_name }}
-                    </div>
-                    <div class="span_12">
-                        {{ form.address.errors }}
-                        <label for="{{ form.address.id_for_label }}">{{ form.address.label }} : </label>
-                        {{ form.address }}
-                    </div>
-                    <div class="span_12">
-                        {{ form.address2.errors }}
-                        <label for="{{ form.email.id_for_label }}">{{ form.address2.label }} : </label>
-                        {{ form.address2 }}
-                    </div>
-                    <div class="span_6">
-                        {{ form.postal_code.errors }}
-                        <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }} : </label>
-                        {{ form.postal_code }}
-                    </div>
-                    <div class="start_1 end_6">
-                        {{ form.city.errors }}
-                        <label for="{{ form.city.id_for_label }}">{{ form.city.label }} : </label>
-                        {{ form.city }}
-                    </div>
-                    </section>
-
+    </section>
+    <section>
+        {% include "sale/ordered_informations.html" with ordered=ordered %}
+    </section>
+    {% if formset %}
+        <section id="order-fill">
+            <h2>Pour passer au
+                paiement, il vous faut remplir vos coordonnées</h2>
+            <form action="{% url 'sale:fill_next' ordered.pk %}"
+                  method="post">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
                     {% endfor %}
-                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        <button type="button" id="fill_next_config" class="mt-3 btn btn-warning">Facturation identique à
-                            la
-                            livraison
-                        </button>
-                        <button type="submit" class="mt-3 btn btn-success">Envoyer mes coordonnées</button>
-                    </div>
-                </form>
-            </section>
-        {% endif %}
-    </div>
+                    {% if forloop.counter0 == 0 %}
+                        <section id="delivery_address">
+                        <h3>Adresse de livraison</h3>
+                    {% else %}
+                        <section id="facturation_address">
+                        <h3>Adresse de facturation</h3>
+                    {% endif %}
+                <div>
+                    {{ form.first_name.errors }}
+                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} : </label>
+                    {{ form.first_name }}
+                </div>
+                <div>
+                    {{ form.last_name.errors }}
+                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }} : </label>
+                    {{ form.last_name }}
+                </div>
+                <div>
+                    {{ form.address.errors }}
+                    <label for="{{ form.address.id_for_label }}">{{ form.address.label }} : </label>
+                    {{ form.address }}
+                </div>
+                <div>
+                    {{ form.address2.errors }}
+                    <label for="{{ form.email.id_for_label }}">{{ form.address2.label }} : </label>
+                    {{ form.address2 }}
+                </div>
+                <div>
+                    {{ form.postal_code.errors }}
+                    <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }} : </label>
+                    {{ form.postal_code }}
+                </div>
+                <div>
+                    {{ form.city.errors }}
+                    <label for="{{ form.city.id_for_label }}">{{ form.city.label }} : </label>
+                    {{ form.city }}
+                </div>
+                </section>
+
+                {% endfor %}
+                <div role="group" aria-label="Basic mixed styles example">
+                    <button type="button" id="fill_next_config">Facturation identique à
+                        la
+                        livraison
+                    </button>
+                    <button type="submit">Envoyer mes coordonnées</button>
+                </div>
+            </form>
+        </section>
+    {% endif %}
 {% endblock %}
 
 {% block body_js %}

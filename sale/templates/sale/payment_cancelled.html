@@ -1,22 +1,21 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <section class="column_centered">
-        <h2>Commande #{{ pk }}</h2>
-        <section>
-            <h3>Mauvaise nouvelle ! Paiement annulé !</h3>
-            {% if type_error == 1 %}
-                <p>
-                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
-                    Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour pouvoir effectuer votre achat.
-                </p>
-            {% else %}
-                <p>
-                    Votre paiement a échoué, vous n'avez pas été décrédité.<br>
-                    Si vous voulez réessayer votre paiement, rendez vous à l'adresse de la
-                    <a href="{% url "sale:detail" pk %}">commande</a>.
-                </p>
-            {% endif %}
-        </section>
+    <h2>Commande #{{ pk }}</h2>
+    <section>
+        <h3>Mauvaise nouvelle ! Paiement annulé !</h3>
+        {% if type_error == 1 %}
+            <p>
+                Votre paiement a échoué, vous n'avez pas été décrédité.<br>
+                Votre commande a éxpiré, en effet vous avez dépassez la limite de temps pour pouvoir effectuer votre
+                achat.
+            </p>
+        {% else %}
+            <p>
+                Votre paiement a échoué, vous n'avez pas été décrédité.<br>
+                Si vous voulez réessayer votre paiement, rendez vous à l'adresse de la
+                <a href="{% url "sale:detail" pk %}">commande</a>.
+            </p>
+        {% endif %}
     </section>
 {% endblock %}

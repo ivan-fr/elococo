@@ -1,17 +1,15 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <section class="column_centered">
-        <h2>Commande #{{ pk }}</h2>
-        <section>
-            <h3>En cours de traitement !</h3>
-            <p>Le paiement est en cours de traitement, nous avons bien reçu votre requête.</p>
-            <div class="spinner-border text-success" role="status">
-            </div>
-            <p>
-                Patientez quelques instants..(10secs) Vous allez être redirigé.
-            </p>
-        </section>
+    <h2>Commande #{{ pk }}</h2>
+    <section>
+        <h3>En cours de traitement !</h3>
+        <p>Le paiement est en cours de traitement, nous avons bien reçu votre requête.</p>
+        <div role="status">
+        </div>
+        <p>
+            Patientez quelques instants..(10secs) Vous allez être redirigé.
+        </p>
     </section>
 {% endblock %}
 

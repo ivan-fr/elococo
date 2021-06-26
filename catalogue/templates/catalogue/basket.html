@@ -12,7 +12,7 @@
 
         {% if formset.errors %}
             {% for form in formset %}
-                <ul class="errorlist">
+                <ul>
                     {% if form.non_field_errors %}
                         <li>{{ form.non_field_errors }}</li>
                     {% endif %}
@@ -20,7 +20,7 @@
                         {% if field.errors %}
                             <li>
                                 {{ field.label }}
-                                <ul class="errorlist">
+                                <ul>
                                     {% for error in field.errors %}
                                         <li>{{ error }}</li>
                                     {% endfor %}
@@ -32,8 +32,8 @@
             {% endfor %}
         {% endif %}
 
-        <div class="table-responsive">
-            <table class="table table-bordered bg-white table-striped mb-0">
+        <div>
+            <table>
                 <thead>
                 <tr>
                     <th scope="col">#</th>

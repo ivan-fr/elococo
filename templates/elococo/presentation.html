@@ -10,33 +10,29 @@
     {% block head_js %}
     {% endblock %}
     <link rel="stylesheet" href="https://use.typekit.net/pkk7ngs.css">
-    <link rel="stylesheet" href="{% static "sass/bootstrap_custom.css" %}">
-    <link rel="stylesheet" href="{% static "css/base.css" %}">
-    <link rel="stylesheet" href="{% static "css/catalogue.css" %}">
-    <link rel="stylesheet" href="{% static "css/responsive.css" %}">
-    <link rel="stylesheet" href="{% static "css/presentation.css" %}">
+    <link rel="stylesheet" href="{% static "scss/design.css" %}">
+    <link rel="stylesheet" href="{% static "scss/presentation.css" %}">
     {% block head_css %}
     {% endblock %}
 </head>
-<body class="grid gap-3">
-
-<div class="wrapper pb-5 grid span_12">
-    <header class="header">
-        <div class="inner-header small_inner">
-        </div>
-        <div class="waves">
-        </div>
-    </header>
-
+<body>
+<div class="wrapper">
+    <header></header>
     {% include "elococo/navbar.html" with index_nav=1 %}
 
-    <video class="span_12" autoplay loop muted>
-        <source src="{% static "videos/intro.mp4" %}" type="video/mp4">
-        Sorry, your browser doesn't support embedded videos.
-    </video>
+    <main>
+        <video autoplay loop muted>
+            <source src="{% static "videos/intro.mp4" %}" type="video/mp4">
+            Sorry, your browser doesn't support embedded videos.
+        </video>
+    </main>
+    <footer></footer>
 </div>
 
 {% include "elococo/footer.html" %}
+
+{% block body_js %}
+{% endblock %}
 
 </body>
 </html>

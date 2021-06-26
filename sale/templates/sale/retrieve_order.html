@@ -6,46 +6,44 @@
 
 {% block base_container %}
     {% if ordered %}
-        <section class="start_2 w-100 span_e_8 column_md_centered">
-            <h2 class="is_colored">Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h2>Commande #{{ ordered.order_number }}</h2>
             <section>
-                <h3 class="title_not_centered">Récapitulatif de cette commande</h3>
+                <h3>Récapitulatif de cette commande</h3>
                 {% include "sale/ordered_recap.html" with ordered=ordered %}
             </section>
         </section>
-        <div class="covered_image span_2 is-hidden-md">
-        </div>
         {% if form.cleaned_data.attempt and not ordered.payment_status %}
-            <section class="section-border-right start_2 span_e_5 column_md_centered">
-                <h2 class="is_colored">Informations à propos de cette commande</h2>
+            <section>
+                <h2>Informations à propos de cette commande</h2>
                 <p>Le paiement a échoué. Vous n'avez pas été débité.</p>
                 <p>Le manque de stock d'un des produits de votre commande a invalidé votre paiement.</p>
             </section>
         {% else %}
-            <section class="section-border-right start_2 span_e_5 column_md_centered">
+            <section>
                 {% include "sale/ordered_informations.html" with ordered=ordered %}
             </section>
         {% endif %}
     {% else %}
-        <section class="start_2 span_e_6 column_md_centered">
+        <section>
             <h2>Retrouver une commande</h2>
-            <div class="alert alert-primary">
+            <p>
                 Ses informations sont disponible dans l'email contenant votre facture.
-            </div>
-            <form class="ps-3" action="{% url 'sale:retrieve' %}"
+            </p>
+            <form action="{% url 'sale:retrieve' %}"
                   method="post">
                 {% csrf_token %}
-                <div class="mb-3">
+                <div>
                     {{ form.pk.errors }}
                     <label for="{{ form.pk.id_for_label }}">UUID:</label>
                     {{ form.pk }}
                 </div>
-                <div class="mb-3">
+                <div>
                     {{ form.secrets.errors }}
                     <label for="{{ form.secrets.id_for_label }}">Secret:</label>
                     {{ form.secrets }}
                 </div>
-                <input type="submit" class="btn btn-success" value="Retrouver une commande"/>
+                <input type="submit" value="Retrouver une commande"/>
             </form>
         </section>
     {% endif %}

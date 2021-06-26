@@ -1,56 +1,58 @@
-<nav class="navbar navigation border bg-white mb-3 start_2 span_e_5 column_md_centered rounded-2">
-    <ul class="d-flex filters">
-        {% if order is not None and order == 0 %}
-            <li class="link is-active">
-                {% else %}
-            <li class="link">
-        {% endif %}
-        <a href="" data-url-key="order" data-url-value="asc">
-            Prix croissant
-        </a>
-        </li>
-        {% if order == 1 %}
-            <li class="link is-active">
-                {% else %}
-            <li class="link">
-        {% endif %}
-        <a href="" data-url-key="order" data-url-value="desc">
-            Prix décroissant
-        </a>
-        </li>
-        {% if order == -1 %}
-            <li class="link is-active">
-                {% else %}
-            <li class="link">
-        {% endif %}
-        <a href="" data-url-key="order">
-            Derniers ajouts
-        </a>
-        </li>
-    </ul>
-</nav>
+<div class="filters">
+    <nav class="order_filters">
+        <ul>
+            {% if order is not None and order == 0 %}
+                <li class="is-active">
+                    {% else %}
+                <li>
+            {% endif %}
+            <a href="" data-url-key="order" data-url-value="asc">
+                Prix croissant
+            </a>
+            </li>
+            {% if order == 1 %}
+                <li class="is-active">
+                    {% else %}
+                <li>
+            {% endif %}
+            <a href="" data-url-key="order" data-url-value="desc">
+                Prix décroissant
+            </a>
+            </li>
+            {% if order == -1 %}
+                <li class="is-active">
+                    {% else %}
+                <li>
+            {% endif %}
+            <a href="" data-url-key="order">
+                Derniers ajouts
+            </a>
+            </li>
+        </ul>
+    </nav>
 
-<nav class="start_8 span_e_4 column_md_centered navbar navigation navigation_form border bg-white mb-3 rounded-2">
-    <ul class="d-flex">
-        <li class="grid dr_grid" id="products_dr">
-            <div class="dr_value_left span_2 span_md_12 text-left" data-dr-left="{{ price_exact_ttc__min|floatformat:2 }}">
-                {{ price_exact_ttc__min|floatformat:2 }} €
-            </div>
-            <div class="span_8 span_md_12 dr_main">
-                <div class="dr_wrapper">
-                    <div class="dr_box"></div>
+    <nav class="range_filter">
+        <ul>
+            <li id="products_dr">
+                <div class="dr_value_left text-left" data-dr-left="{{ price_exact_ttc__min|floatformat:2 }}">
+                    {{ price_exact_ttc__min|floatformat:2 }} €
                 </div>
-                <div class="dr_wrapper">
-                    <div class="dr_box"></div>
+                <div class="dr_main">
+                    <div class="dr_wrapper">
+                        <div class="dr_box"></div>
+                    </div>
+                    <div class="dr_wrapper">
+                        <div class="dr_box"></div>
+                    </div>
+                    <div class="double_range_temoin">
+                    </div>
+                    <div class="double_range">
+                    </div>
                 </div>
-                <div class="double_range_temoin">
+                <div class="dr_value_right text-right" data-dr-right="{{ price_exact_ttc__max|floatformat:2 }}">
+                    {{ price_exact_ttc__max|floatformat:2 }} €
                 </div>
-                <div class="double_range">
-                </div>
-            </div>
-            <div class="span_2 span_md_12 dr_value_right text-right" data-dr-right="{{ price_exact_ttc__max|floatformat:2 }}">
-                {{ price_exact_ttc__max|floatformat:2 }} €
-            </div>
-        </li>
-    </ul>
-</nav>
+            </li>
+        </ul>
+    </nav>
+</div>

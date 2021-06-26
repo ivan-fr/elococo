@@ -2,34 +2,28 @@
 {% load static %}
 
 {% block base_container %}
-    <h2 class="text-center start_3 end_12">{{ product.name|title }}</h2>
-    <article id="detail" class="grid column_centered gap-3">
-        <h3 class="is-hidden">Details</h3>
+    <h2>{{ product.name|title }}</h2>
+    <article id="detail">
+        <h3>Details</h3>
 
-        <div class="span_4 span_md_12 grid gap-3">
-            {% if product.box.all|length > 0 %}
-                <div class="info_sale span_12">
-                    <section class="box bg-white">
-                        <h3>Composition du coffret</h3>
-                        <ul>
-                            {% for pTp in product.box.all %}
-                                <li>
-                                    <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </section>
-                </div>
-            {% endif %}
-            <div class="image_produit span_12">
-                <div class="spinner-border text-info" role="status">
-                </div>
-            </div>
+        {% if product.box.all|length > 0 %}
+            <section>
+                <h3>Composition du coffret</h3>
+                <ul>
+                    {% for pTp in product.box.all %}
+                        <li>
+                            <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+        <div role="status">
         </div>
 
-        <div class="image_produits grid gap-3 span_md_12 span_5">
+        <div>
             {% for product_image in images %}
-                <figure class="hover_figure span_6 border">
+                <figure>
                     <img src="{{ product_image.image.url }}"
                          alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                     <figcaption>
@@ -40,75 +34,72 @@
         </div>
 
         {% if product.enable_sale %}
-            <div class="info_sale span_3 span_md_12">
-                <section class="box bg-white">
-                    <h3>Informations de vente</h3>
-                    <div class="content">
-                        <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
-                        </p>
-                        {% if product.effective_reduction > 0 %}
-                            <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
-                                produit.</p>
-                            <p>
-                                Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
-                                (Heure Europe/Paris, UTC+2).
-                            </p>
-                            <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
-                        {% endif %}
+            <section>
+                <h3>Informations de vente</h3>
+                <div>
+                    <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
+                    </p>
+                    {% if product.effective_reduction > 0 %}
+                        <p>Il y a une réduction de <strong>-{{ product.effective_reduction }}%</strong> sur ce
+                            produit.</p>
                         <p>
-                            {% if product.effective_stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
-                            {% elif product.effective_stock <= 5 %} Il ne reste plus que
-                                <strong>{{ product.effective_stock }} unité(s)</strong> de
-                                ce produit en
-                                stock !
-                            {% else %}
-                                <strong>Ce produit est en stock !</strong>
-                            {% endif %}
+                            Cette réduction se termine le <u>{{ product.reduction_end }} à 23h59</u>
+                            (Heure Europe/Paris, UTC+2).
                         </p>
-                    </div>
-                </section>
-                <section class="box bg-white">
-                    <h3>Commandes</h3>
-                    <div class="content">
-                        <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
-                              method="post">
-                            {% csrf_token %}
-                            {% if form.non_field_errors %}
-                                {{ form.non_field_errors }}
-                            {% endif %}
+                        <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
+                    {% endif %}
+                    <p>
+                        {% if product.effective_stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                        {% elif product.effective_stock <= 5 %} Il ne reste plus que
+                            <strong>{{ product.effective_stock }} unité(s)</strong> de
+                            ce produit en
+                            stock !
+                        {% else %}
+                            <strong>Ce produit est en stock !</strong>
+                        {% endif %}
+                    </p>
+                </div>
+            </section>
+            <section>
+                <h3>Commandes</h3>
+                <div>
+                    <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
+                          method="post">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            {{ form.non_field_errors }}
+                        {% endif %}
 
-                            <div class="grid gap-3">
-                                <div class="quantity grid span_6 span_md_12">
-                                    <label class="form-label span_6 span_md_7"
-                                           for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
-                                    <div class="input-group span_6 span_md_5">
-                                        <span class="input-group-text" id="basic-addon1"><i
-                                                class="bi-sort-numeric-down"></i></span>
-                                        {{ form.quantity }}
-                                    </div>
+                        <div>
+                            <div>
+                                <label
+                                        for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                <div>
+                                        <span id="basic-addon1"><i
+                                        ></i></span>
+                                    {{ form.quantity }}
+                                </div>
 
-                                    <div class="form-text span_12">
-                                        {{ form.quantity.help_text }}
-                                    </div>
-                                    {{ form.quantity.errors }}
+                                <div>
+                                    {{ form.quantity.help_text }}
                                 </div>
-                                <div class="submit span_6 span_md_12">
-                                    <input type="submit" class="btn btn-success" value="Ajouter dans le panier"/>
-                                </div>
+                                {{ form.quantity.errors }}
                             </div>
-                        </form>
-                    </div>
-                </section>
-            </div>
+                            <div>
+                                <input type="submit" value="Ajouter dans le panier"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
         {% endif %}
 
-        <div class="info_description start_1 end_9 span_md_12 card border-dark text-dark">
-            <div class="card-body">
-                <div class="card-text">{{ product.description|safe }}</div>
-            </div>
+        <div>
+            {{ product.description|safe }}
         </div>
 
-        <figure class="image_licence span_md_12">
+
+        <figure>
             <img src="{% static "images/rule1.bmp" %}" alt="licence">
             <figcaption>Images Licence</figcaption>
         </figure>

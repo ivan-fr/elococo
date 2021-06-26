@@ -1,15 +1,15 @@
 {% load static %}
 
-<footer class="footer column_centered grid py-4 gap-5">
-    <section class="span_3 span_md_6 span_xs_12">
-        <h3 class="is-hidden">Logos</h3>
-        <figure class="fig1 span_md_12 span_6">
-            <img class="logos" src="{% static "images/Carla_logo.png" %}" alt="logo">
+<footer>
+    <section class="logos">
+        <h3>Logos</h3>
+        <figure>
+            <img src="{% static "images/Carla_logo.png" %}" alt="logo">
         </figure>
-        <div class="grid span_md_12 span_6 gap-3">
+        <div>
         </div>
     </section>
-    <section class="span_3 span_md_6 span_xs_12">
+    <section>
         <h3>Nos engagements</h3>
         <ul>
             <li>Livraison offerte dès 35€</li>
@@ -17,9 +17,9 @@
             <li>Produits en stock</li>
         </ul>
     </section>
-    <section class="span_3 span_md_6 span_xs_12">
+    <section>
         <h3>À Propos</h3>
-        <p class="m-0">Développé par <a target="_blank" href="{% url 'ivan_cv' %}">BESEVIC Ivan</a>.</p>
+        <p>Développé par <a target="_blank" href="{% url 'ivan_cv' %}">BESEVIC Ivan</a>.</p>
         <p> Tous droits réservés. {% now "Y" %}</p>
         <figure>
             <a target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
@@ -27,19 +27,18 @@
             </a>
         </figure>
     </section>
-    <section class="span_3 span_md_6 span_xs_12">
+    <section>
         <h3>
             Mode de paiements
         </h3>
-        <div>
-            <!-- PayPal Logo -->
-            <figure class="d-inline-block me-2">
+        <div class="payments_mode">
+            <figure>
                 <img src="{% static "images/visa1.png" %}" alt="visa"/>
             </figure>
-            <figure class="d-inline-block">
+            <figure>
                 <img src="{% static "images/Master.png" %}" alt="master"/>
             </figure>
-            <figure class="d-inline-block">
+            <figure>
                 <img src="{% static "images/cb.svg" %}" alt="carte bleue"/>
             </figure>
         </div>

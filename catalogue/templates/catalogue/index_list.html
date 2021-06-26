@@ -6,38 +6,38 @@
 {% endblock %}
 
 {% block base_container %}
-    <h2 class="text-center start_3 end_12">Boutique</h2>
+    <h2>Boutique</h2>
     {% if product_list %}
-        <nav class="navbar navigation border bg-white mb-3 column_centered rounded-2">
+        <nav class="product_categories">
             {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
         </nav>
         {% include "catalogue/filtres.html" %}
         {% if filter_list is None %}
-            <div id="boutique" class="grid column_centered gap-3">
+            <div id="boutique">
         {% else %}
-            <div id="boutique" class="grid start_2 span_e_8 column_md_centered gap-3">
+            <div id="boutique">
         {% endif %}
     {% include "catalogue/products_list.html" %}
     </div>
         {% if filter_list is not None %}
-            <section class="span_2 column_md_centered row_md_3 border-start border-primary border-3 ps-3">
+            <section>
                 <h2>Filtres associés</h2>
                 {% for category, info in filter_list %}
                     {% if info.open %}
                         <ul>
 
                         {% if selected_category.slug == category.slug %}
-                            <li class="link-warning">
+                            <li>
                                 {% else %}
-                            <li class="link-dark">
+                            <li>
                         {% endif %}
 
                     {% else %}
                     </li>
                         {% if selected_category.slug == category.slug %}
-                            <li class="link-warning">
+                            <li>
                                 {% else %}
-                            <li class="link-dark">
+                            <li>
                         {% endif %}
                     {% endif %}
 
@@ -53,7 +53,7 @@
         {% endif %}
         <span id="current_url_products" data-url="{{ current_url }}"></span>
     {% else %}
-        <div class="column_centered">Il n'y a plus de produits en stocks ! Revennez un autre jour.</div>
+        <div>Il n'y a plus de produits en stocks ! Revennez un autre jour.</div>
     {% endif %}
 {% endblock %}
 
@@ -61,9 +61,10 @@
     <script src="{% static "js/dr.js" %}"></script>
     <script>
         let filter_request = false;
+        let httpRequest_filter = new XMLHttpRequest();
 
         function on_up_dr_produtts(left, right) {
-            if (!httpRequest) {
+            if (!httpRequest_filter) {
                 alert('Abandon :( Impossible de créer une instance de XMLHTTP');
                 return false;
             }
@@ -72,11 +73,11 @@
             url.searchParams.set('min_ttc_price', left);
             url.searchParams.set('max_ttc_price', right);
 
-            httpRequest.onload = callback_onload_products_filter(null, url.pathname + url.search);
-            httpRequest.open('GET', url.pathname + url.search);
-            httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            httpRequest.responseType = 'json';
-            httpRequest.send();
+            httpRequest_filter.onload = callback_onload_products_filter(null, url.pathname + url.search);
+            httpRequest_filter.open('GET', url.pathname + url.search);
+            httpRequest_filter.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            httpRequest_filter.responseType = 'json';
+            httpRequest_filter.send();
         }
 
         dr(document.getElementById("products_dr"), on_up_dr_produtts);
@@ -92,7 +93,7 @@
                     ul_filters.querySelector("li.is-active").classList.remove("is-active");
                     event.target.parentElement.classList.add("is-active");
                 }
-                let products = httpRequest.response;
+                let products = httpRequest_filter.response;
                 boutique.innerHTML = products.html;
                 filter_request = false;
             }, 500)
@@ -105,7 +106,7 @@
                 return
             }
 
-            if (!httpRequest) {
+            if (!httpRequest_filter) {
                 alert('Abandon :( Impossible de créer une instance de XMLHTTP');
                 return false;
             }
@@ -123,15 +124,15 @@
                 }
             }
 
-            httpRequest.onload = callback_onload_products_filter(event, url.pathname + url.search);
-            httpRequest.open('GET', url.pathname + url.search);
-            httpRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            httpRequest.responseType = 'json';
-            httpRequest.send();
+            httpRequest_filter.onload = callback_onload_products_filter(event, url.pathname + url.search);
+            httpRequest_filter.open('GET', url.pathname + url.search);
+            httpRequest_filter.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            httpRequest_filter.responseType = 'json';
+            httpRequest_filter.send();
         }
 
         let filter;
-        for (filter of document.querySelectorAll(".filters a")) {
+        for (filter of document.querySelectorAll(".order_filters a")) {
             filter.addEventListener("click", get_products_filter)
         }
     </script>

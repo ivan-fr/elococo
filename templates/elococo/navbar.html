@@ -1,55 +1,55 @@
 {% load static %}
 
-<nav class="navbar column_centered mt-5 bg-white rounded-2 d-flex">
-    <ul class="d-flex flex-grow-1 flex-shrink-1">
-        <li class="logo is-hidden-md"><img src="{% static random_footer_logo %}" width="28" alt="nav_logo"></li>
-        <li class="brand">{{ website_title }}</li>
+<nav class="navbar">
+    <ul>
+        <li>
+            <img src="{% static "images/Carla_logo.png" %}" alt="nav_logo">
+        </li>
         {% if index_nav == 1 %}
-            <li class="link is-active">
+            <li>
                 {% else %}
-            <li class="link">
+            <li>
         {% endif %}
         <a href="{% url 'index' %}">
             Présentation
         </a>
         </li>
         {% if index_nav %}
-            <li class="link">
+            <li>
                 {% else %}
-            <li class="link is-active">
+            <li>
         {% endif %}
         <a href="{% url 'catalogue_index' %}">
             Boutique
         </a>
         </li>
     </ul>
-    <ul class="d-xs-flex">
+    <ul>
         <li>
-            <a href="{% url 'sale:retrieve' %}" class="btn btn-light">Retrouver une commande</a>
+            <a href="{% url 'sale:retrieve' %}">Retrouver une commande</a>
         </li>
         {% if url_my_ordered %}
-            <li class="text-white">
+            <li>
                 {% if url_my_ordered_detail %}
-                    <a href="{{ url_my_ordered_detail }}" class="btn btn-success"><i
-                            class="bi-info-circle"></i> Paiement de ma commande (3/3)
+                    <a href="{{ url_my_ordered_detail }}"><i
+                    ></i> Paiement de ma commande (3/3)
                     </a>
                 {% elif url_my_ordered_fill_next %}
-                    <a href="{{ url_my_ordered_fill_next }}" class="btn btn-success"><i
-                            class="bi-info-circle"></i> Completer ma commande (2/3)
+                    <a href="{{ url_my_ordered_fill_next }}"><i
+                    ></i> Completer ma commande (2/3)
                     </a>
                 {% else %}
-                    <a href="{{ url_my_ordered }}" class="btn btn-success"><i
-                            class="bi-info-circle"></i> Completer ma commande (1/3)
+                    <a href="{{ url_my_ordered }}"><i
+                    ></i> Completer ma commande (1/3)
                     </a>
                 {% endif %}
             </li>
         {% endif %}
         {% if not index_nav %}
-            <li>
-                <button data-bs-toggle="modal" data-bs-target="#basket-modal" class="btn btn-primary"><i
-                        class="bi-basket"></i> Mon Panier <span id="basket_len"
-                                                                class="badge bg-white text-dark">{{ basket_len }}</span>
-                </button>
+            <li id="navbar-basket">
+                <a><i class="bi-basket-fill"></i>
+                    Mon Panier <span id="">{{ basket_len }}</span>
+                </a>
             </li>
         {% endif %}
     </ul>
