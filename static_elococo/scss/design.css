@@ -388,10 +388,10 @@ body main.gridded > .main #detail .images > figure:nth-child(2n-1) + figure figc
 body main.gridded > .main #detail .images > figure:nth-child(2n-1) + figure img {
   border-left: none;
 }
-body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child {
+body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child:not(:first-child) {
   grid-column: span 2;
 }
-body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child img {
+body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child:not(:first-child) img {
   border-top: none;
 }
 body main.gridded > .main #detail .sale_infos {
