@@ -21,8 +21,7 @@
 
     {% if messages %}
         {% for message in messages %}
-            <div>
-                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+            <div class="flash-message">
                 {{ message }}
             </div>
         {% endfor %}

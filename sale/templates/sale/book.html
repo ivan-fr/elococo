@@ -1,0 +1,6 @@
+{% spaceless %}
+    <form action="{% url "sale:booking" %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Commander"/>
+    </form>
+{% endspaceless %}
