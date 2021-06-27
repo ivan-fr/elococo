@@ -113,7 +113,6 @@ def fulfill_order(request, session):
 
         context_dict = {
             "ordered": order,
-            "tva": settings.TVA_PERCENT,
             "website_title": settings.WEBSITE_TITLE,
             "email": True
         }

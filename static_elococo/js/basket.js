@@ -121,6 +121,10 @@ function post_book(event) {
         return false;
     }
 
+    if (!confirm("Etes vous sûr de vouloir réserver le panier ? Vous ne pourrez pas consitué un autre panier pendant une certaine durée si le paiement n'est pas effectué.")) {
+        return false;
+    }
+
     let form = event.currentTarget;
     form.parentElement.removeChild(form);
 
@@ -129,4 +133,6 @@ function post_book(event) {
     XmlHTTPRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     XmlHTTPRequest.responseType = 'json';
     XmlHTTPRequest.send(new FormData(event.currentTarget));
+
+    return true;
 }

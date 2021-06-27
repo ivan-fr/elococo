@@ -13,7 +13,8 @@ def template_base_processor(request):
         'url_get_booking': reverse("sale:booking"),
         'url_get_promo': reverse("catalogue_basket_promo"),
         'basket_len': len(request.session.get(settings.BASKET_SESSION_KEY, {})),
-        'url_my_ordered': None, 'url_my_ordered_fill_next': None, 'url_my_ordered_detail': None
+        'url_my_ordered': None, 'url_my_ordered_fill_next': None, 'url_my_ordered_detail': None,
+        "tva": settings.TVA_PERCENT,
     }
 
     if request.session.get(settings.BOOKING_SESSION_KEY, None) is not None:
