@@ -85,7 +85,7 @@ class PromoBasketView(FormView):
 
 
 class BasketView(FormSetMixin, ListView):
-    allow_empty = False
+    allow_empty = True
     template_name = 'catalogue/basket.html'
     model = Product
     success_url = reverse_lazy("catalogue_basket")
@@ -101,23 +101,23 @@ class BasketView(FormSetMixin, ListView):
     def get_queryset(self):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        if bool(basket):
-            self.queryset = self.model.objects.filter(enable_sale=True).annotate(**annotate_effective_stock())
-            self.queryset = self.queryset.filter(effective_stock__gt=0)
-            self.queryset = self.queryset.filter(slug__in=tuple(basket.keys()))
-            self.queryset = self.queryset.annotate(
-                **price_annotation_format(basket)
-            )
-
-            self.queryset = self.queryset.annotate(
-                **get_quantity_from_basket_box(basket)
-            ).annotate(
-                **post_effective_basket_quantity(), **get_stock_with_basket()
-            ).annotate(
-                **post_price_annotation_format()
-            )
-        else:
-            self.queryset = None
+        self.queryset = self.model.objects.filter(
+            enable_sale=True
+        ).annotate(
+            **annotate_effective_stock()
+        ).filter(
+            effective_stock__gt=0
+        ).filter(
+            slug__in=tuple(basket.keys())
+        ).annotate(
+            **price_annotation_format(basket)
+        ).annotate(
+            **get_quantity_from_basket_box(basket)
+        ).annotate(
+            **post_effective_basket_quantity(), **get_stock_with_basket()
+        ).annotate(
+            **post_price_annotation_format()
+        )
 
         return super(BasketView, self).get_queryset()
 
@@ -125,37 +125,36 @@ class BasketView(FormSetMixin, ListView):
         kwargs = super(BasketView, self).get_factory_kwargs()
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        if bool(basket):
-            basket_set = {product_slug for product_slug in basket.keys()}
-            product_bdd_set = {product.slug for product in self.object_list}
+        basket_set = {product_slug for product_slug in basket.keys()}
+        product_bdd_set = {product.slug for product in self.object_list}
 
-            diff = basket_set.difference(product_bdd_set)
+        product_to_delete = basket_set.difference(product_bdd_set)
 
-            product_to_delete = diff
+        if len(product_to_delete) > 0:
+            for product_slug in product_to_delete:
+                del basket[product_slug]
+            self.request.session[settings.BASKET_SESSION_KEY] = basket
+            self.request.session.modified = True
 
-            if len(diff) > 0:
-                for product_slug in diff:
-                    del basket[product_slug]
-                self.object_list = filter(lambda product: product.slug not in product_to_delete, self.object_list)
-                self.request.session[settings.BASKET_SESSION_KEY] = basket
+        for product in self.object_list:
+            if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
+                if product.post_effective_basket_quantity <= 0:
+                    del basket[product.slug]
+                    product_to_delete.add(product.slug)
+                else:
+                    basket[product.slug]["quantity"] = product.post_effective_basket_quantity
                 self.request.session.modified = True
 
-            for product in self.object_list:
-                if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
-                    if product.post_effective_basket_quantity <= 0:
-                        del basket[product.slug]
-                        product_to_delete.add(product.slug)
-                    else:
-                        basket[product.slug]["quantity"] = product.post_effective_basket_quantity
-                    self.request.session.modified = True
+        self.object_list = filter(
+            lambda product_filter: product_filter.slug not in product_to_delete, self.object_list
+        )
+        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
+                        for product_slug in basket.keys()]
 
-            self.object_list = filter(lambda product_filter: product_filter.slug not in product_to_delete,
-                                      self.object_list)
-            self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
-                            for product_slug in basket.keys()]
+        self.product_to_delete = product_to_delete
 
-            self.product_to_delete = product_to_delete
         kwargs["max_num"] = len(basket)
+
         return kwargs
 
     def get_formset_kwargs(self):

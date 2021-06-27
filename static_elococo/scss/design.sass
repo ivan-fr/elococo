@@ -1,5 +1,9 @@
 @import "grid"
 @import "responsive"
+@import "../bootstrap/scss/functions"
+@import "../bootstrap/scss/variables"
+@import "../bootstrap/scss/mixins"
+@import "../bootstrap/scss/tables"
 
 @mixin radius($i)
   border-radius: $i * 0.25em
@@ -27,13 +31,13 @@ body
         @include radius(0)
         background-color: white
 
-    input[type=text], input[type=submit]
+    input[type=text], input[type=submit], button[type=submit]
       @include p-(2)
       width: calc(100% - 1em - 2px)
       border: 1px solid black
       cursor: pointer
 
-    input[type=submit]
+    input[type=submit], button[type=submit]
       width: 100%
       background-color: darken(#ffeee5, 2)
       @include radius(2)
@@ -135,6 +139,7 @@ body
     @include grid(24)
 
     & > .main
+      width: 100%
       @include grid-centered-column(24)
       color: black
       z-index: 0

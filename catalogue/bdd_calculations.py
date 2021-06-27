@@ -199,6 +199,8 @@ def price_annotation_format(basket=None):
 
     if basket is not None and bool(basket):
         my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(basket)
+    else:
+        my_dict["effective_basket_quantity"] = Value(0)
     return my_dict
 
 
