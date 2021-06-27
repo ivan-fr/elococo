@@ -17,7 +17,7 @@ body
   form
     select
       @include p-(2)
-      width: calc(100% - 1em)
+      width: 100%
       background-color: darken(#ffeee5, 2)
       border: 1px solid black
       @include radius(2)
@@ -146,6 +146,9 @@ body
           @include span-e(4)
           @include start(1)
 
+          @media #{$medium-down}
+            @include span(12)
+
           h2
             display: none
 
@@ -153,6 +156,9 @@ body
           @include span(5)
           @include grid(2)
           grid-auto-rows: 20em
+
+          @media #{$medium-down}
+            @include span(12)
 
           figure
             cursor: pointer
@@ -183,12 +189,21 @@ body
           @include span-e(3)
           @include start(10)
 
+          @media #{$medium-down}
+            @include span(12)
+
         .description
           @include start(2)
           @include span-e(8)
 
+          @media #{$medium-down}
+            @include span(12)
+
         & > figure:last-child
           @include span(3)
+
+          @media #{$medium-down}
+            @include span(12)
 
       #boutique-container
         &.with_filters
@@ -368,9 +383,6 @@ body
     @include mb-(10)
     background: linear-gradient(180deg, #ffcf95 95%, #ffeee5 100%)
     @include py-(12.5)
-
-    @media #{$medium-down}
-      @include mx-(2)
 
     & > ul
       list-style: none

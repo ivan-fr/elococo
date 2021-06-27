@@ -10,7 +10,7 @@ body {
 }
 body form select {
   padding: 0.5em;
-  width: calc(100% - 1em);
+  width: 100%;
   background-color: #ffe7db;
   border: 1px solid black;
   border-radius: 0.5em;
@@ -151,6 +151,11 @@ body main.gridded > .main #detail h3:first-child + section {
   grid-column-end: span 4;
   grid-column-start: 1;
 }
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #detail h3:first-child + section {
+    grid-column: span 12;
+  }
+}
 body main.gridded > .main #detail h3:first-child + section h2 {
   display: none;
 }
@@ -161,6 +166,11 @@ body main.gridded > .main #detail .images {
   grid-auto-rows: auto;
   box-sizing: border-box;
   grid-auto-rows: 20em;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #detail .images {
+    grid-column: span 12;
+  }
 }
 body main.gridded > .main #detail .images figure {
   cursor: pointer;
@@ -187,12 +197,27 @@ body main.gridded > .main #detail .sale_infos {
   grid-column-end: span 3;
   grid-column-start: 10;
 }
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #detail .sale_infos {
+    grid-column: span 12;
+  }
+}
 body main.gridded > .main #detail .description {
   grid-column-start: 2;
   grid-column-end: span 8;
 }
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #detail .description {
+    grid-column: span 12;
+  }
+}
 body main.gridded > .main #detail > figure:last-child {
   grid-column: span 3;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #detail > figure:last-child {
+    grid-column: span 12;
+  }
 }
 body main.gridded > .main #boutique-container.with_filters {
   display: grid;
@@ -405,12 +430,6 @@ body .navbar {
   background: linear-gradient(180deg, #ffcf95 95%, #ffeee5 100%);
   padding-top: 3.125em;
   padding-bottom: 3.125em;
-}
-@media only screen and (max-width: 768px) {
-  body .navbar {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-  }
 }
 body .navbar > ul {
   list-style: none;
