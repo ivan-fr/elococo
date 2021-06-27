@@ -274,6 +274,9 @@ body figure img {
 body #submit_basket button {
   margin-bottom: 1em;
 }
+body #promo_form {
+  margin-bottom: 1em;
+}
 body #promo_form form {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

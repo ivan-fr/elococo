@@ -10,7 +10,6 @@ from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from django.db import transaction
 from django.http import HttpResponseBadRequest, Http404, JsonResponse, HttpResponseRedirect, HttpResponse
-from django.middleware.csrf import get_token
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -607,10 +606,22 @@ class BookingBasketView(BaseFormView):
         return JsonResponse({"redirect": self.get_success_url()})
 
     def form_invalid(self, form):
-        return JsonResponse({"form_errors": str(form.errors), "csrf_token": get_token(self.request)})
+        return JsonResponse({
+            "form_book": render_to_string(
+                "sale/book.html",
+                self.get_context_data(),
+                self.request
+            )
+        })
 
     def get(self, request, *args, **kwargs):
         if not self.request.is_ajax():
             raise Http404()
 
-        return JsonResponse({"csrf_token": get_token(self.request)})
+        return JsonResponse({
+            "form_book": render_to_string(
+                "sale/book.html",
+                self.get_context_data(),
+                request
+            )
+        })
