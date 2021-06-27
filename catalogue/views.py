@@ -403,8 +403,7 @@ class ProductDetailView(FormMixin, DetailView):
         session["basket_updated"] = True
         return super(ProductDetailView, self).form_valid(form)
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+    def get_context_data(self, **kwargs):
         if self.object.box is not None:
             images = [self.object.productimage_set.first()]
             for pToP in self.object.box.all():
@@ -415,13 +414,11 @@ class ProductDetailView(FormMixin, DetailView):
         else:
             images = self.object.productimage_set.all()
 
-        updated = self.request.session.get("basket_updated", False)
-        self.extra_context = {"basket_updated": updated}
+        return super(ProductDetailView, self).get_context_data(object=self.object, images=images)
 
-        if updated:
-            self.request.session["basket_updated"] = False
-
-        context = self.get_context_data(object=self.object, images=images)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data()
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):

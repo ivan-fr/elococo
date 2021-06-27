@@ -6,24 +6,15 @@
     <article id="detail">
         <h3>Details</h3>
 
-        {% if product.box.all|length > 0 %}
-            <section>
-                <h3>Composition du coffret</h3>
-                <ul>
-                    {% for pTp in product.box.all %}
-                        <li>
-                            <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </section>
-        {% endif %}
-        <div role="status">
-        </div>
+        <section>
+            <h2>Zoom</h2>
+            <span class="image_zoom" role="status">
+            </span>
+        </section>
 
-        <div>
+        <div class="images">
             {% for product_image in images %}
-                <figure>
+                <figure class="hover_figure">
                     <img src="{{ product_image.image.url }}"
                          alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                     <figcaption>
@@ -34,7 +25,17 @@
         </div>
 
         {% if product.enable_sale %}
-            <section>
+            <section class="sale_infos">
+                {% if product.box.all|length > 0 %}
+                    <h3>Compositions</h3>
+                    <ul>
+                        {% for pTp in product.box.all %}
+                            <li>
+                                <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
                 <h3>Informations de vente</h3>
                 <div>
                     <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
@@ -59,9 +60,7 @@
                         {% endif %}
                     </p>
                 </div>
-            </section>
-            <section>
-                <h3>Commandes</h3>
+                <h3>Ajouter dans mon panier</h3>
                 <div>
                     <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
                           method="post">
@@ -69,35 +68,24 @@
                         {% if form.non_field_errors %}
                             {{ form.non_field_errors }}
                         {% endif %}
-
                         <div>
-                            <div>
-                                <label
-                                        for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
-                                <div>
-                                        <span id="basic-addon1"><i
-                                        ></i></span>
-                                    {{ form.quantity }}
-                                </div>
+                            {{ form.quantity.errors }}
+                            <label
+                                    for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
 
-                                <div>
-                                    {{ form.quantity.help_text }}
-                                </div>
-                                {{ form.quantity.errors }}
-                            </div>
-                            <div>
-                                <input type="submit" value="Ajouter dans le panier"/>
-                            </div>
+                            <span id="basic-addon1"><i></i></span>
+                            {{ form.quantity }}
+                            {{ form.quantity.help_text }}
                         </div>
+                        <input type="submit" value="Ajouter dans le panier"/>
                     </form>
                 </div>
             </section>
         {% endif %}
 
-        <div>
+        <div class="description">
             {{ product.description|safe }}
         </div>
-
 
         <figure>
             <img src="{% static "images/rule1.bmp" %}" alt="licence">
@@ -110,13 +98,13 @@
     {{ block.super }}
     <script type="application/javascript">
         // From IB - {% now "Y" %}
-        let image_product = document.querySelector("#detail .image_produit");
-        let images_products = document.querySelector("#detail .image_produits");
+        let image_product = document.querySelector("body main.gridded > .main #detail .image_zoom");
+        let images_products = document.querySelector("body main.gridded > .main #detail .images");
         let figures = images_products.querySelectorAll(":scope figure");
 
         function treatment_image(figure) {
             let figure_clone = figure.cloneNode(true);
-            figure_clone.classList.remove("pointer");
+            figure_clone.style.maxHeight = "40em"
             image_product.innerHTML = "";
             image_product.appendChild(figure_clone);
         }
@@ -141,7 +129,7 @@
             return true;
         }
 
-        setTimeout(initListener, 500);
+        initListener();
 
         {% if basket_updated %}
             let basket_modal_call = new bootstrap.Modal(basket_modal, {

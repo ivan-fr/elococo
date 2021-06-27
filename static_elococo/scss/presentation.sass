@@ -4,21 +4,9 @@ body
   .wrapper
     @include pb-(5)
 
-  @media #{$medium-down}
-    video
-      height: 200px
-    .wrapper
-      @include pb-(10)
-
-      &:before
-        height: 140px
-
-      header
-        top: 140px
-
   .navbar
     @include mb-(0)
+    background: #ffcf95
 
-    & > ul
-      &:last-child
-        direction: rtl
+    & > ul:last-child
+      direction: rtl

@@ -8,6 +8,27 @@ body {
   margin: 0;
   color: black;
 }
+body form select {
+  padding: 0.5em;
+  width: 100%;
+  background-color: #ffe7db;
+  border: 1px solid black;
+  border-radius: 0.5em;
+  cursor: pointer;
+}
+body form select option {
+  border-radius: 0em;
+  background-color: white;
+}
+body form input[type=text], body form input[type=submit] {
+  padding: 0.5em;
+  width: 100%;
+  border: 1px solid black;
+  cursor: pointer;
+}
+body form input[type=submit] {
+  background-color: #ffe7db;
+}
 body a {
   color: unset;
 }
@@ -87,37 +108,13 @@ body a:visited {
 }
 body video {
   width: 100%;
-  height: 100%;
 }
 body .wrapper {
   display: grid;
   grid-auto-rows: auto;
   background-color: #ffeee5;
-  padding-bottom: 6.25em;
+  padding-bottom: 7.5em;
   position: relative;
-}
-@media only screen and (max-width: 768px) {
-  body .wrapper:before {
-    height: 200px;
-    width: 100%;
-    background: #ffcf95;
-    content: " ";
-    display: block;
-    position: absolute;
-  }
-}
-body .wrapper header {
-  position: absolute;
-  z-index: 1;
-  background: url("../images/waves.svg") repeat-x;
-  height: 174px;
-  top: 0;
-  width: 100%;
-}
-@media only screen and (max-width: 768px) {
-  body .wrapper header {
-    top: 200px;
-  }
 }
 body .wrapper footer {
   position: absolute;
@@ -127,36 +124,115 @@ body .wrapper footer {
   height: 77px;
   width: 100%;
 }
-body main {
+body main.gridded {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  grid-auto-rows: auto;
+  box-sizing: border-box;
+}
+body main.gridded > .main {
+  grid-column-start: 2;
+  grid-column-end: 24;
   color: black;
   z-index: 0;
 }
-body main #boutique-container.with_filters {
+body main.gridded > .main #detail {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-auto-rows: auto;
   box-sizing: border-box;
   grid-gap: 1em;
 }
-body main #boutique-container.with_filters #boutique {
-  grid-column: span 9;
+body main.gridded > .main #detail > h3 {
+  display: none;
 }
-body main #boutique-container .product_categories-right {
+body main.gridded > .main #detail h3:first-child + section {
+  grid-column-end: span 4;
+  grid-column-start: 1;
+}
+body main.gridded > .main #detail h3:first-child + section h2 {
+  display: none;
+}
+body main.gridded > .main #detail .images {
+  grid-column: span 5;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+  box-sizing: border-box;
+  grid-auto-rows: 20em;
+}
+body main.gridded > .main #detail .images figure {
+  cursor: pointer;
+}
+body main.gridded > .main #detail .images > figure:nth-child(2n-1):not(:first-child) img {
+  border-top: none;
+}
+body main.gridded > .main #detail .images > figure:nth-child(2n-1):not(:first-child) + figure img {
+  border-top: none;
+}
+body main.gridded > .main #detail .images > figure:nth-child(2n-1) + figure figcaption {
+  border-left: none;
+}
+body main.gridded > .main #detail .images > figure:nth-child(2n-1) + figure img {
+  border-left: none;
+}
+body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child {
+  grid-column: span 2;
+}
+body main.gridded > .main #detail .images > figure:nth-of-type(2n+1):last-child img {
+  border-top: none;
+}
+body main.gridded > .main #detail .sale_infos {
+  grid-column-end: span 3;
+  grid-column-start: 10;
+}
+body main.gridded > .main #detail .description {
+  grid-column-start: 2;
+  grid-column-end: span 8;
+}
+body main.gridded > .main #detail > figure:last-child {
   grid-column: span 3;
 }
-body main #boutique-container #boutique {
+body main.gridded > .main #boutique-container.with_filters {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: auto;
+  box-sizing: border-box;
+  grid-gap: 1em;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #boutique-container.with_filters {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+body main.gridded > .main #boutique-container.with_filters #boutique {
+  grid-column: span 9;
+}
+body main.gridded > .main #boutique-container .product_categories-right {
+  grid-column: span 3;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #boutique-container .product_categories-right {
+    order: -1;
+  }
+}
+body main.gridded > .main #boutique-container #boutique {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-auto-rows: auto;
   box-sizing: border-box;
   grid-gap: 1em;
   grid-auto-rows: 20em;
-  margin-left: 1.25em;
 }
-body main #boutique-container #boutique article h3 {
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main #boutique-container #boutique {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+body main.gridded > .main #boutique-container #boutique article h3 {
   display: none;
 }
-body main #boutique figure.hover_figure .info_price {
+body main.gridded > .main #boutique figure.hover_figure .info_price {
   right: 1px;
   top: 1px;
   position: absolute;
@@ -168,7 +244,7 @@ body main #boutique figure.hover_figure .info_price {
   box-sizing: border-box;
   font-weight: bold;
 }
-body main #boutique figure.hover_figure .info_compo {
+body main.gridded > .main #boutique figure.hover_figure .info_compo {
   right: 1px;
   top: 10em;
   position: absolute;
@@ -178,7 +254,7 @@ body main #boutique figure.hover_figure .info_compo {
   box-sizing: border-box;
   font-weight: bold;
 }
-body main #boutique figure.hover_figure .info_reduction {
+body main.gridded > .main #boutique figure.hover_figure .info_reduction {
   left: 1px;
   top: 1px;
   position: absolute;
@@ -191,19 +267,20 @@ body main #boutique figure.hover_figure .info_reduction {
   box-sizing: border-box;
   font-weight: bold;
 }
-body main nav ul {
+body main.gridded > .main nav ul {
   margin: 0em;
 }
-body main > :is(h1, h2, h3, h4, h5, h6):first-child {
+body main.gridded > .main > :is(h1, h2, h3, h4, h5, h6):first-child {
   display: none;
 }
-body main > :not(:is(h1, h2, h3, h4, h5, h6)):first-of-type {
+body main.gridded > .main > :not(:is(h1, h2, h3, h4, h5, h6)):first-of-type {
   margin-top: 0em !important;
 }
-body main > nav.product_categories {
-  margin: 2.5em;
+body main.gridded > .main > nav.product_categories {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
 }
-body main > nav.product_categories ul {
+body main.gridded > .main > nav.product_categories ul {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-auto-rows: auto;
@@ -212,13 +289,18 @@ body main > nav.product_categories ul {
   padding-left: 0em;
   list-style: none;
 }
-body main > nav.product_categories ul li {
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main > nav.product_categories ul {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+body main.gridded > .main > nav.product_categories ul li {
   width: 100%;
 }
-body main > nav.product_categories ul li.is-active a {
+body main.gridded > .main > nav.product_categories ul li.is-active a {
   background: linear-gradient(-90deg, #ffb358 0%, rgba(0, 0, 0, 0) 75%);
 }
-body main > nav.product_categories ul li a {
+body main.gridded > .main > nav.product_categories ul li a {
   padding-top: 1.25em;
   padding-bottom: 1.25em;
   border-radius: 0.75em;
@@ -226,11 +308,12 @@ body main > nav.product_categories ul li a {
   text-align: center;
   display: inline-block;
 }
-body main > nav.product_categories ul li a:hover {
+body main.gridded > .main > nav.product_categories ul li a:hover {
   background: linear-gradient(-90deg, #ffb358 0%, rgba(0, 0, 0, 0) 75%);
 }
-body main > div.filters {
-  margin: 2.5em;
+body main.gridded > .main > div.filters {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-auto-rows: auto;
@@ -238,7 +321,12 @@ body main > div.filters {
   align-items: center;
   grid-gap: 1.5em;
 }
-body main > div.filters > nav.order_filters ul {
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main > div.filters {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+body main.gridded > .main > div.filters > nav.order_filters ul {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-auto-rows: auto;
@@ -247,10 +335,10 @@ body main > div.filters > nav.order_filters ul {
   padding-left: 0em;
   list-style: none;
 }
-body main > div.filters > nav.order_filters ul li {
+body main.gridded > .main > div.filters > nav.order_filters ul li {
   width: 100%;
 }
-body main > div.filters > nav.order_filters ul li a {
+body main.gridded > .main > div.filters > nav.order_filters ul li a {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   border-radius: 0.75em;
@@ -258,39 +346,49 @@ body main > div.filters > nav.order_filters ul li a {
   text-align: center;
   display: inline-block;
 }
-body main > div.filters > nav.range_filter {
+body main.gridded > .main > div.filters > nav.range_filter {
   background: linear-gradient(90deg, #ffcf95 0%, rgba(0, 0, 0, 0) 50%, #ffcf95 100%);
   border-radius: 0.75em;
 }
-body main > div.filters > nav.range_filter ul {
+body main.gridded > .main > div.filters > nav.range_filter ul {
   padding-left: 0.75em;
   padding-right: 0.75em;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   list-style: none;
 }
-body main > div.filters > nav.range_filter ul li {
+body main.gridded > .main > div.filters > nav.range_filter ul li {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-auto-rows: auto;
   box-sizing: border-box;
 }
-body main > div.filters > nav.range_filter ul li .dr_value_left {
+body main.gridded > .main > div.filters > nav.range_filter ul li .dr_value_left {
   text-align: left;
 }
-body main > div.filters > nav.range_filter ul li .double_range {
+body main.gridded > .main > div.filters > nav.range_filter ul li .double_range {
   background-color: #ffb358;
 }
-body main > div.filters > nav.range_filter ul li .dr_value_right {
+body main.gridded > .main > div.filters > nav.range_filter ul li .dr_value_right {
   text-align: right;
 }
-body main > div.filters > nav.range_filter ul li .double_range_temoin {
+body main.gridded > .main > div.filters > nav.range_filter ul li .double_range_temoin {
   background-color: white;
 }
-body main > div.filters > nav.range_filter ul li div:nth-child(2) {
+body main.gridded > .main > div.filters > nav.range_filter ul li div:nth-child(2) {
   grid-column: span 4;
 }
-body main > div.filters li.is-active a, body main > div.filters a:hover {
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main > div.filters > nav.range_filter ul li div:nth-child(2) {
+    grid-column: span 6;
+  }
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main > div.filters > nav.range_filter ul li div:not(:nth-child(2)) {
+    grid-column: span 6;
+  }
+}
+body main.gridded > .main > div.filters li.is-active a, body main.gridded > .main > div.filters a:hover {
   background: linear-gradient(90deg, #ffb358 0%, rgba(0, 0, 0, 0) 75%);
 }
 body .navbar {
@@ -302,9 +400,10 @@ body .navbar {
   grid-auto-rows: auto;
   box-sizing: border-box;
   grid-gap: 1em;
-  border-radius: 0.5em;
-  margin-bottom: 6.25em;
-  padding: 0em;
+  margin-bottom: 2.5em;
+  background: linear-gradient(180deg, #ffcf95 95%, #ffeee5 100%);
+  padding-top: 3.125em;
+  padding-bottom: 3.125em;
 }
 @media only screen and (max-width: 768px) {
   body .navbar {

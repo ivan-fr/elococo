@@ -17,7 +17,6 @@
 </head>
 <body>
 <div class="wrapper">
-    <header></header>
     {% include "elococo/navbar.html" %}
 
     {% if messages %}
@@ -29,9 +28,11 @@
         {% endfor %}
     {% endif %}
 
-    <main>
-        {% block base_container %}
-        {% endblock %}
+    <main class="gridded">
+        <div class="main">
+            {% block base_container %}
+            {% endblock %}
+        </div>
     </main>
     <footer></footer>
 </div>
