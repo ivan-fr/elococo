@@ -10,7 +10,7 @@ body {
 }
 body form select {
   padding: 0.5em;
-  width: 100%;
+  width: calc(100% - 1em);
   background-color: #ffe7db;
   border: 1px solid black;
   border-radius: 0.5em;
@@ -22,11 +22,12 @@ body form select option {
 }
 body form input[type=text], body form input[type=submit] {
   padding: 0.5em;
-  width: 100%;
+  width: calc(100% - 1em - 2px);
   border: 1px solid black;
   cursor: pointer;
 }
 body form input[type=submit] {
+  width: 100%;
   background-color: #ffe7db;
 }
 body a {
