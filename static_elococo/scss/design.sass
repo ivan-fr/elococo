@@ -36,6 +36,10 @@ body
     input[type=submit]
       width: 100%
       background-color: darken(#ffeee5, 2)
+      @include radius(2)
+
+      &:hover
+        background-color: darken(#ffeee5, 5)
 
   a
     color: unset
@@ -215,6 +219,7 @@ body
 
         &.with_filters #boutique
           @include span(9)
+          grid-template-columns: repeat(4, 1fr)
 
         .product_categories-right
           @include span(3)
@@ -395,6 +400,7 @@ body
       #navbar-basket
         span
           @include p-(2)
+          @include m(2)
           @include radius(2)
           background-color: white
 

@@ -7,7 +7,6 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import ListView, DetailView, RedirectView
 from django.views.generic.edit import FormMixin, FormView
-from django.views.generic.list import BaseListView
 
 from catalogue.bdd_calculations import (
     price_annotation_format, filled_category, get_related_products,
@@ -85,9 +84,9 @@ class PromoBasketView(FormView):
         })
 
 
-class BasketView(FormSetMixin, BaseListView):
+class BasketView(FormSetMixin, ListView):
     allow_empty = False
-    template_name = 'catalogue/index_list.html'
+    template_name = 'catalogue/basket.html'
     model = Product
     success_url = reverse_lazy("catalogue_basket")
     form_class = UpdateBasketForm
@@ -178,8 +177,7 @@ class BasketView(FormSetMixin, BaseListView):
 
         return super(BasketView, self).formset_valid(formset)
 
-    def json_response(self, formset):
-        data = {}
+    def response_(self, formset):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
         promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
         promo = get_promo(basket, promo_session.get("code_promo", None))
@@ -198,9 +196,7 @@ class BasketView(FormSetMixin, BaseListView):
             "promo": promo
         }
 
-        data["form_basket"] = render_to_string("catalogue/basket.html", context, self.request)
-
-        return JsonResponse(data)
+        return self.render_to_response(context)
 
     def init_queryset(self):
         self.object_list = self.get_queryset()
@@ -212,48 +208,26 @@ class BasketView(FormSetMixin, BaseListView):
             else:
                 is_empty = not self.object_list
             if is_empty:
-                if self.request.is_ajax():
-                    return JsonResponse({})
                 raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
                     'class_name': self.__class__.__name__,
                 })
 
-        return None
-
     def base_logical_response(self):
-        if not self.request.is_ajax():
-            raise Http404()
-
-        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
-
-        if not bool(basket):
-            return JsonResponse({})
-
-        response = self.init_queryset()
-        if response is not None:
-            return response
-
-        return None
+        self.init_queryset()
 
     def get(self, request, *args, **kwargs):
-        response = self.base_logical_response()
-        if response is not None:
-            return response
-
+        self.base_logical_response()
         formset = self.construct_formset()
-        return self.json_response(formset)
+        return self.response_(formset)
 
     def post(self, request, *args, **kwargs):
-        response = self.base_logical_response()
-        if response is not None:
-            return response
-
+        self.base_logical_response()
         formset = self.construct_formset()
 
         if formset.is_valid():
             return self.formset_valid(formset)
         else:
-            return self.json_response(formset)
+            return self.response_(formset)
 
 
 class IndexView(ListView):
@@ -400,12 +374,11 @@ class ProductDetailView(FormMixin, DetailView):
     def form_valid(self, form):
         session = self.request.session
         update_basket_session(session, form)
-        session["basket_updated"] = True
         return super(ProductDetailView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         if self.object.box is not None:
-            images = [self.object.productimage_set.first()]
+            images = [self.object.productimage_set.all()[0]]
             for pToP in self.object.box.all():
                 try:
                     images.append(pToP.elements.productimage_set.all()[0])

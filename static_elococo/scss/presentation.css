@@ -3,7 +3,6 @@ body .wrapper {
 }
 body .navbar {
   margin-bottom: 0em;
-  background: #ffcf95;
 }
 body .navbar > ul:last-child {
   direction: rtl;

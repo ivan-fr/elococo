@@ -1,5 +1,7 @@
-{% load getter %}
-{% spaceless %}
+{% extends 'elococo/base.html' %}
+
+{% block base_container %}
+    {% load getter %}
     <form action="{% url "catalogue_basket" %}">
         {% csrf_token %}
         {{ formset.management_form }}
@@ -39,11 +41,9 @@
                     <th scope="col">#</th>
                     <th scope="col">Nom du produit</th>
                     <th scope="col">Prix unitaire (HT)</th>
-                    <th scope="col">Prix unitaire (TTC)</th>
                     <th scope="col">Dont réduction (%)</th>
                     <th scope="col">Quantité</th>
                     <th scope="col">Sous Total (HT)</th>
-                    <th scope="col">Sous Total (TTC)</th>
                     <th scope="col">Supprimer ?</th>
                 </tr>
                 </thead>
@@ -55,7 +55,6 @@
                             <a href="{% url "catalogue_product_detail" product.0.slug %}">{{ product.0.name }}</a>
                         </td>
                         <td>{{ product.0.price_exact_ht|floatformat:2 }}€</td>
-                        <td>{{ product.0.price_exact_ttc|floatformat:2 }}€</td>
                         <td>{% if product.0.effective_reduction > 0 %}
                             -{{ product.0.effective_reduction }}%
                         {% else %}
@@ -65,37 +64,32 @@
                             {{ product.1.quantity }}
                         </td>
                         <td>{{ product.0.price_exact_ht_with_quantity|floatformat:2 }}€</td>
-                        <td>{{ product.0.price_exact_ttc_with_quantity|floatformat:2 }}€</td>
                         <td>{{ product.1.remove }}</td>
                     </tr>
                 {% endfor %}
 
                 <tr>
                     <td><strong>Total</strong></td>
-                    <td colspan="5"></td>
+                    <td colspan="3"></td>
                     <td>{{ aggregate.price_exact_ht_with_quantity__sum|floatformat:2 }}€</td>
-                    <td><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></td>
                     <td></td>
                 </tr>
 
                 {% if promo is not None %}
                     <tr>
                         <td><strong>Promo</strong></td>
-                        <td colspan="5"></td>
+                        <td colspan="3"></td>
                         {% if promo.type == "pe" %}
                             <td>-{{ promo.value }}%</td>
                         {% else %}
                             <td>-{{ promo.value }}€</td>
                         {% endif %}
                         <td></td>
-                        <td></td>
                     </tr>
                     <tr>
                         <td><strong>Total</strong></td>
-                        <td colspan="5"></td>
+                        <td colspan="3"></td>
                         <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|floatformat:2 }}€</td>
-                        <td><strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
-                        </td>
                         <td></td>
                     </tr>
                 {% endif %}
@@ -104,4 +98,4 @@
             </table>
         </div>
     </form>
-{% endspaceless %}
+{% endblock %}

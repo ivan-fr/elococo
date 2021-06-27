@@ -29,6 +29,10 @@ body form input[type=text], body form input[type=submit] {
 body form input[type=submit] {
   width: 100%;
   background-color: #ffe7db;
+  border-radius: 0.5em;
+}
+body form input[type=submit]:hover {
+  background-color: #ffddcc;
 }
 body a {
   color: unset;
@@ -233,6 +237,7 @@ body main.gridded > .main #boutique-container.with_filters {
 }
 body main.gridded > .main #boutique-container.with_filters #boutique {
   grid-column: span 9;
+  grid-template-columns: repeat(4, 1fr);
 }
 body main.gridded > .main #boutique-container .product_categories-right {
   grid-column: span 3;
@@ -445,6 +450,7 @@ body .navbar > ul {
 }
 body .navbar > ul #navbar-basket span {
   padding: 0.5em;
+  margin: 0.5em;
   border-radius: 0.5em;
   background-color: white;
 }
