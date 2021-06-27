@@ -121,7 +121,7 @@ function post_book(event) {
         return false;
     }
 
-    if (!confirm("Etes vous sûr de vouloir réserver le panier ? Vous ne pourrez pas consitué un autre panier pendant une certaine durée si le paiement n'est pas effectué.")) {
+    if (!confirm("Etes vous sûr de vouloir réserver le panier ? Vous ne pourrez pas constitué un autre panier pendant une certaine durée si le paiement n'est pas effectué.")) {
         return false;
     }
 
