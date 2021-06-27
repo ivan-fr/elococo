@@ -1,28 +1,84 @@
 // From IB
-let basket_save_button = false;
+let XmlHTTPRequest = new XMLHttpRequest();
+let url_get_promo;
+let url_get_booking;
 
-function add_save_button(footer) {
-    return function listener() {
-        if (basket_save_button) {
-            return;
+if (document.getElementById("basket_urls") !== null) {
+    url_get_booking = document.getElementById("basket_urls").getAttribute("data-basket-url-2");
+    url_get_promo = document.getElementById("basket_urls").getAttribute("data-basket-url-3");
+    let basket_save_button = false;
+
+    function add_save_button(footer) {
+        return function listener() {
+            if (basket_save_button) {
+                return;
+            }
+
+            basket_save_button = true
+
+            let submit_button = document.createElement("button");
+            submit_button.setAttribute("type", "submit")
+            let text = document.createTextNode("Sauvegarder les changements");
+            submit_button.appendChild(text);
+            footer.appendChild(submit_button);
         }
+    }
 
-        basket_save_button = true
+    let footer = document.querySelector("#submit_basket")
+    let inputs = document.querySelectorAll("form#basket_form input")
+    for (const inputElement of inputs) {
+        inputElement.addEventListener("change", add_save_button(footer));
+    }
+    let selects = document.querySelectorAll("form#basket_form select")
+    for (const selectElement of selects) {
+        selectElement.addEventListener("change", add_save_button(footer));
+    }
 
-        let submit_button = document.createElement("button");
-        submit_button.setAttribute("type", "submit")
-        let text = document.createTextNode("Sauvegarder les changements");
-        submit_button.appendChild(text);
-        footer.appendChild(submit_button);
+    get_promo()
+}
+
+function get_promo() {
+    if (!XmlHTTPRequest) {
+        alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+        return false;
+    }
+
+    XmlHTTPRequest.onload = onload_promo;
+    XmlHTTPRequest.open('GET', url_get_promo);
+    XmlHTTPRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    XmlHTTPRequest.responseType = 'json';
+    XmlHTTPRequest.send();
+}
+
+function onload_promo() {
+    if (XmlHTTPRequest.readyState === XMLHttpRequest.DONE) {
+        if (XmlHTTPRequest.status === 200) {
+            let data = XmlHTTPRequest.response;
+            if (data.hasOwnProperty("form_promo")) {
+                document.getElementById("promo_form").innerHTML = data["form_promo"]
+                document.getElementById("promo_form").querySelector("form").addEventListener("submit", post_promo)
+            } else {
+                window.location.reload()
+            }
+        } else {
+            alert('Il y a eu un problème avec la requête.')
+        }
     }
 }
 
-let footer = document.querySelector("#submit_basket")
-let inputs = document.querySelectorAll("form#basket_form input")
-for (const inputElement of inputs) {
-    inputElement.addEventListener("change", add_save_button(footer));
-}
-let selects = document.querySelectorAll("form#basket_form select")
-for (const selectElement of selects) {
-    selectElement.addEventListener("change", add_save_button(footer));
+function post_promo(event) {
+    event.preventDefault();
+    if (!XmlHTTPRequest) {
+        alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+        return false;
+    }
+
+    let form = event.currentTarget;
+    form.parentElement.removeChild(form);
+
+    XmlHTTPRequest.onload = onload_promo;
+    XmlHTTPRequest.open('POST', url_get_promo, true);
+    XmlHTTPRequest.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    XmlHTTPRequest.responseType = 'json';
+    XmlHTTPRequest.send(new FormData(event.currentTarget));
 }

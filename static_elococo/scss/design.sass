@@ -32,15 +32,16 @@ body
         background-color: white
 
     input[type=text], input[type=submit], button[type=submit]
+      font-size: 16px
       @include p-(2)
       width: calc(100% - 1em - 2px)
       border: 1px solid black
-      cursor: pointer
 
     input[type=submit], button[type=submit]
       width: 100%
       background-color: darken(#ffeee5, 2)
       @include radius(2)
+      cursor: pointer
 
       &:hover
         background-color: darken(#ffeee5, 5)
@@ -84,6 +85,22 @@ body
       max-height: 100%
       width: auto
       height: auto
+
+  #submit_basket button
+    @include mb-(4)
+
+  #promo_form
+    form
+      @include grid(4)
+      @include gap-(2)
+      align-items: end
+
+      .errors
+        @include span(4)
+
+      @media #{$medium-down}
+        & > *
+          @include span(4)
 
   footer
     @include py-(3)

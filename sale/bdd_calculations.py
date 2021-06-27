@@ -40,6 +40,9 @@ def get_promo(basket, code):
         Sum("price_exact_ht_with_quantity")
     )["price_exact_ht_with_quantity__sum"]
 
+    if aggregate is None:
+        return None
+
     try:
         return Promo.objects.filter(code=code).filter(
             (Q(startOfLife__lte=Now()) & Q(endOfLife__gte=Now())) | (Q(startOfLife=None) & Q(endOfLife=None)) |

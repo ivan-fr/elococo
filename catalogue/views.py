@@ -55,7 +55,6 @@ def update_basket_session(session, form, set_quantity=False):
 
 class PromoBasketView(FormView):
     form_class = PromoForm
-    success_url = reverse_lazy("catalogue_basket")
 
     def get(self, request, *args, **kwargs):
         return JsonResponse({
@@ -76,7 +75,7 @@ class PromoBasketView(FormView):
         if form.cleaned_data.get("code_promo", None) is not None:
             self.request.session[settings.PROMO_SESSION_KEY] = {"code_promo": form.cleaned_data["code_promo"].code}
             self.request.session.modified = True
-        return super(PromoBasketView, self).form_valid(form)
+        return JsonResponse({})
 
     def form_invalid(self, form):
         return JsonResponse({

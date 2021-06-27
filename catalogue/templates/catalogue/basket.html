@@ -89,6 +89,12 @@
                             <td></td>
                         </tr>
                         <tr>
+                            <td><strong>Nouveau Total (HT)</strong></td>
+                            <td colspan="4"></td>
+                            <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|floatformat:2 }}€</td>
+                            <td></td>
+                        </tr>
+                        <tr>
                             <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
                             <td colspan="4"></td>
                             <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|deduce_tva }}€</td>

@@ -217,15 +217,16 @@ body form select option {
   background-color: white;
 }
 body form input[type=text], body form input[type=submit], body form button[type=submit] {
+  font-size: 16px;
   padding: 0.5em;
   width: calc(100% - 1em - 2px);
   border: 1px solid black;
-  cursor: pointer;
 }
 body form input[type=submit], body form button[type=submit] {
   width: 100%;
   background-color: #ffe7db;
   border-radius: 0.5em;
+  cursor: pointer;
 }
 body form input[type=submit]:hover, body form button[type=submit]:hover {
   background-color: #ffddcc;
@@ -269,6 +270,25 @@ body figure img {
   max-height: 100%;
   width: auto;
   height: auto;
+}
+body #submit_basket button {
+  margin-bottom: 1em;
+}
+body #promo_form form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: auto;
+  box-sizing: border-box;
+  grid-gap: 1em;
+  align-items: end;
+}
+body #promo_form form .errors {
+  grid-column: span 4;
+}
+@media only screen and (max-width: 768px) {
+  body #promo_form form > * {
+    grid-column: span 4;
+  }
 }
 body footer {
   padding-top: 0.75em;
