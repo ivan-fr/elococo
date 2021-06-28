@@ -9,14 +9,17 @@
   border-radius: $i * 0.25em
 
 body
-  font-family: grover-slab, serif
+  font-family: natom-pro, sans-serif
   font-weight: 400
   font-style: normal
-  font-size: 15px
+  font-size: 17px
   background: #ffcf95
   box-sizing: border-box
   margin: 0
   color: black
+
+  strong
+    font-weight: 700
 
   form
     select
@@ -47,7 +50,7 @@ body
         background-color: darken(#ffeee5, 5)
 
   a
-    color: unset
+    color: darken(#ffcf95, 65)
 
   figure
     @include m(0)
@@ -115,9 +118,6 @@ body
     @media #{$medium-down}
       grid-template-columns: repeat(1, 1fr)
 
-    a
-      text-decoration: underline
-
     & > .logos
       & > h3
         display: none
@@ -129,12 +129,6 @@ body
       .payments_mode
         & > figure
           display: inline-block
-
-  a
-    text-decoration: none
-
-    &:visited
-      color: unset
 
   & video
     width: 100%
@@ -162,6 +156,12 @@ body
       @include grid-centered-column(24)
       color: black
       z-index: 0
+
+      .order
+        @include grid(2)
+
+        & > *:nth-child(-n+2)
+          @include span(2)
 
       #detail
         @include grid(12)
@@ -413,9 +413,12 @@ body
     background: linear-gradient(180deg, #ffcf95 95%, #ffeee5 100%)
     @include py-(12.5)
 
+    a
+      text-decoration: none
+
     & > ul
       list-style: none
-      @include grid(4)
+      @include grid(6)
       @include px-(0)
       @include gap-(2)
       align-items: center
@@ -484,7 +487,7 @@ body
 
           & > a
             color: black
-            @include p-(4)
+            @include p-(2)
             @include radius(2)
             display: inline-block
 

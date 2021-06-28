@@ -20,16 +20,15 @@
 <div class="wrapper">
     {% include "elococo/navbar.html" %}
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="flash-message">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <main class="gridded">
         <div class="main">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
             {% block base_container %}
             {% endblock %}
         </div>

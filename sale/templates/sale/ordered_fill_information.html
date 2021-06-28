@@ -1,33 +1,35 @@
 {% extends 'elococo/base.html' %}
 
 {% block base_container %}
-    <h2>Commande #{{ ordered.order_number }}</h2>
-    <section>
-        <h3>Récapitulatif de cette commande</h3>
-        {% include "sale/ordered_recap.html" with ordered=ordered %}
-    </section>
-    <section>
-        {% include "sale/ordered_informations.html" with ordered=ordered %}
-    </section>
-    {% if ordered.ordered_is_enable %}
+    <section class="order">
+        <h2>Commande #{{ ordered.order_number }}</h2>
         <section>
-            <h2>Formulaire d'informations générales</h2>
-            <form action="{% url 'sale:fill' ordered.pk %}" method="post">
-                {% csrf_token %}
-                <div>
-                    {{ form.email.errors }}
-                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
-                    {{ form.email }}
-                </div>
-
-                <div>
-                    {{ form.phone.errors }}
-                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
-                    {{ form.phone }}
-                </div>
-
-                <input type="submit" value="Suivant"/>
-            </form>
+            <h3>Récapitulatif de cette commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
         </section>
-    {% endif %}
+        <section>
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
+        </section>
+        {% if ordered.ordered_is_enable %}
+            <section>
+                <h2>Formulaire d'informations générales</h2>
+                <form action="{% url 'sale:fill' ordered.pk %}" method="post">
+                    {% csrf_token %}
+                    <div>
+                        {{ form.email.errors }}
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }} : </label>
+                        {{ form.email }}
+                    </div>
+
+                    <div>
+                        {{ form.phone.errors }}
+                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }} : </label>
+                        {{ form.phone }}
+                    </div>
+
+                    <input type="submit" value="Suivant"/>
+                </form>
+            </section>
+        {% endif %}
+    </section>
 {% endblock %}
