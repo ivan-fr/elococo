@@ -72,12 +72,7 @@ def effective_quantity_per_product_from_basket(basket):
 def get_quantity_from_basket_box(basket):
     whens = (
         When(
-            pk=slug, then=F("intermediate_quantity") * Least(
-                data["quantity"],
-                settings.BASKET_MAX_QUANTITY_PER_FORM,
-                F("effective_stock"),
-                output_field=PositiveIntegerField()
-            )
+            pk=slug, then=F("intermediate_quantity") * effective_quantity(data)
         ) for slug, data in basket.items()
     )
 

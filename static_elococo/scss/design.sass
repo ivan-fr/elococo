@@ -18,8 +18,18 @@ body
   margin: 0
   color: black
 
+  .is-hidden
+    display: none
+
   strong
     font-weight: 700
+
+  .btn-group
+    display: flex
+    justify-content: space-between
+
+    button:not(:last-child)
+      @include mr-(2)
 
   form
     select
@@ -34,13 +44,13 @@ body
         @include radius(0)
         background-color: white
 
-    input[type=text], input[type=submit], button[type=submit], input[type=email]
+    input[type=text], input[type=submit], button[type=submit], input[type=email], button[type=button]
       font-size: 16px
       @include p-(2)
       width: calc(100% - 1em - 2px)
       border: 1px solid black
 
-    input[type=submit], button[type=submit]
+    input[type=submit], button[type=submit], button[type=button]
       width: 100%
       background-color: darken(#ffeee5, 2)
       @include radius(2)
@@ -176,10 +186,36 @@ body
           h2
             text-align: center
 
+          form
+            @include p-(3)
+
           .form_fill_1
             display: grid
             @include gap-(3)
-            @include p-(3)
+
+          .form_fill_2
+            @include grid(2)
+            @include gap-(3)
+
+            h3:first-of-type
+              @include mt(0)
+
+            #delivery_address.expand
+              @include span(2)
+              @include grid(2)
+              column-gap: 0.75em
+
+              & > h3
+                @include span(2)
+
+              & > *:not(:nth-child(-n + 3))
+                @include span(2)
+
+              & ~ section
+                display: none
+
+            .btn-group
+              @include span(2)
 
         & > h2
           word-break: break-word
