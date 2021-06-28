@@ -748,8 +748,8 @@ body .navbar {
   grid-gap: 1em;
   margin-bottom: 2.5em;
   background: linear-gradient(180deg, #ffcf95 95%, #ffeee5 100%);
-  padding-top: 3.125em;
-  padding-bottom: 3.125em;
+  padding-top: 1.25em;
+  padding-bottom: 1.25em;
 }
 body .navbar a {
   text-decoration: none;
