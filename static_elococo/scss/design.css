@@ -217,7 +217,7 @@ body .btn-group {
 body .btn-group button:not(:last-child) {
   margin-right: 0.5em;
 }
-body form select {
+body select {
   padding: 0.5em;
   width: 100%;
   background-color: #ffe7db;
@@ -225,23 +225,23 @@ body form select {
   border-radius: 0.5em;
   cursor: pointer;
 }
-body form select option {
+body select option {
   border-radius: 0em;
   background-color: white;
 }
-body form input[type=text], body form input[type=submit], body form button[type=submit], body form input[type=email], body form button[type=button] {
+body input[type=text], body input[type=submit], body button[type=submit], body input[type=email], body button[type=button] {
   font-size: 16px;
   padding: 0.5em;
   width: calc(100% - 1em - 2px);
   border: 1px solid black;
 }
-body form input[type=submit], body form button[type=submit], body form button[type=button] {
+body input[type=submit], body button[type=submit], body button[type=button] {
   width: 100%;
   background-color: #ffe7db;
   border-radius: 0.5em;
   cursor: pointer;
 }
-body form input[type=submit]:hover, body form button[type=submit]:hover, body form button[type=button]:hover {
+body input[type=submit]:hover, body button[type=submit]:hover, body button[type=button]:hover {
   background-color: #ffddcc;
 }
 body a {
@@ -379,6 +379,18 @@ body main.gridded > .main {
   color: black;
   z-index: 0;
 }
+body main.gridded > .main .order_retrieve {
+  width: 50%;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main .order_retrieve {
+    width: 100%;
+  }
+}
+body main.gridded > .main .order_retrieve form {
+  display: grid;
+  grid-gap: 1.5em;
+}
 body main.gridded > .main .order {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -393,6 +405,10 @@ body main.gridded > .main .order .order_form h2 {
 }
 body main.gridded > .main .order .order_form form {
   padding: 0.75em;
+}
+body main.gridded > .main .order .order_form .form_fill_3 {
+  width: 80%;
+  margin: 0 auto;
 }
 body main.gridded > .main .order .order_form .form_fill_1 {
   display: grid;

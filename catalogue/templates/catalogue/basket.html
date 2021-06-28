@@ -103,7 +103,9 @@
                         <tr>
                             <td><strong>Total (TTC)</strong></td>
                             <td colspan="4"></td>
-                            <td>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</td>
+                            <td>
+                                <strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
+                            </td>
                             <td></td>
                         </tr>
                     {% else %}
@@ -116,7 +118,7 @@
                         <tr>
                             <td><strong>TOTAL (TTC)</strong></td>
                             <td colspan="4"></td>
-                            <td>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</td>
+                            <td><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></td>
                             <td></td>
                         </tr>
                     {% endif %}

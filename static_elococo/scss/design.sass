@@ -31,33 +31,32 @@ body
     button:not(:last-child)
       @include mr-(2)
 
-  form
-    select
-      @include p-(2)
-      width: 100%
-      background-color: darken(#ffeee5, 2)
-      border: 1px solid black
-      @include radius(2)
-      cursor: pointer
+  select
+    @include p-(2)
+    width: 100%
+    background-color: darken(#ffeee5, 2)
+    border: 1px solid black
+    @include radius(2)
+    cursor: pointer
 
-      option
-        @include radius(0)
-        background-color: white
+    option
+      @include radius(0)
+      background-color: white
 
-    input[type=text], input[type=submit], button[type=submit], input[type=email], button[type=button]
-      font-size: 16px
-      @include p-(2)
-      width: calc(100% - 1em - 2px)
-      border: 1px solid black
+  input[type=text], input[type=submit], button[type=submit], input[type=email], button[type=button]
+    font-size: 16px
+    @include p-(2)
+    width: calc(100% - 1em - 2px)
+    border: 1px solid black
 
-    input[type=submit], button[type=submit], button[type=button]
-      width: 100%
-      background-color: darken(#ffeee5, 2)
-      @include radius(2)
-      cursor: pointer
+  input[type=submit], button[type=submit], button[type=button]
+    width: 100%
+    background-color: darken(#ffeee5, 2)
+    @include radius(2)
+    cursor: pointer
 
-      &:hover
-        background-color: darken(#ffeee5, 5)
+    &:hover
+      background-color: darken(#ffeee5, 5)
 
   a
     color: darken(#ffcf95, 65)
@@ -177,6 +176,16 @@ body
       color: black
       z-index: 0
 
+      .order_retrieve
+        width: 50%
+
+        @media #{$medium-down}
+          width: 100%
+
+        form
+          display: grid
+          @include gap-(3)
+
       .order
         @include grid(2)
 
@@ -188,6 +197,10 @@ body
 
           form
             @include p-(3)
+
+          .form_fill_3
+            width: 80%
+            margin: 0 auto
 
           .form_fill_1
             display: grid

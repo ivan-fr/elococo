@@ -8,22 +8,25 @@
 {% endblock %}
 
 {% block base_container %}
-    <section>
+    <section class="order">
         <h2>Commande #{{ ordered.order_number }}</h2>
         <section>
             <h3>Récapitulatif de cette commande</h3>
             {% include "sale/ordered_recap.html" with ordered=ordered %}
         </section>
-    </section>
-    <section>
-        {% include "sale/ordered_informations.html" with ordered=ordered %}
-    </section>
-    {% if public_api_key %}
+
         <section>
-            <h2>Formulaire de paiement</h2>
-            <input type="button" id="checkout-button" value="Payer {{ amount }} EUR"/>
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
         </section>
-    {% endif %}
+        {% if public_api_key %}
+            <section class="order_form">
+                <h2>Formulaire de paiement</h2>
+                <div class="form_fill_3">
+                    <button type="button" id="checkout-button">Payer {{ amount }} EUR</button>
+                </div>
+            </section>
+        {% endif %}
+    </section>
 {% endblock %}
 
 {% block body_js %}
