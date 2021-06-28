@@ -6,13 +6,15 @@ from django.urls import reverse
 
 
 def template_base_processor(request):
+    basket = request.session.get(settings.BASKET_SESSION_KEY, {})
+
     my_dict = {
         'website_title': settings.WEBSITE_TITLE,
         'random_footer_logo': f'images/logo_{random.randint(2, 3)}.png',
         'url_get_basket': reverse("catalogue_basket"),
         'url_get_booking': reverse("sale:booking"),
         'url_get_promo': reverse("catalogue_basket_promo"),
-        'basket_len': len(request.session.get(settings.BASKET_SESSION_KEY, {})),
+        'basket_len': sum((data["quantity"] for data in basket.values())),
         'url_my_ordered': None, 'url_my_ordered_fill_next': None, 'url_my_ordered_detail': None,
         "tva": settings.TVA_PERCENT,
     }

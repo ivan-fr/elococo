@@ -21,14 +21,15 @@
     {% include "elococo/navbar.html" %}
 
     <main class="gridded">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
         <div class="main">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="flash-message">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
             {% block base_container %}
             {% endblock %}
         </div>

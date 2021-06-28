@@ -34,7 +34,7 @@ body
         @include radius(0)
         background-color: white
 
-    input[type=text], input[type=submit], button[type=submit]
+    input[type=text], input[type=submit], button[type=submit], input[type=email]
       font-size: 16px
       @include p-(2)
       width: calc(100% - 1em - 2px)
@@ -151,6 +151,16 @@ body
   main.gridded
     @include grid(24)
 
+    & > .flash-message
+      @include start(2)
+      @include span-e(12)
+      @include p-(3)
+      @include my-(3)
+      background: radial-gradient(circle, rgba(255, 255, 255, 1) 89%, rgba(255, 238, 229, 1) 100%)
+
+      @media #{$medium-down}
+        @include grid-centered-column(24)
+
     & > .main
       width: 100%
       @include grid-centered-column(24)
@@ -160,8 +170,27 @@ body
       .order
         @include grid(2)
 
+        .order_form
+          background: radial-gradient(circle, rgba(255, 255, 255, 1) 89%, rgba(255, 238, 229, 1) 100%)
+
+          h2
+            text-align: center
+
+          .form_fill_1
+            display: grid
+            @include gap-(3)
+            @include p-(3)
+
+        & > h2
+          word-break: break-word
+
         & > *:nth-child(-n+2)
           @include span(2)
+          width: 100%
+
+        @media #{$medium-down}
+          & > *:not(:nth-child(-n+2))
+            @include span(2)
 
       #detail
         @include grid(12)
@@ -437,13 +466,13 @@ body
       &:first-child
         @include start(1)
         @include end(2)
-        @media #{$medium-down}
+        @media #{$x-large-down}
           @include span(4)
 
         & > li
           @include span(1)
 
-          @media #{$medium-down}
+          @media #{$x-large-down}
             @include span(4)
 
           &:first-child
@@ -451,8 +480,8 @@ body
             align-items: center
             @include span(2)
 
-            @media #{$medium-down}
-              @include span(4)
+            @media #{$x-large-down}
+              @include span(6)
 
             & > img
               width: 100%
@@ -467,8 +496,8 @@ body
               text-align: center
               width: 100%
 
-            @media #{$medium-down}
-              @include span(2)
+            @media #{$x-large-down}
+              @include span(3)
 
           &:not(:first-child):hover > a
             background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
@@ -476,20 +505,21 @@ body
       &:last-child
         justify-items: center
         @include span(2)
-        @media #{$medium-down}
+        @media #{$x-large-down}
           @include span(4)
 
         & > li
           @include span(2)
 
-          @media #{$medium-down}
-            @include span(4)
+          @media #{$x-large-down}
+            @include span(6)
 
           & > a
             color: black
-            @include p-(2)
+            @include py-(2)
             @include radius(2)
             display: inline-block
+            text-align: center
 
           &:hover > a
             background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)

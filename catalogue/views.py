@@ -1,6 +1,7 @@
 from operator import methodcaller
 
 from django.conf import settings
+from django.contrib import messages
 from django.http import JsonResponse, Http404, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
@@ -36,10 +37,12 @@ def update_basket_session(session, form, set_quantity=False):
         return
 
     if session.get(settings.BASKET_SESSION_KEY, None) is None:
-        session[settings.BASKET_SESSION_KEY] = {product.slug: {
-            "product_name": product.name,
-            "quantity": form.cleaned_data["quantity"]
-        }}
+        session[settings.BASKET_SESSION_KEY] = {
+            product.slug: {
+                "product_name": product.name,
+                "quantity": form.cleaned_data["quantity"]
+            }
+        }
     else:
         if session[settings.BASKET_SESSION_KEY].get(product.slug, None) is not None:
             session[settings.BASKET_SESSION_KEY][product.slug]["quantity"] = \
@@ -370,8 +373,11 @@ class ProductDetailView(FormMixin, DetailView):
         return kwargs
 
     def form_valid(self, form):
-        session = self.request.session
-        update_basket_session(session, form)
+        update_basket_session(self.request.session, form)
+        messages.success(
+            self.request,
+            "Article correctement ajouté dans votre panier."
+        )
         return super(ProductDetailView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):

@@ -11,9 +11,9 @@
             {% include "sale/ordered_informations.html" with ordered=ordered %}
         </section>
         {% if ordered.ordered_is_enable %}
-            <section>
+            <section class="order_form">
                 <h2>Formulaire d'informations générales</h2>
-                <form action="{% url 'sale:fill' ordered.pk %}" method="post">
+                <form action="{% url 'sale:fill' ordered.pk %}" method="post" class="form_fill_1">
                     {% csrf_token %}
                     <div>
                         {{ form.email.errors }}

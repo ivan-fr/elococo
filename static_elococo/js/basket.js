@@ -107,6 +107,8 @@ function onload_book() {
                 document.getElementById("book_form").querySelector("form").addEventListener("submit", post_book)
             } else if (data.hasOwnProperty("redirect")) {
                 window.location.href = data["redirect"]
+            } else {
+                window.location.reload()
             }
         } else {
             alert('Il y a eu un problème avec la requête.')

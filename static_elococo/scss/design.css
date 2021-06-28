@@ -219,7 +219,7 @@ body form select option {
   border-radius: 0em;
   background-color: white;
 }
-body form input[type=text], body form input[type=submit], body form button[type=submit] {
+body form input[type=text], body form input[type=submit], body form button[type=submit], body form input[type=email] {
   font-size: 16px;
   padding: 0.5em;
   width: calc(100% - 1em - 2px);
@@ -348,6 +348,20 @@ body main.gridded {
   grid-auto-rows: auto;
   box-sizing: border-box;
 }
+body main.gridded > .flash-message {
+  grid-column-start: 2;
+  grid-column-end: span 12;
+  padding: 0.75em;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  background: radial-gradient(circle, white 89%, #ffeee5 100%);
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .flash-message {
+    grid-column-start: 2;
+    grid-column-end: 24;
+  }
+}
 body main.gridded > .main {
   width: 100%;
   grid-column-start: 2;
@@ -361,8 +375,28 @@ body main.gridded > .main .order {
   grid-auto-rows: auto;
   box-sizing: border-box;
 }
+body main.gridded > .main .order .order_form {
+  background: radial-gradient(circle, white 89%, #ffeee5 100%);
+}
+body main.gridded > .main .order .order_form h2 {
+  text-align: center;
+}
+body main.gridded > .main .order .order_form .form_fill_1 {
+  display: grid;
+  grid-gap: 1.5em;
+  padding: 0.75em;
+}
+body main.gridded > .main .order > h2 {
+  word-break: break-word;
+}
 body main.gridded > .main .order > *:nth-child(-n+2) {
   grid-column: span 2;
+  width: 100%;
+}
+@media only screen and (max-width: 768px) {
+  body main.gridded > .main .order > *:not(:nth-child(-n+2)) {
+    grid-column: span 2;
+  }
 }
 body main.gridded > .main #detail {
   display: grid;
@@ -687,7 +721,7 @@ body .navbar > ul:first-child {
   grid-column-start: 1;
   grid-column-end: 3;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:first-child {
     grid-column: span 4;
   }
@@ -695,7 +729,7 @@ body .navbar > ul:first-child {
 body .navbar > ul:first-child > li {
   grid-column: span 1;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:first-child > li {
     grid-column: span 4;
   }
@@ -705,9 +739,9 @@ body .navbar > ul:first-child > li:first-child {
   align-items: center;
   grid-column: span 2;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:first-child > li:first-child {
-    grid-column: span 4;
+    grid-column: span 6;
   }
 }
 body .navbar > ul:first-child > li:first-child > img {
@@ -723,9 +757,9 @@ body .navbar > ul:first-child > li:not(:first-child) a {
   text-align: center;
   width: 100%;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:first-child > li:not(:first-child) {
-    grid-column: span 2;
+    grid-column: span 3;
   }
 }
 body .navbar > ul:first-child > li:not(:first-child):hover > a {
@@ -735,7 +769,7 @@ body .navbar > ul:last-child {
   justify-items: center;
   grid-column: span 2;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child {
     grid-column: span 4;
   }
@@ -743,16 +777,18 @@ body .navbar > ul:last-child {
 body .navbar > ul:last-child > li {
   grid-column: span 2;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child > li {
-    grid-column: span 4;
+    grid-column: span 6;
   }
 }
 body .navbar > ul:last-child > li > a {
   color: black;
-  padding: 0.5em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
   border-radius: 0.5em;
   display: inline-block;
+  text-align: center;
 }
 body .navbar > ul:last-child > li:hover > a {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
