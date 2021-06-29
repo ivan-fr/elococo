@@ -350,6 +350,14 @@ body .wrapper {
 }
 body .wrapper #main_logo + footer {
   position: static;
+  background: url("../images/top.png");
+  height: 59px;
+}
+body .wrapper .navbar + footer {
+  position: static;
+  background: url("../images/top2.png");
+  margin-bottom: 2em;
+  height: 58px;
 }
 body .wrapper footer {
   position: absolute;
@@ -753,10 +761,9 @@ body .navbar {
   grid-auto-rows: auto;
   box-sizing: border-box;
   grid-gap: 1em;
-  margin-bottom: 2.5em;
-  background: linear-gradient(180deg, #ffcf95 80%, #ffeee5 100%);
-  padding-bottom: 2.25em;
-  padding-top: 0em;
+  background: #ffcf95;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
 }
 body .navbar a {
   text-decoration: none;
@@ -819,6 +826,7 @@ body .navbar > ul:first-child > li:hover > a {
 body .navbar > ul:last-child {
   justify-items: center;
   grid-column: span 2;
+  direction: rtl;
 }
 @media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child {

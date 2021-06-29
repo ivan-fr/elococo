@@ -44,8 +44,8 @@
         {% endif %}
         {% if not index_nav %}
             <li id="navbar-basket">
-                <a href="{% url "catalogue_basket" %}"><i class="bi-basket-fill"></i>
-                    Mon Panier <span id="">{{ basket_len }}</span>
+                <a href="{% url "catalogue_basket" %}">
+                    Panier <span id="">{{ basket_len }}</span>
                 </a>
             </li>
         {% endif %}

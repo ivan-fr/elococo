@@ -155,6 +155,14 @@ body
 
     #main_logo + footer
       position: static
+      background: url("../images/top.png")
+      height: 59px
+
+    .navbar + footer
+      position: static
+      background: url("../images/top2.png")
+      @include mb-(8)
+      height: 58px
 
     footer
       position: absolute
@@ -493,10 +501,8 @@ body
     color: white
     @include grid(4)
     @include gap-(2)
-    @include mb-(10)
-    background: linear-gradient(180deg, #ffcf95 80%, #ffeee5 100%)
-    @include pb-(9)
-    @include pt-(0)
+    background: #ffcf95
+    @include py-(2)
 
     a
       text-decoration: none
@@ -549,6 +555,8 @@ body
       &:last-child
         justify-items: center
         @include span(2)
+        direction: rtl
+
         @media #{$x-large-down}
           @include span(4)
 

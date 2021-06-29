@@ -1,12 +1,13 @@
 @import "grid"
 
 body
+  video
+    display: block
+
   .wrapper
-    @include pb-(5)
+    @include pb-(0)
 
   .navbar
+    @include pb-(3)
     @include mb-(0)
     background: #ffcf95
-
-    & > ul:last-child
-      direction: rtl
