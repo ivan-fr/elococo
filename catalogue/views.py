@@ -240,8 +240,13 @@ class IndexView(ListView):
     def get_queryset(self):
         queryset = self.model.objects.prefetch_related(
             'box', "productimage_set"
-        ).filter(enable_sale=True).annotate(**annotate_effective_stock())
-        queryset = queryset.filter(effective_stock__gt=0)
+        ).filter(
+            enable_sale=True
+        ).annotate(
+            **annotate_effective_stock()
+        ).filter(
+            effective_stock__gt=0
+        )
         category_slug = self.kwargs.get('slug_category', None)
 
         if self.request.is_ajax():
@@ -344,12 +349,9 @@ class ProductDetailView(FormMixin, DetailView):
             'box', 'box__elements', 'categories', "productimage_set", "box__elements__productimage_set"
         ).annotate(
             **annotate_effective_stock()
-        )
-        self.queryset = self.queryset.annotate(
+        ).annotate(
             **price_annotation_format(basket)
-        )
-
-        self.queryset = self.queryset.annotate(
+        ).annotate(
             **get_quantity_from_basket_box(basket)
         ).annotate(
             **get_stock_with_basket()
@@ -358,13 +360,6 @@ class ProductDetailView(FormMixin, DetailView):
 
     def get_success_url(self):
         return reverse("catalogue_product_detail", kwargs={"slug_product": self.object.slug})
-
-    def get_initial(self):
-        initial = super(ProductDetailView, self).get_initial()
-        initial.update({
-            "product_slug": self.object.slug
-        })
-        return initial
 
     def get_form_kwargs(self):
         kwargs = super(ProductDetailView, self).get_form_kwargs()
