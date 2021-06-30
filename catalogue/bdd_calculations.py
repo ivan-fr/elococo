@@ -226,6 +226,11 @@ def total_price_from_all_product(promo=None):
                 "price_exact_ht_with_quantity_promo__sum": ht_promo,
                 "price_exact_ttc_with_quantity_promo__sum": ht_promo * settings.TVA,
             })
+    else:
+        dict_.update({
+            "price_exact_ht_with_quantity_promo__sum": None,
+            "price_exact_ttc_with_quantity_promo__sum": None,
+        })
 
     return dict_
 

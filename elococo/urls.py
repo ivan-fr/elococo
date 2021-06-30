@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
+from catalogue.urls import router as catalogue_router
+
 
 def trigger_error(request):
     division_by_zero = 1 / 0
@@ -30,6 +32,7 @@ urlpatterns = [
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),
+    path('api/', include(catalogue_router.urls)),
 ]
 
 if settings.DEBUG:
