@@ -119,6 +119,8 @@ class BasketView(FormSetMixin, ListView):
             **post_effective_basket_quantity(), **get_stock_with_basket()
         ).annotate(
             **post_price_annotation_format()
+        ).filter(
+            post_effective_basket_quantity__gte=0
         )
 
         return super(BasketView, self).get_queryset()
@@ -140,11 +142,7 @@ class BasketView(FormSetMixin, ListView):
 
         for product in self.object_list:
             if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
-                if product.post_effective_basket_quantity <= 0:
-                    del basket[product.slug]
-                    product_to_delete.add(product.slug)
-                else:
-                    basket[product.slug]["quantity"] = product.post_effective_basket_quantity
+                basket[product.slug]["quantity"] = product.post_effective_basket_quantity
                 self.request.session.modified = True
 
         self.object_list = filter(

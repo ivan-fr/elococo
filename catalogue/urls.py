@@ -1,12 +1,7 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
 
 import catalogue.views
-from catalogue.api_views import ShopViewSet
 
-router = DefaultRouter()
-router.register(r'shop', ShopViewSet, basename='shop')
-router.register(r'basket', ShopViewSet, basename='basket')
 
 urlpatterns = [
     path('', catalogue.views.IndexView.as_view(), name='catalogue_index'),
