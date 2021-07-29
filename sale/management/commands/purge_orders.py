@@ -13,9 +13,7 @@ class Command(BaseCommand):
         if not settings.DEBUG:
             return
 
-        orders = Ordered.objects.prefetch_related("from_ordered", "from_ordered__to_product",
-                                                  "from_ordered__to_product__box",
-                                                  "from_ordered__to_product__elements").all()
+        orders = Ordered.objects.prefetch_related("from_ordered", "from_ordered__to_product").all()
 
         count = orders.count()
         self.stdout.write(self.style.WARNING(
@@ -25,18 +23,13 @@ class Command(BaseCommand):
         with transaction.atomic():
             products = set()
             for order in orders:
-                if not order.payment_status:
+                if order.payment_status:
                     continue
 
                 for ordered_product in order.from_ordered.all():
                     product = ordered_product.to_product
-                    if product.box is not None:
-                        for box in product.box.all():
-                            box.elements.stock += box.quantity * ordered_product.quantity
-                            products.add(box.elements)
-                    else:
-                        product.stock += ordered_product.quantity
-                        products.add(product)
+                    product.stock += ordered_product.quantity
+                    products.add(product)
             Product.objects.bulk_update(list(products), ("stock",))
             orders.delete()
 

@@ -13,9 +13,7 @@ class Command(BaseCommand):
             **default_ordered_annotation_format()
         ).filter(
             ordered_is_ready_to_delete=True
-        ).prefetch_related("from_ordered", "from_ordered__to_product",
-                           "from_ordered__to_product__box",
-                           "from_ordered__to_product__elements")
+        ).prefetch_related("from_ordered", "from_ordered__to_product")
 
         count = orders.count()
         self.stdout.write(self.style.WARNING(
