@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import decimal
 import json
 from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -208,3 +208,7 @@ TVA = Decimal(120) * BACK_TWO_PLACES
 
 CSRF_COOKIE_SECURE = True
 STRIPE_WEBHOOK = secrets["stripe"]["webhook"]
+
+DELIVERY_ORDINARY = Decimal(5.99)
+DELIVERY_SPEED = Decimal(7.99)
+DELIVERY_FREE_GT = Decimal(35)

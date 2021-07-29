@@ -542,7 +542,7 @@ class BookingBasketView(BaseFormView):
 
                 ordered_product = []
                 for product in self.product_list:
-                    if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
+                    if product.effective_basket_quantity != basket[product.slug]["quantity"]:
                         raise ValueError()
 
                     ordered_product.append(
@@ -565,7 +565,7 @@ class BookingBasketView(BaseFormView):
                                 product.price_exact_ttc_with_quantity.quantize(settings.BACK_TWO_PLACES) *
                                 Decimal(100.)
                             ),
-                            quantity=product.post_effective_basket_quantity
+                            quantity=product.effective_basket_quantity
                         )
                     )
 

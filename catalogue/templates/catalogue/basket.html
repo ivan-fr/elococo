@@ -126,6 +126,11 @@
                 </table>
             </div>
             <div id="submit_basket"></div>
+            {% if delivery_free_gt <= aggregate.price_exact_ttc_with_quantity__sum %}
+                <p>La livraison est offerte.</p>
+            {% else %}
+                <p>Un tarif de livraison sera à prendre en compte.</p>
+            {% endif %}
         </form>
         <div id="promo_form"></div>
         <div id="book_form"></div>
