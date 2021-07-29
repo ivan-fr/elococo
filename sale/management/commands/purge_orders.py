@@ -23,7 +23,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             products = set()
             for order in orders:
-                if order.payment_status:
+                if not order.payment_status:
                     continue
 
                 for ordered_product in order.from_ordered.all():
