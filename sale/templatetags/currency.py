@@ -3,6 +3,8 @@ from decimal import Decimal
 from django import template
 from django.conf import settings
 
+from sale import get_amount
+
 register = template.Library()
 
 
@@ -18,4 +20,4 @@ def to_currency(value):
 
 @register.simple_tag
 def price_with_delivery(order):
-    r
+    return "{:.2f}".format(get_amount(order) * settings.BACK_TWO_PLACES)
