@@ -19,8 +19,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 
-from catalogue.bdd_calculations import price_annotation_format, total_price_from_all_product, annotate_effective_stock, \
-    get_quantity_from_basket_box, get_stock_with_basket, post_price_annotation_format, post_effective_basket_quantity
+from catalogue.bdd_calculations import (
+    price_annotation_format, total_price_from_all_product, stock_sold, post_price_annotation_format
+)
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
@@ -62,8 +63,7 @@ def capture_order(session):
         order = Ordered.objects.filter(
             pk=ordered_uuid
         ).prefetch_related(
-            "from_ordered", "from_ordered__to_product",
-            "from_ordered__to_product__box", "from_ordered__to_product__box__elements"
+            "from_ordered", "from_ordered__to_product"
         ).get()
     except Ordered.DoesNotExist:
         stripe.PaymentIntent.cancel(session["id"])
@@ -73,18 +73,10 @@ def capture_order(session):
         products = set()
         for ordered_product in order.from_ordered.all():
             product = ordered_product.to_product
-            if product.box is not None:
-                for box in product.box.all():
-                    box.elements.stock -= box.quantity * ordered_product.quantity
-                    if box.elements.stock < 0:
-                        raise ValueError()
-                    products.add(box.elements)
-            else:
-                product.stock -= ordered_product.quantity
-                if product.stock < 0:
-                    raise ValueError()
-                products.add(product)
-
+            product.stock -= ordered_product.quantity
+            if product.stock < 0:
+                raise ValueError()
+            products.add(product)
         with transaction.atomic():
             Product.objects.bulk_update(list(products), ("stock",))
             stripe.PaymentIntent.capture(session["id"])
@@ -464,21 +456,14 @@ class BookingBasketView(BaseFormView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         if bool(basket):
-            queryset = Product.objects.prefetch_related(
-                'box', 'box__elements'
-            ).filter(enable_sale=True)
-            queryset = queryset.annotate(
-                **annotate_effective_stock()
-            ).filter(effective_stock__gt=0)
-            queryset = queryset.filter(slug__in=tuple(basket.keys()))
-            queryset = queryset.annotate(
-                **price_annotation_format(basket)
-            ).annotate(
-                **get_quantity_from_basket_box(basket)
-            ).annotate(
-                **get_stock_with_basket(), **post_effective_basket_quantity()
+            queryset = Product.enable_objects.annotate(
+                **stock_sold()
             ).filter(
-                post_effective_basket_quantity__gt=0
+                stock__gt=0
+            ).filter(
+                slug__in=tuple(basket.keys())
+            ).annotate(
+                **price_annotation_format(basket)
             ).annotate(
                 **post_price_annotation_format()
             )

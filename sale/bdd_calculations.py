@@ -3,12 +3,15 @@ from abc import ABC
 from decimal import Decimal
 
 from django.conf import settings
-from django.db.models import Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Subquery, \
+from django.db.models import (
+    Case, When, Q, F, ExpressionWrapper, DateTimeField, OuterRef, Sum, Subquery,
     IntegerField, FloatField
+)
 from django.db.models.functions import Now
 
-from catalogue.bdd_calculations import total_price_per_product_from_basket, post_effective_basket_quantity, \
-    get_quantity_from_basket_box, price_annotation_format, annotate_effective_stock
+from catalogue.bdd_calculations import (
+    total_price_per_product_from_basket, price_annotation_format, stock_sold
+)
 from catalogue.models import Product
 from sale.models import Promo, Ordered
 
@@ -25,13 +28,9 @@ def get_promo(basket, code):
     aggregate = Product.objects.filter(
         slug__in=tuple(basket.keys())
     ).annotate(
-        **annotate_effective_stock()
+        **stock_sold()
     ).annotate(
         **price_annotation_format(basket)
-    ).annotate(
-        **get_quantity_from_basket_box(basket)
-    ).annotate(
-        **post_effective_basket_quantity()
     ).annotate(
         price_exact_ht_with_quantity=total_price_per_product_from_basket(
             "price_exact_ht"
@@ -88,6 +87,9 @@ def ordered_is_enable(delete=False):
 
 
 def default_ordered_annotation_format():
-    my_dict = {"ordered_is_enable": ordered_is_enable(), "effective_end_time_payment": effective_end_time_payment(),
-               "ordered_is_ready_to_delete": ordered_is_enable(delete=True)}
+    my_dict = {
+        "ordered_is_enable": ordered_is_enable(),
+        "effective_end_time_payment": effective_end_time_payment(),
+        "ordered_is_ready_to_delete": ordered_is_enable(delete=True)
+    }
     return my_dict

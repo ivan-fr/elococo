@@ -1,5 +1,6 @@
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
+
 from sale.forms import PromoForm
 from sale.models import Ordered, Promo
 

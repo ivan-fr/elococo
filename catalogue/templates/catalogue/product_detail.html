@@ -26,16 +26,6 @@
 
         {% if product.enable_sale %}
             <section class="sale_infos">
-                {% if product.box.all|length > 0 %}
-                    <h3>Compositions</h3>
-                    <ul>
-                        {% for pTp in product.box.all %}
-                            <li>
-                                <a href="{% url 'catalogue_product_detail' pTp.elements.slug %}">{{ pTp.quantity }}X {{ pTp.elements.name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
                 <h3>Informations de vente</h3>
                 <div>
                     <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }} € TTC</strong>.
@@ -102,7 +92,7 @@
         let images_products = document.querySelector("body main.gridded > .main #detail .images");
         let figures = images_products.querySelectorAll(":scope figure");
 
-        function treatment_image(figure) {
+        function image_treatment(figure) {
             let figure_clone = figure.cloneNode(true);
             figure_clone.style.maxHeight = "40em"
             image_product.innerHTML = "";
@@ -110,13 +100,13 @@
         }
 
         function handle_image_product(event) {
-            treatment_image(event.currentTarget);
+            image_treatment(event.currentTarget);
         }
 
         function initListener() {
             try {
                 let first_figure = figures[0];
-                treatment_image(first_figure);
+                image_treatment(first_figure);
             } catch (e) {
                 return false;
             }

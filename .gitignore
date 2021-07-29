@@ -3,7 +3,6 @@
 .idea/
 static/scss
 elococo/secrets.json
-static_elococo/bootstrap
 migrations/
 uploads/
 # Byte-compiled / optimized / DLL files

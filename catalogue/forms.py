@@ -37,10 +37,13 @@ class ProductFormSet(BaseFormSet):
 
 class AddToBasketForm(forms.Form):
     choices = tuple(range(1, settings.BASKET_MAX_QUANTITY_PER_FORM + 1))
-    quantity = forms.ChoiceField(choices=((i, i) for i in choices),
-                                 help_text="Choisir une quantité.",
-                                 label="Quantité",
-                                 widget=forms.Select(attrs={"class": "form-select"}))
+    quantity = forms.TypedChoiceField(
+        choices=((i, i) for i in choices),
+        coerce=int,
+        help_text="Choisir une quantité.",
+        label="Quantité",
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
 
     def __init__(self, *args, **kwargs):
         self.session = kwargs.pop('session', None)
@@ -51,7 +54,7 @@ class AddToBasketForm(forms.Form):
             self.choices = range(
                 1,
                 min(
-                    self.product_instance.post_effective_stock_with_basket,
+                    self.product_instance.stock,
                     settings.BASKET_MAX_QUANTITY_PER_FORM
                 ) + 1
             )
@@ -91,7 +94,9 @@ class UpdateBasketForm(AddToBasketForm):
         if self.cleaned_data["quantity"] > max(self.choices):
             self.add_error(
                 "quantity", forms.ValidationError(
-                    f"""Vous depassez la limite autorisé avec cette quantité ({self.cleaned_data['quantity']}) demandé."""
+                    f"""
+                    Vous depassez la limite autorisé avec cette quantité ({self.cleaned_data['quantity']}) demandé.
+                    """
                 )
             )
 

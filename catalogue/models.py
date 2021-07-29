@@ -4,7 +4,7 @@ import time
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -24,8 +24,17 @@ class Category(MP_Node):
     def __str__(self):
         return '%s' % self.category
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.category)
+        super(Category, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = "categories"
+
+
+class EnableProductManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(enable_sale=True)
 
 
 class Product(models.Model):
@@ -38,13 +47,6 @@ class Product(models.Model):
     reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
     reduction_end = models.DateField(null=True, blank=True)
     stock = models.PositiveSmallIntegerField(default=0)
-    subproducts = models.ManyToManyField(
-        "self",
-        through='catalogue.ProductToProduct',
-        through_fields=(
-            'box', 'elements'
-        )
-    )
 
     date = models.DateField(auto_now_add=True)
     dateUpdate = models.DateField(auto_now=True)
@@ -52,8 +54,15 @@ class Product(models.Model):
     enable_comment = models.BooleanField(default=False)
     enable_sale = models.BooleanField(default=False)
 
+    objects = models.Manager()
+    enable_objects = EnableProductManager()
+
     def compute_basket_oder(self, basket_enum):
         return basket_enum[self.slug]
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Product, self).save(*args, **kwargs)
 
     class Meta:
         ordering = ('-date', '-dateUpdate')
@@ -85,13 +94,3 @@ class Comment(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     text = models.TextField(blank=False, null=False)
     date = models.DateField(auto_now_add=True)
-
-
-class ProductToProduct(models.Model):
-    box = models.ForeignKey(Product,
-                            on_delete=models.CASCADE,
-                            related_name='box')
-    elements = models.ForeignKey(Product,
-                                 on_delete=models.CASCADE,
-                                 related_name="elements")
-    quantity = models.PositiveSmallIntegerField(validators=(MinValueValidator(1),), default=1)

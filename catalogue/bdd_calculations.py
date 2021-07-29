@@ -7,14 +7,14 @@ from django.db.models import FloatField
 from django.db.models import Max, Min
 from django.db.models import PositiveIntegerField
 from django.db.models.functions import Cast
-from django.db.models.functions import Ceil, Least, Floor, Greatest
+from django.db.models.functions import Ceil, Least
 from django.utils.timezone import now
 
-from catalogue.models import Category, Product, ProductToProduct
+from catalogue.models import Category, Product
 from sale.models import OrderedProduct
 
 
-def reduction_from_bdd():
+def effective_reduction():
     return Case(
         When(reduction_end__gte=now().today(), then=F('reduction')),
         default=Value(0)
@@ -25,7 +25,7 @@ def price_exact(with_reduction=True):
     decimal_price = F('price')
     if with_reduction:
         reduction_percentage = Decimal(
-            1.) - reduction_from_bdd() * settings.BACK_TWO_PLACES
+            1.) - effective_reduction() * settings.BACK_TWO_PLACES
         return Ceil(decimal_price * reduction_percentage) * settings.BACK_TWO_PLACES
     return decimal_price * settings.BACK_TWO_PLACES
 
@@ -51,7 +51,7 @@ def effective_quantity(data):
     return Least(
         data["quantity"],
         settings.BASKET_MAX_QUANTITY_PER_FORM,
-        F("effective_stock"),
+        F("stock"),
         output_field=PositiveIntegerField()
     )
 
@@ -69,100 +69,8 @@ def effective_quantity_per_product_from_basket(basket):
     )
 
 
-def get_quantity_from_basket_box(basket):
-    whens = (
-        When(
-            pk=slug, then=F("intermediate_quantity") * effective_quantity(data)
-        ) for slug, data in basket.items()
-    )
-
-    cases = Case(*whens, default=Value(0))
-
-    return {
-        "quantity_from_basket_box": Case(
-            When(
-                Exists(
-                    Product.objects.filter(
-                        slug__in=basket.keys(), box__elements=OuterRef("pk")
-                    )
-                ),
-                then=SQSum(
-                    Product.objects.filter(
-                        slug__in=basket.keys(), box__elements=OuterRef("pk")
-                    ).annotate(
-                        intermediate_quantity=Subquery(
-                            ProductToProduct.objects.filter(
-                                box__pk=OuterRef("pk"),
-                                elements__pk=OuterRef(OuterRef("pk"))
-                            ).values("quantity")
-                        ),
-                        effective_stock=effective_stock()
-                    ).annotate(
-                        total_intermediate_quantity=cases
-                    ).values("total_intermediate_quantity"),
-                    "total_intermediate_quantity"
-                )
-            ),
-            default=Value(0),
-            output_field=PositiveIntegerField()
-        )
-    }
-
-
-def get_stock_with_basket():
-    return {
-        "post_effective_stock_with_basket": Greatest(
-            F("effective_stock") - F("quantity_from_basket_box"), 0
-        )
-    }
-
-
-def post_effective_basket_quantity():
-    return {
-        "post_effective_basket_quantity": Case(
-            When(
-                effective_stock__gte=F("quantity_from_basket_box") + F("effective_basket_quantity"),
-                then=F("effective_basket_quantity")
-            ), default=F("effective_stock") - F("quantity_from_basket_box") - F("effective_basket_quantity"),
-            output_field=PositiveIntegerField()
-        )
-    }
-
-
 def total_price_per_product_from_basket(f):
-    return F(f) * F("post_effective_basket_quantity")
-
-
-def effective_stock():
-    return Case(
-        When(
-            Exists(
-                Product.objects.filter(
-                    elements__box__pk=OuterRef("pk")
-                )
-            ),
-            then=SQMin(
-                Product.objects.filter(
-                    elements__box__pk=OuterRef("pk")
-                ).annotate(
-                    intermediate_quantity=Subquery(
-                        ProductToProduct.objects.filter(
-                            box__pk=OuterRef(OuterRef("pk")),
-                            elements__pk=OuterRef("pk")
-                        ).values("quantity")
-                    )
-                ).annotate(
-                    stock_for_box=Floor(
-                        F("stock") / F("intermediate_quantity"),
-                        output_field=PositiveIntegerField()
-                    )
-                ).values("stock_for_box"),
-                "stock_for_box"
-            )
-        ),
-        default=F("stock"),
-        output_field=PositiveIntegerField()
-    )
+    return F(f) * F("effective_basket_quantity")
 
 
 def stock_details(sold=False):
@@ -175,9 +83,8 @@ def stock_details(sold=False):
     )
 
 
-def annotate_effective_stock():
+def stock_sold():
     return {
-        "effective_stock": effective_stock(),
         "stock_sold": stock_details(True),
     }
 
@@ -189,7 +96,7 @@ def price_annotation_format(basket=None):
         "price_exact_ttc": price_exact_ttc_,
         "price_exact_ht": price_exact_ht_,
         "price_base_ttc": price_exact_ttc(with_reduction=False),
-        "effective_reduction": reduction_from_bdd()
+        "effective_reduction": effective_reduction()
     }
 
     if basket is not None and bool(basket):
@@ -200,8 +107,10 @@ def price_annotation_format(basket=None):
 
 
 def post_price_annotation_format():
-    my_dict = {"price_exact_ttc_with_quantity": total_price_per_product_from_basket("price_exact_ttc"),
-               "price_exact_ht_with_quantity": total_price_per_product_from_basket("price_exact_ht")}
+    my_dict = {
+        "price_exact_ttc_with_quantity": total_price_per_product_from_basket("price_exact_ttc"),
+        "price_exact_ht_with_quantity": total_price_per_product_from_basket("price_exact_ht")
+    }
     return my_dict
 
 
@@ -256,13 +165,11 @@ def get_descendants_products(with_products=True, include_self=False, **filters):
     else:
         d3 = {"categories__depth__gt": OuterRef("depth")}
 
-    qs = Product.objects.all().annotate(
-        **annotate_effective_stock()
-    )
+    qs = Product.objects.all()
 
     if with_products:
         qs = qs.filter(
-            effective_stock__gt=0, enable_sale=True
+            stock__gt=0, enable_sale=True
         )
 
     qs = qs.filter(

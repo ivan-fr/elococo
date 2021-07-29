@@ -12,8 +12,8 @@ from django.views.generic.edit import FormMixin, FormView
 from catalogue.bdd_calculations import (
     price_annotation_format, filled_category, get_related_products,
     total_price_from_all_product,
-    data_from_all_product, cast_annotate_to_float, annotate_effective_stock, post_price_annotation_format,
-    get_quantity_from_basket_box, post_effective_basket_quantity, get_stock_with_basket)
+    data_from_all_product, cast_annotate_to_float, stock_sold, post_price_annotation_format
+)
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product, Category
 from elococo.generic import FormSetMixin
@@ -103,24 +103,14 @@ class BasketView(FormSetMixin, ListView):
     def get_queryset(self):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        self.queryset = self.model.objects.filter(
-            enable_sale=True
-        ).annotate(
-            **annotate_effective_stock()
-        ).filter(
-            effective_stock__gt=0
+        self.queryset = self.model.enable_objects.annotate(
+            **stock_sold()
         ).filter(
             slug__in=tuple(basket.keys())
         ).annotate(
             **price_annotation_format(basket)
         ).annotate(
-            **get_quantity_from_basket_box(basket)
-        ).annotate(
-            **post_effective_basket_quantity(), **get_stock_with_basket()
-        ).annotate(
             **post_price_annotation_format()
-        ).filter(
-            post_effective_basket_quantity__gte=0
         )
 
         return super(BasketView, self).get_queryset()
@@ -141,17 +131,19 @@ class BasketView(FormSetMixin, ListView):
             self.request.session.modified = True
 
         for product in self.object_list:
-            if product.post_effective_basket_quantity != basket[product.slug]["quantity"]:
-                basket[product.slug]["quantity"] = product.post_effective_basket_quantity
+            if product.effective_basket_quantity != basket[product.slug]["quantity"]:
+                basket[product.slug]["quantity"] = product.effective_basket_quantity
                 self.request.session.modified = True
 
         self.object_list = filter(
             lambda product_filter: product_filter.slug not in product_to_delete, self.object_list
         )
-        self.initial = [{"quantity": basket[product_slug]["quantity"], "remove": False}
-                        for product_slug in basket.keys()]
+        self.initial = [
+            {"quantity": basket[product_slug]["quantity"], "remove": False}
+            for product_slug in basket.keys()
+        ]
 
-        self.product_to_delete = product_to_delete
+        self.product_to_exclude = product_to_delete
 
         kwargs["max_num"] = len(basket)
 
@@ -184,7 +176,9 @@ class BasketView(FormSetMixin, ListView):
         if promo is None and self.request.session.get(settings.PROMO_SESSION_KEY, None) is not None:
             del self.request.session[settings.PROMO_SESSION_KEY]
 
-        aggregate = self.queryset.exclude(slug__in=self.product_to_delete).aggregate(
+        aggregate = self.queryset.exclude(
+            slug__in=self.product_to_exclude
+        ).aggregate(
             **total_price_from_all_product(promo=promo)
         )
 
@@ -236,14 +230,10 @@ class IndexView(ListView):
     extra_context = {}
 
     def get_queryset(self):
-        queryset = self.model.objects.prefetch_related(
-            'box', "productimage_set"
-        ).filter(
-            enable_sale=True
+        queryset = self.model.enable_objects.prefetch_related(
+            "productimage_set"
         ).annotate(
-            **annotate_effective_stock()
-        ).filter(
-            effective_stock__gt=0
+            **stock_sold()
         )
         category_slug = self.kwargs.get('slug_category', None)
 
@@ -343,16 +333,10 @@ class ProductDetailView(FormMixin, DetailView):
     def get_queryset(self):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        self.queryset = self.model.objects.prefetch_related(
-            'box', 'box__elements', 'categories', "productimage_set", "box__elements__productimage_set"
-        ).annotate(
-            **annotate_effective_stock()
+        self.queryset = self.model.enable_objects.prefetch_related(
+            'categories', "productimage_set"
         ).annotate(
             **price_annotation_format(basket)
-        ).annotate(
-            **get_quantity_from_basket_box(basket)
-        ).annotate(
-            **get_stock_with_basket()
         )
         return super(ProductDetailView, self).get_queryset()
 
@@ -374,16 +358,7 @@ class ProductDetailView(FormMixin, DetailView):
         return super(ProductDetailView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        if self.object.box is not None:
-            images = [self.object.productimage_set.all()[0]]
-            for pToP in self.object.box.all():
-                try:
-                    images.append(pToP.elements.productimage_set.all()[0])
-                except IndexError:
-                    continue
-        else:
-            images = self.object.productimage_set.all()
-
+        images = self.object.productimage_set.all()
         return super(ProductDetailView, self).get_context_data(object=self.object, images=images)
 
     def get(self, request, *args, **kwargs):

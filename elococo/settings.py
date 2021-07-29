@@ -19,7 +19,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
 
-DEBUG = secrets["debug"]
+DEBUG = True
 
 if not DEBUG:
     import sentry_sdk
@@ -180,7 +180,7 @@ stripe.api_key = secrets["stripe"]["private_key"]
 STRIPE_PUBLIC_KEY = secrets["stripe"]["public_key"]
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = secrets["EMAIL_HOST"]
 EMAIL_HOST_USER = secrets["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = secrets["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = 587
@@ -206,5 +206,5 @@ TVA_PERCENT = Decimal(20.)
 BACK_TWO_PLACES = Decimal(10) ** -2
 TVA = Decimal(120) * BACK_TWO_PLACES
 
-CSRF_COOKIE_SECURE = secrets["CSRF_COOKIE_SECURE"]
+CSRF_COOKIE_SECURE = True
 STRIPE_WEBHOOK = secrets["stripe"]["webhook"]

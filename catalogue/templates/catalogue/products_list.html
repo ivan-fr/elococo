@@ -17,11 +17,6 @@
                     <div class="info_price">
                         {{ product.price_exact_ttc|floatformat:2 }} € TTC
                     </div>
-                    {% if product.box.all|length > 0 %}
-                        <div class="info_compo">
-                            Compo !
-                        </div>
-                    {% endif %}
                     <figcaption>
                         {{ product.name|title }}
                     </figcaption>
