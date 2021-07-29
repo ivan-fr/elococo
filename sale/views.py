@@ -200,7 +200,8 @@ def get_object(self, queryset=None, extra_filter=None):
 
     try:
         obj = queryset.annotate(
-            **default_ordered_annotation_format()).prefetch_related("order_address").get()
+            **default_ordered_annotation_format()
+        ).prefetch_related("order_address").get()
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj

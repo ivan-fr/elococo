@@ -59,6 +59,7 @@ class DeliveryMode(forms.ModelForm):
             order.delivery_value = int(settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES) * Decimal(100.))
 
         order.save()
+        return order
 
 
 class OrderedInformation(forms.ModelForm):
@@ -94,6 +95,8 @@ class AddressForm(forms.ModelForm):
         address.order = self.order
         address.save()
 
+        return address
+
     class Meta:
         model = Address
         exclude = ("id",)
@@ -106,8 +109,10 @@ class OrderedForm(forms.Form):
 class PromoForm(forms.ModelForm):
     def clean_code(self):
         if not self.cleaned_data["code"]:
-            self.cleaned_data["code"] = ''.join(secrets.choice(string.ascii_lowercase + string.ascii_uppercase)
-                                                for i in range(settings.PROMO_SECRET_LENGTH))
+            self.cleaned_data["code"] = ''.join(
+                secrets.choice(string.ascii_lowercase + string.ascii_uppercase)
+                for i in range(settings.PROMO_SECRET_LENGTH)
+            )
         return self.cleaned_data["code"]
 
     class Meta:
