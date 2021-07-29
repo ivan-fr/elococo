@@ -195,7 +195,7 @@
   }
 }
 body {
-  font-family: natom-pro, sans-serif;
+  font-family: "Courier New", Courier, monospace;
   font-weight: 400;
   font-style: normal;
   font-size: 20px;
@@ -666,7 +666,7 @@ body main.gridded > .main > nav.product_categories ul {
   }
 }
 body main.gridded > .main > nav.product_categories ul li {
-  width: 100%;
+  grid-column: span 2;
 }
 body main.gridded > .main > nav.product_categories ul li.is-active a {
   background: linear-gradient(-90deg, #ffb358 0%, rgba(0, 0, 0, 0) 75%);
