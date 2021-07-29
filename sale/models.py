@@ -50,8 +50,8 @@ DELIVERY_SPEED = "ds"
 DELIVERY_ORDINARY = "do"
 
 DELIVERY_MODE_CHOICES = [
-    (DELIVERY_SPEED, f'Livraison standard +{settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES)}€'),
-    (DELIVERY_ORDINARY, f'Livraison rapide +{settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES)}€'),
+    (DELIVERY_SPEED, f'Livraison standard +{settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES)}€'),
+    (DELIVERY_ORDINARY, f'Livraison rapide +{settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES)}€'),
 ]
 
 
@@ -76,12 +76,16 @@ class Ordered(models.Model):
     endOfLife = models.DateTimeField()
 
     delivery_mode = models.CharField(
+        "Mode de livraison",
         max_length=2,
         choices=DELIVERY_MODE_CHOICES,
         default=DELIVERY_SPEED,
         null=True
     )
-    delivery_value = models.DecimalField(max_digits=4, decimal_places=2, null=True)
+    delivery_value = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        null=True
+    )
 
     promo = models.ForeignKey(Promo, on_delete=models.SET_NULL, null=True)
     promo_value = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)], null=True)

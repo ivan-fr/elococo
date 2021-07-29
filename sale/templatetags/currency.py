@@ -14,3 +14,8 @@ def deduce_tva(value):
 @register.filter
 def to_currency(value):
     return "{:.2f}".format(Decimal(value) * settings.BACK_TWO_PLACES)
+
+
+@register.simple_tag
+def price_with_delivery(order):
+    r
