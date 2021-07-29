@@ -187,6 +187,7 @@ EMAIL_PORT = 587
 
 # SHOP setting DON'T CHANGE
 BOOKING_SESSION_KEY = "ordered_instance_pk"
+BOOKING_SESSION_FILL_DELIVERY = "ordered_is_filled_delivery"
 BOOKING_SESSION_FILL_KEY = "ordered_is_filled"
 BOOKING_SESSION_FILL_2_KEY = "ordered_is_filled_next"
 ORDERED_INSTANCE_KEY = "ordered_instance_key"

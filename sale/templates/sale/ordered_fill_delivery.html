@@ -1,0 +1,29 @@
+{% extends 'elococo/base.html' %}
+
+{% block base_container %}
+    <section class="order">
+        <h2>Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h3>Récapitulatif de cette commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
+        </section>
+        <section>
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
+        </section>
+        {% if ordered.ordered_is_enable %}
+            <section class="order_form">
+                <h2>Formulaire d'informations générales</h2>
+                <form action="{% url 'sale:delivery' ordered.pk %}" method="post">
+                    {% csrf_token %}
+                    <div>
+                        {{ form.delivery_mode.errors }}
+                        <label for="{{ form.delivery_mode.id_for_label }}">{{ form.delivery_mode.label }} : </label>
+                        {{ form.delivery_mode }}
+                    </div>
+
+                    <input type="submit" value="Suivant"/>
+                </form>
+            </section>
+        {% endif %}
+    </section>
+{% endblock %}

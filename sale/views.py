@@ -25,13 +25,22 @@ from catalogue.bdd_calculations import (
 from catalogue.models import Product
 from elococo.generic import ModelFormSetView
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
-from sale.forms import (AddressForm, OrderedForm, OrderedInformation, CheckoutForm, RetrieveOrderForm,
-                        WIDGETS_FILL_NEXT, AddressFormSet)
+from sale.forms import (AddressForm, OrderedForm, OrderedInformation, CheckoutForm, RetrieveOrderForm
+, AddressFormSet, DeliveryMode)
 from sale.models import Ordered, OrderedProduct, Address
 
 KEY_PAYMENT_ERROR = "payment_error"
 PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
+
+
+def get_amount(ordered):
+    if ordered.price_exact_ttc_with_quantity_sum_promo is not None:
+        amount = Decimal(ordered.price_exact_ttc_with_quantity_sum_promo)
+    else:
+        amount = Decimal(ordered.price_exact_ttc_with_quantity_sum)
+
+    return amount
 
 
 @csrf_exempt
@@ -254,6 +263,12 @@ class OrderedDetail(FormMixin, DetailView):
 
         self.object = self.get_object()
 
+        amount = get_amount(self.object)
+        amount *= settings.BACK_TWO_PLACES
+
+        if settings.DELIVERY_FREE_GT < amount and self.object.delivery_mode is None:
+            return HttpResponseRedirect(reverse("sale:delivery", kwargs={"pk": self.object.pk}))
+
         if self.object.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
             return HttpResponseBadRequest()
 
@@ -261,13 +276,6 @@ class OrderedDetail(FormMixin, DetailView):
             public_api_key = settings.STRIPE_PUBLIC_KEY
         else:
             public_api_key = None
-
-        if self.object.price_exact_ttc_with_quantity_sum_promo is not None:
-            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum_promo)
-        else:
-            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum)
-
-        amount *= settings.BACK_TWO_PLACES
 
         context = self.get_context_data(object=self.object, public_api_key=public_api_key,
                                         amount=str(amount.quantize(TWO_PLACES)))
@@ -284,11 +292,6 @@ class OrderedDetail(FormMixin, DetailView):
             self.request.session[KEY_PAYMENT_ERROR] = PAYMENT_ERROR_ORDER_NOT_ENABLED
             return JsonResponse({"redirect": self.get_invalid_url()})
 
-        if self.object.price_exact_ttc_with_quantity_sum_promo is not None:
-            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum_promo)
-        else:
-            amount = Decimal(self.object.price_exact_ttc_with_quantity_sum)
-
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -296,7 +299,7 @@ class OrderedDetail(FormMixin, DetailView):
                     {
                         'price_data': {
                             'currency': 'eur',
-                            'unit_amount_decimal': amount.quantize(TWO_PLACES),
+                            'unit_amount_decimal': get_amount(self.object).quantize(TWO_PLACES),
                             'product_data': {
                                 'name': f'Order #{self.object.pk}',
                             },
@@ -360,7 +363,6 @@ class FillAddressInformationOrdered(ModelFormSetView):
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
-        kwargs.setdefault("widgets", WIDGETS_FILL_NEXT)
         return kwargs
 
     def get_object(self, queryset=None):
@@ -448,6 +450,48 @@ class FillInformationOrdered(UpdateView):
         return self.render_to_response(self.get_context_data())
 
 
+class ChooseDeliveryOrdered(UpdateView):
+    form_class = DeliveryMode
+    model = Ordered
+    template_name = "sale/ordered_fill_delivery.html"
+
+    def get_object(self, queryset=None):
+        return get_object(self, queryset)
+
+    def get_success_url(self):
+        return reverse("sale:fill", kwargs={"pk": self.object.pk})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not self.object.ordered_is_enable:
+            return HttpResponseRedirect(reverse("sale:fill", self.object.pk))
+
+        form = self.get_form()
+        if form.is_valid():
+            self.request.session[settings.BOOKING_SESSION_FILL_DELIVERY] = True
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        """Insert the form into the context dict."""
+        if 'form' not in kwargs and self.object.ordered_is_enable:
+            kwargs['form'] = self.get_form()
+        return super().get_context_data(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
+            return HttpResponseBadRequest()
+
+        if self.object.pk.bytes != bytes(request.session[settings.BOOKING_SESSION_KEY]):
+            return HttpResponseBadRequest()
+
+        return self.render_to_response(self.get_context_data())
+
+
 class BookingBasketView(BaseFormView):
     form_class = OrderedForm
     model = Ordered
@@ -473,7 +517,13 @@ class BookingBasketView(BaseFormView):
         return queryset
 
     def get_success_url(self):
-        return reverse("sale:fill", kwargs={"pk": self.ordered.pk})
+        amount = get_amount(self.ordered) * TWO_PLACES
+        amount = amount.quantize(TWO_PLACES)
+
+        if settings.DELIVERY_FREE_GT < amount:
+            return reverse("sale:fill", kwargs={"pk": self.ordered.pk})
+
+        return reverse("sale:delivery", kwargs={"pk": self.ordered.pk})
 
     def check_queryset(self):
         if self.product_list is None:

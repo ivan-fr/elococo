@@ -4,7 +4,7 @@ import string
 from django import forms
 from django.conf import settings
 
-from sale.models import Address, Ordered, Promo
+from sale.models import Address, Ordered, Promo, DELIVERY_SPEED
 
 
 class AddressFormSet(forms.BaseModelFormSet):
@@ -32,30 +32,47 @@ class RetrieveOrderForm(forms.Form):
     attempt = forms.BooleanField()
 
 
-WIDGETS_FILL_NEXT = {
-    'first_name': forms.TextInput(attrs={"class": "form-control"}),
-    'last_name': forms.TextInput(attrs={"class": "form-control"}),
-    'address': forms.TextInput(attrs={"class": "form-control"}),
-    'address2': forms.TextInput(attrs={"class": "form-control"}),
-    'postal_code': forms.TextInput(attrs={"class": "form-control"}),
-    'city': forms.TextInput(attrs={"class": "form-control"}),
-}
+class DeliveryMode(forms.ModelForm):
+    class Meta:
+        model = Ordered
+        exclude = (
+            'products',
+            'payment_status',
+            'price_exact_ttc_with_quantity_sum',
+            'price_exact_ht_with_quantity_sum',
+            'createdAt',
+            'phone',
+            'email',
+            'endOfLife', 'secrets', 'invoice_date', "promo", "promo_value", "promo_type",
+            'price_exact_ttc_with_quantity_sum_promo', 'price_exact_ht_with_quantity_sum_promo',
+            'delivery_value'
+        )
+
+    def save(self, commit=True):
+        order = super().save(commit=False)
+
+        if order.delivery_mode == DELIVERY_SPEED:
+            order.delivery_value = settings.DELIVERY_SPEED
+        else:
+            order.delivery_value = settings.DELIVERY_ORDINARY
+
+        order.save()
 
 
 class OrderedInformation(forms.ModelForm):
     class Meta:
         model = Ordered
-        exclude = ('products',
-                   'payment_status',
-                   'price_exact_ttc_with_quantity_sum',
-                   'price_exact_ht_with_quantity_sum',
-                   'createdAt',
-                   'endOfLife', 'secrets', 'invoice_date', "promo", "promo_value", "promo_type",
-                   "price_exact_ttc_with_quantity_sum_promo", "price_exact_ht_with_quantity_sum_promo")
-        widgets = {
-            'phone': forms.TextInput(attrs={"class": "form-control"}),
-            'email': forms.EmailInput(attrs={"class": "form-control"}),
-        }
+        exclude = (
+            'products',
+            'payment_status',
+            'price_exact_ttc_with_quantity_sum',
+            'price_exact_ht_with_quantity_sum',
+            'createdAt',
+            'delivery_mode',
+            'endOfLife', 'secrets', 'invoice_date', "promo", "promo_value", "promo_type",
+            'price_exact_ttc_with_quantity_sum_promo', 'price_exact_ht_with_quantity_sum_promo',
+            'delivery_value'
+        )
 
 
 class AddressForm(forms.ModelForm):

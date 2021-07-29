@@ -9,6 +9,7 @@ from catalogue.models import Product, ProductImage, Category
 @admin.register(Category)
 class CategoryAdmin(TreeAdmin):
     form = movenodeform_factory(Category)
+    exclude = ('slug',)
 
 
 class ProductImageAdmin(admin.StackedInline):

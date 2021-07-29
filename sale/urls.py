@@ -1,8 +1,10 @@
 from django.urls import path
+
 import sale.views
 
 urlpatterns = [
     path('booking/', sale.views.BookingBasketView.as_view(), name='booking'),
+    path('<uuid:pk>/delivery/', sale.views.ChooseDeliveryOrdered.as_view(), name="delivery"),
     path('<uuid:pk>/fill/', sale.views.FillInformationOrdered.as_view(), name='fill'),
     path('<uuid:pk>/fill/next', sale.views.FillAddressInformationOrdered.as_view(), name='fill_next'),
     path('<uuid:pk>/', sale.views.OrderedDetail.as_view(), name='detail'),
