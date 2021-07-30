@@ -533,7 +533,7 @@ class BookingBasketView(BaseFormView):
         return queryset
 
     def get_success_url(self):
-        amount = get_amount(self.ordered) * BACK_TWO_PLACES
+        amount = get_amount(self.ordered, with_promo=False) * BACK_TWO_PLACES
         amount = amount.quantize(TWO_PLACES)
 
         if settings.DELIVERY_FREE_GT < amount:
