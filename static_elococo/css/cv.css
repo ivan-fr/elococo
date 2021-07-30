@@ -244,3 +244,10 @@ li::marker {
 .mb_1 {
     margin-bottom: 3px;
 }
+
+.grid-middle {
+    display: grid;
+    grid-auto-rows: max-content;
+    grid-template-columns: repeat(12, 1fr);
+    align-self: center;
+}
