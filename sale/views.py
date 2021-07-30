@@ -92,7 +92,6 @@ def capture_order(session):
         cancel = True
 
     if cancel:
-        stripe.PaymentIntent.cancel(session["id"])
         return HttpResponse(status=400)
 
     return HttpResponse(status=200)
