@@ -40,9 +40,9 @@
                         <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }} € TTC.</p>
                     {% endif %}
                     <p>
-                        {% if product.effective_stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
-                        {% elif product.effective_stock <= 5 %} Il ne reste plus que
-                            <strong>{{ product.effective_stock }} unité(s)</strong> de
+                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                        {% elif product.stock <= 5 %} Il ne reste plus que
+                            <strong>{{ product.stock }} unité(s)</strong> de
                             ce produit en
                             stock !
                         {% else %}

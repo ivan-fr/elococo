@@ -49,10 +49,10 @@ class Promo(models.Model):
 DELIVERY_SPEED = "ds"
 DELIVERY_ORDINARY = "do"
 
-DELIVERY_MODE_CHOICES = [
-    (DELIVERY_SPEED, f'Livraison standard +{settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES)}€ (sous 48H)'),
-    (DELIVERY_ORDINARY, f'Livraison rapide +{settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES)}€ (sous 24H)'),
-]
+DELIVERY_MODE_CHOICES = (
+    (DELIVERY_SPEED, f'Livraison rapide +{settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES)}€ (sous 24H)'),
+    (DELIVERY_ORDINARY, f'Livraison standard +{settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES)}€ (sous 48H)'),
+)
 
 
 class Ordered(models.Model):

@@ -212,4 +212,4 @@ STRIPE_WEBHOOK = secrets["stripe"]["webhook"]
 
 DELIVERY_ORDINARY = Decimal(5.99)
 DELIVERY_SPEED = Decimal(7.99)
-DELIVERY_FREE_GT = Decimal(35)
+DELIVERY_FREE_GT = Decimal(65.)

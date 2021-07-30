@@ -14,7 +14,7 @@ def price_exact_ht(obj):
 
 
 @admin.register(Ordered)
-class ProductAdmin(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_number', "createdAt", "endOfLife", "payment_status", 'email', 'phone', price_exact_ht,
                     price_exact_ttc)
     list_filter = ("payment_status",)
@@ -28,7 +28,7 @@ class ProductAdmin(admin.ModelAdmin):
         return False
 
     def get_queryset(self, request):
-        queryset = super(ProductAdmin, self).get_queryset(request)
+        queryset = super(OrderAdmin, self).get_queryset(request)
         queryset = queryset.prefetch_related("order_address")
         return queryset
 
