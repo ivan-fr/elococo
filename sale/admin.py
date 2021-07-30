@@ -16,7 +16,7 @@ def price_exact_ht(obj):
 @admin.register(Ordered)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_number', "createdAt", "endOfLife", "payment_status", 'email', 'phone', price_exact_ht,
-                    price_exact_ttc)
+                    price_exact_ttc, "delivery_mode")
     list_filter = ("payment_status",)
 
     change_form_template = "sale/admin/order_change_form.html"
