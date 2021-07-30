@@ -113,24 +113,24 @@ def fulfill_order(request, session):
         order.invoice_date = now()
         order.save()
 
-        context_dict = {
-            "ordered": order,
-            "website_title": settings.WEBSITE_TITLE,
-            "email": True
-        }
-        html_content = render_to_string("sale/invoice.html", context_dict, request)
-        email = EmailMessage(
-            f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
-            html_content,
-            settings.EMAIL_HOST_USER,
-            [order.email, settings.EMAIL_HOST_USER]
-        )
-        email.content_subtype = "html"
+    context_dict = {
+        "ordered": order,
+        "website_title": settings.WEBSITE_TITLE,
+        "email": True
+    }
+    html_content = render_to_string("sale/invoice.html", context_dict, request)
+    email = EmailMessage(
+        f"{settings.WEBSITE_TITLE} - FACTURE - Reçu de commande #{order.pk}",
+        html_content,
+        settings.EMAIL_HOST_USER,
+        [order.email, settings.EMAIL_HOST_USER]
+    )
+    email.content_subtype = "html"
 
-        try:
-            email.send()
-        except SMTPAuthenticationError:
-            pass
+    try:
+        email.send()
+    except SMTPAuthenticationError:
+        pass
 
     return HttpResponse(status=200)
 
