@@ -150,6 +150,42 @@
             <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
         </tr>
     {% endif %}
+
+    {% if ordered.delivery_value is None %}
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>Livraison</strong></td>
+            <td><strong>GRATUIT</strong></td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>TOTAL (Livraison)</strong></td>
+            {% if ordered.promo_value is not None %}
+                <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</strong></td>
+            {% else %}
+                <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
+            {% endif %}
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>Livraison</strong></td>
+            {% if ordered.delivery_value is None %}
+                <td><strong>à définir</strong></td>
+            {% else %}
+                <td><strong>{{ ordered.delivery_value|to_currency }}€</strong></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td><strong>TOTAL (Livraison)</strong></td>
+            {% if ordered.delivery_value is None %}
+                <td><strong>à définir</strong></td>
+            {% else %}
+                <td><strong>{% amount_with_delivery ordered %}€</strong></td>
+            {% endif %}
+        </tr>
+    {% endif %}
     </tfoot>
 </table>
 
