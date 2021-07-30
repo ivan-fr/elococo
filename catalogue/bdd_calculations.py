@@ -169,7 +169,7 @@ def get_descendants_products(with_products=True, include_self=False, **filters):
 
     if with_products:
         qs = qs.filter(
-            stock__gt=0, enable_sale=True
+            enable_sale=True
         )
 
     qs = qs.filter(
