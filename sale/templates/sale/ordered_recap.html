@@ -78,6 +78,8 @@
                 <td colspan="6"></td>
                 {% if ordered.promo_value is not None %}
                     <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</strong></td>
+                {% else %}
+                    <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
                 {% endif %}
             </tr>
         {% else %}
@@ -96,7 +98,7 @@
                 {% if ordered.delivery_value is None %}
                     <td><strong>à définir</strong></td>
                 {% else %}
-                    <td><strong>{% price_with_delivery ordered %}€</strong></td>
+                    <td><strong>{% amount_with_delivery ordered %}€</strong></td>
                 {% endif %}
             </tr>
         {% endif %}

@@ -24,5 +24,5 @@ def to_currency(value):
 
 
 @register.simple_tag
-def price_with_delivery(order):
+def amount_with_delivery(order):
     return "{:.2f}".format(get_amount(order, with_delivery=True) * settings.BACK_TWO_PLACES)

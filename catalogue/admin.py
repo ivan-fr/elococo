@@ -35,13 +35,13 @@ def price_exact_ht(obj):
     return "{:.2f} euros".format(obj.price_exact_ht)
 
 
-def stock_sold(obj):
+def stock_sold_list(obj):
     return obj.stock_sold
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'dateUpdate', 'stock', stock_sold, reductions, price_exact_ht,
+    list_display = ('name', 'dateUpdate', 'stock', stock_sold_list, reductions, price_exact_ht,
                     price_exact_ttc, categories, 'enable_sale', 'enable_comment')
     list_editable = ('enable_sale', 'enable_comment', "stock")
     filter_horizontal = ('categories',)

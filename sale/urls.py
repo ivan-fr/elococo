@@ -1,5 +1,6 @@
 from django.urls import path
 
+
 import sale.views
 
 urlpatterns = [

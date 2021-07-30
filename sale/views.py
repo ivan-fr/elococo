@@ -2,6 +2,7 @@ import secrets
 import string
 import uuid
 from decimal import Decimal
+from smtplib import SMTPAuthenticationError
 
 import stripe
 from django.conf import settings
@@ -16,6 +17,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
 
@@ -36,6 +38,7 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
+@require_POST
 @csrf_exempt
 def webhook_view(request):
     payload = request.body
@@ -60,6 +63,7 @@ def webhook_view(request):
 
 def capture_order(session):
     ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    cancel = False
 
     try:
         order = Ordered.objects.filter(
@@ -67,25 +71,29 @@ def capture_order(session):
         ).prefetch_related(
             "from_ordered", "from_ordered__to_product"
         ).get()
+
+        try:
+            products = set()
+            for ordered_product in order.from_ordered.all():
+                product = ordered_product.to_product
+                product.stock -= ordered_product.quantity
+                if product.stock < 0:
+                    raise ValueError()
+                products.add(product)
+            with transaction.atomic():
+                Product.objects.bulk_update(list(products), ("stock",))
+                stripe.PaymentIntent.capture(session["id"])
+        except ValueError:
+            cancel = True
+        except IntegrityError:
+            cancel = True
+
     except Ordered.DoesNotExist:
+        cancel = True
+
+    if cancel:
         stripe.PaymentIntent.cancel(session["id"])
         return HttpResponse(status=400)
-
-    try:
-        products = set()
-        for ordered_product in order.from_ordered.all():
-            product = ordered_product.to_product
-            product.stock -= ordered_product.quantity
-            if product.stock < 0:
-                raise ValueError()
-            products.add(product)
-        with transaction.atomic():
-            Product.objects.bulk_update(list(products), ("stock",))
-            stripe.PaymentIntent.capture(session["id"])
-    except ValueError:
-        stripe.PaymentIntent.cancel(session["id"])
-    except IntegrityError:
-        stripe.PaymentIntent.cancel(session["id"])
 
     return HttpResponse(status=200)
 
@@ -118,7 +126,11 @@ def fulfill_order(request, session):
             [order.email, settings.EMAIL_HOST_USER]
         )
         email.content_subtype = "html"
-        email.send()
+
+        try:
+            email.send()
+        except SMTPAuthenticationError:
+            pass
 
     return HttpResponse(status=200)
 
@@ -274,7 +286,7 @@ class OrderedDetail(FormMixin, DetailView):
         context = self.get_context_data(
             object=self.object, public_api_key=public_api_key,
             amount=str(
-                get_amount(self.object, with_delivery=True).quantize(TWO_PLACES)
+                (get_amount(self.object, with_delivery=True) * settings.BACK_TWO_PLACES).quantize(TWO_PLACES)
             )
         )
         return self.render_to_response(context)
