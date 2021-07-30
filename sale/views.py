@@ -80,14 +80,14 @@ def capture_order(session):
                 if product.stock < 0:
                     raise ValueError()
                 products.add(product)
-            with transaction.atomic():
-                Product.objects.bulk_update(list(products), ("stock",))
-                stripe.PaymentIntent.capture(session["id"])
+            try:
+                with transaction.atomic():
+                    Product.objects.bulk_update(list(products), ("stock",))
+                    stripe.PaymentIntent.capture(session["id"])
+            except IntegrityError:
+                cancel = True
         except ValueError:
             cancel = True
-        except IntegrityError:
-            cancel = True
-
     except Ordered.DoesNotExist:
         cancel = True
 
