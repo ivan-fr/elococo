@@ -81,6 +81,7 @@ class Ordered(models.Model):
         "Mode de livraison",
         max_length=2,
         choices=DELIVERY_MODE_CHOICES,
+        default=DELIVERY_SPEED,
         null=True
     )
     delivery_value = models.PositiveSmallIntegerField(
