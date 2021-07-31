@@ -152,19 +152,8 @@ body
     display: grid
     grid-auto-rows: auto
     background-color: #fffbf9
-    @include pb-(30)
+    @include pb-(25)
     position: relative
-
-    #main_logo + footer
-      position: static
-      background: url("../images/top.png")
-      height: 59px
-
-    .navbar + footer
-      position: static
-      background: url("../images/top2.png")
-      @include mb-(8)
-      height: 58px
 
     footer
       position: absolute
@@ -558,6 +547,7 @@ body
     @include grid(4)
     @include gap-(2)
     @include py-(2)
+    @include mb-(7)
     position: relative
     z-index: 1
     color: white

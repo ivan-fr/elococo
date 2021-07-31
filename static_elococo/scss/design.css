@@ -398,19 +398,8 @@ body .wrapper {
   display: grid;
   grid-auto-rows: auto;
   background-color: #fffbf9;
-  padding-bottom: 7.5em;
+  padding-bottom: 6.25em;
   position: relative;
-}
-body .wrapper #main_logo + footer {
-  position: static;
-  background: url("../images/top.png");
-  height: 59px;
-}
-body .wrapper .navbar + footer {
-  position: static;
-  background: url("../images/top2.png");
-  margin-bottom: 2em;
-  height: 58px;
 }
 body .wrapper footer {
   position: absolute;
@@ -888,6 +877,7 @@ body .navbar {
   grid-gap: 1em;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
+  margin-bottom: 1.75em;
   position: relative;
   z-index: 1;
   color: white;
