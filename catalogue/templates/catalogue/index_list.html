@@ -6,29 +6,32 @@
 {% endblock %}
 
 {% block base_container %}
-    <h2>Boutique</h2>
+    <div class="catalog">
     {% if product_list %}
         <nav class="product_categories">
+            <h3>Categories</h3>
             {% include "catalogue/navigation.html" with categories=filled_category index=index only %}
         </nav>
         {% include "catalogue/filtres.html" %}
+
         {% if filter_list is None %}
             <div id="boutique-container">
         {% else %}
             <div id="boutique-container" class="with_filters">
         {% endif %}
+
     <div id="boutique">
         {% include "catalogue/products_list.html" %}
     </div>
     {% if filter_list is not None %}
-        <section class="product_categories-right">
+        <section class="product_categories_right">
             <h2>Filtres associés</h2>
             {% for category, info in filter_list %}
                 {% if info.open %}
                     <ul>
 
                     {% if selected_category.slug == category.slug %}
-                        <li>
+                        <li class="active">
                             {% else %}
                         <li>
                     {% endif %}
@@ -36,7 +39,7 @@
                 {% else %}
                 </li>
                     {% if selected_category.slug == category.slug %}
-                        <li>
+                        <li class="active">
                             {% else %}
                         <li>
                     {% endif %}
@@ -57,6 +60,7 @@
     {% else %}
         <div>Il n'y a plus de produits en stocks ! Revennez un autre jour.</div>
     {% endif %}
+</div>
 {% endblock %}
 
 {% block body_js %}
@@ -87,6 +91,7 @@
         let boutique = document.getElementById("boutique");
 
         function callback_onload_products_filter(event, url) {
+            boutique.innerHTML = '<div class="spinner-border" role="status"></div>'
             return setTimeout(function () {
                 document.getElementById("current_url_products").setAttribute("data-url", url);
                 if (event !== null) {

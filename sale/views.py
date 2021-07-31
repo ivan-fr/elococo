@@ -29,8 +29,9 @@ from elococo.generic import ModelFormSetView
 from elococo.settings import BACK_TWO_PLACES
 from sale import get_amount
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
-from sale.forms import (AddressForm, OrderedForm, OrderedInformation, CheckoutForm, RetrieveOrderForm
-, AddressFormSet, DeliveryMode)
+from sale.forms import (
+    AddressForm, OrderedForm, OrderedInformation, CheckoutForm, RetrieveOrderForm, AddressFormSet, DeliveryMode
+)
 from sale.models import Ordered, OrderedProduct, Address
 
 KEY_PAYMENT_ERROR = "payment_error"
