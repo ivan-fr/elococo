@@ -496,11 +496,11 @@ body
           @include gap-(2)
           grid-auto-rows: 20em
 
-          @media #{$medium-down}
-            grid-template-columns: repeat(1, 1fr)
-
           @media #{$x-large-down}
             grid-template-columns: repeat(2, 1fr)
+
+          @media #{$medium-down}
+            grid-template-columns: repeat(1, 1fr)
 
           article
             h3
