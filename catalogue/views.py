@@ -86,6 +86,97 @@ class PromoBasketView(FormView):
         })
 
 
+def product_to_exclude_(self, basket):
+    basket_set = {product_slug for product_slug in basket.keys()}
+    product_bdd_set = {product.slug for product in self.object_list}
+
+    product_to_exclude = basket_set.difference(product_bdd_set)
+
+    if len(product_to_exclude) > 0:
+        for product_slug in product_to_exclude:
+            del basket[product_slug]
+        self.request.session[settings.BASKET_SESSION_KEY] = basket
+        self.request.session.modified = True
+
+    for product in self.object_list:
+        if product.effective_basket_quantity != basket[product.slug]["quantity"]:
+            basket[product.slug]["quantity"] = product.effective_basket_quantity
+            self.request.session.modified = True
+
+    self.object_list = filter(
+        lambda product_filter: product_filter.slug not in product_to_exclude, self.object_list
+    )
+
+    return product_to_exclude
+
+
+def get_basket_queryset(model, basket):
+    return model.enable_objects.annotate(
+        **stock_sold()
+    ).filter(
+        slug__in=tuple(basket.keys())
+    ).annotate(
+        **price_annotation_format(basket)
+    ).annotate(
+        **post_price_annotation_format()
+    )
+
+
+def check_promo(request, basket):
+    promo_session = request.session.get(settings.PROMO_SESSION_KEY, {})
+    promo_db = get_promo(basket, promo_session.get("code_promo", None))
+
+    if promo_db is None and request.session.get(settings.PROMO_SESSION_KEY, None) is not None:
+        del request.session[settings.PROMO_SESSION_KEY]
+
+    return promo_db
+
+
+class BasketSurfaceView(ListView):
+    allow_empty = True
+    template_name = 'catalogue/basket.html'
+    model = Product
+    success_url = reverse_lazy("catalogue_basket")
+    form_class = UpdateBasketForm
+    formset_class = ProductFormSet
+    factory_kwargs = {'extra': 0,
+                      'absolute_max': settings.MAX_BASKET_PRODUCT,
+                      'max_num': settings.MAX_BASKET_PRODUCT, 'validate_max': True,
+                      'min_num': 1, 'validate_min': True,
+                      'can_order': False,
+                      'can_delete': False}
+
+    def get_queryset(self):
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+        self.queryset = get_basket_queryset(self.model, basket)
+
+        return super(BasketSurfaceView, self).get_queryset()
+
+    def response_(self):
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+
+        promo_db = check_promo(self.request, basket)
+
+        self.product_to_exclude = product_to_exclude_(self, basket)
+
+        aggregate = self.queryset.exclude(
+            slug__in=self.product_to_exclude
+        ).aggregate(
+            **total_price_from_all_product(promo=promo_db)
+        )
+
+        context = {
+            "aggregate": aggregate,
+            "promo": promo_db
+        }
+
+        return self.render_to_response(context)
+
+    def get(self, request, *args, **kwargs):
+        self.get_queryset()
+        return self.response_()
+
+
 class BasketView(FormSetMixin, ListView):
     allow_empty = True
     template_name = 'catalogue/basket.html'
@@ -119,31 +210,12 @@ class BasketView(FormSetMixin, ListView):
         kwargs = super(BasketView, self).get_factory_kwargs()
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
-        basket_set = {product_slug for product_slug in basket.keys()}
-        product_bdd_set = {product.slug for product in self.object_list}
+        self.product_to_exclude = product_to_exclude_(self, basket)
 
-        product_to_delete = basket_set.difference(product_bdd_set)
-
-        if len(product_to_delete) > 0:
-            for product_slug in product_to_delete:
-                del basket[product_slug]
-            self.request.session[settings.BASKET_SESSION_KEY] = basket
-            self.request.session.modified = True
-
-        for product in self.object_list:
-            if product.effective_basket_quantity != basket[product.slug]["quantity"]:
-                basket[product.slug]["quantity"] = product.effective_basket_quantity
-                self.request.session.modified = True
-
-        self.object_list = filter(
-            lambda product_filter: product_filter.slug not in product_to_delete, self.object_list
-        )
         self.initial = [
             {"quantity": basket[product_slug]["quantity"], "remove": False}
             for product_slug in basket.keys()
         ]
-
-        self.product_to_exclude = product_to_delete
 
         kwargs["max_num"] = len(basket)
 
@@ -170,23 +242,19 @@ class BasketView(FormSetMixin, ListView):
 
     def response_(self, formset):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
-        promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
-        promo = get_promo(basket, promo_session.get("code_promo", None))
-
-        if promo is None and self.request.session.get(settings.PROMO_SESSION_KEY, None) is not None:
-            del self.request.session[settings.PROMO_SESSION_KEY]
+        promo_db = check_promo(self.request, basket)
 
         aggregate = self.queryset.exclude(
             slug__in=self.product_to_exclude
         ).aggregate(
-            **total_price_from_all_product(promo=promo)
+            **total_price_from_all_product(promo=promo_db)
         )
 
         context = {
             "zip_products": list(zip(self.object_list, formset)),
             "aggregate": aggregate,
             "formset": formset,
-            "promo": promo
+            "promo": promo_db
         }
 
         return self.render_to_response(context)
@@ -205,16 +273,13 @@ class BasketView(FormSetMixin, ListView):
                     'class_name': self.__class__.__name__,
                 })
 
-    def base_logical_response(self):
-        self.init_queryset()
-
     def get(self, request, *args, **kwargs):
-        self.base_logical_response()
+        self.init_queryset()
         formset = self.construct_formset()
         return self.response_(formset)
 
     def post(self, request, *args, **kwargs):
-        self.base_logical_response()
+        self.init_queryset()
         formset = self.construct_formset()
 
         if formset.is_valid():
