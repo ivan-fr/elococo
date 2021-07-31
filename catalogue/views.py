@@ -166,6 +166,7 @@ class BasketSurfaceView(ListView):
         )
 
         context = {
+            "products": self.object_list,
             "aggregate": aggregate,
             "promo": promo_db
         }
