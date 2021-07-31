@@ -134,7 +134,7 @@ def check_promo(request, basket):
 
 class BasketSurfaceView(ListView):
     allow_empty = True
-    template_name = 'catalogue/basket.html'
+    template_name = 'catalogue/basket_surface.html'
     model = Product
     success_url = reverse_lazy("catalogue_basket")
     form_class = UpdateBasketForm
