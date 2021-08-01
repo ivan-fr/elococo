@@ -463,12 +463,15 @@ body
             @include my-(0)
             @include pl-(0)
 
-            li
+            & > li
               list-style: none
 
               a
                 @include p-(1)
                 display: block
+
+            ul
+              background: #fffbf9
 
           li.active a
             background: darken(#ffcf95, 3)

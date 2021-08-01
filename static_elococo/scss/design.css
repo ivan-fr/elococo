@@ -784,12 +784,15 @@ body main.gridded > .main #boutique-container .product_categories_right > ul {
   margin-bottom: 0em;
   padding-left: 0em;
 }
-body main.gridded > .main #boutique-container .product_categories_right > ul li {
+body main.gridded > .main #boutique-container .product_categories_right > ul > li {
   list-style: none;
 }
-body main.gridded > .main #boutique-container .product_categories_right > ul li a {
+body main.gridded > .main #boutique-container .product_categories_right > ul > li a {
   padding: 0.25em;
   display: block;
+}
+body main.gridded > .main #boutique-container .product_categories_right > ul ul {
+  background: #fffbf9;
 }
 body main.gridded > .main #boutique-container .product_categories_right li.active a {
   background: #ffc886;
