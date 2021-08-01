@@ -292,7 +292,7 @@ class BasketView(FormSetMixin, ListView):
 
 
 class IndexView(ListView):
-    paginate_by = 15
+    paginate_by = 1
     template_name = 'catalogue/index_list.html'
     model = Product
     extra_context = {}

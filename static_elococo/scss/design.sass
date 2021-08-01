@@ -1,10 +1,14 @@
 @import "grid"
 @import "responsive"
 @import "../bootstrap/scss/functions"
+
+$primary: #ffcf95
+
 @import "../bootstrap/scss/variables"
 @import "../bootstrap/scss/mixins"
 @import "../bootstrap/scss/tables"
 @import "../bootstrap/scss/spinners"
+@import "../bootstrap/scss/pagination"
 
 
 @mixin radius($i)
@@ -471,7 +475,7 @@ body
                 display: block
 
               li:not(.active) a
-                background: #fffbf9!important
+                background: #fffbf9 !important
 
           li.active a
             background: darken(#ffcf95, 3)
@@ -484,22 +488,21 @@ body
           @media #{$medium-down}
             order: -1
 
-        #boutique
-          @include grid(3)
-          @include gap-(2)
-          grid-auto-rows: 20em
-
-          @media #{$x-large-down}
-            grid-template-columns: repeat(2, 1fr)
-
-          @media #{$medium-down}
-            grid-template-columns: repeat(1, 1fr)
-
-          article
-            h3
-              display: none
-
       #boutique
+        @include grid(3)
+        @include gap-(2)
+        grid-auto-rows: 20em
+
+        @media #{$x-large-down}
+          grid-template-columns: repeat(2, 1fr)
+
+        @media #{$medium-down}
+          grid-template-columns: repeat(1, 1fr)
+
+        article
+          h3
+            display: none
+
         figure
           &.hover_figure
             .info_price
@@ -540,6 +543,14 @@ body
       nav
         ul
           @include m(0)
+
+      #boutique_pagination
+        @include start(2)
+        @include span-e(4)
+        @include mt(3)
+
+        .page-link
+          color: black
 
       & > :is(h1, h2, h3, h4, h5, h6):first-child
         display: none

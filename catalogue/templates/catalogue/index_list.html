@@ -55,8 +55,31 @@
             {% endfor %}
         </section>
     {% endif %}
-    <span id="current_url_products" data-url="{{ current_url }}"></span>
+    <span id="current_url_products" data-url="{{ current_url }}?page={{ page_obj.number }}"></span>
     </div>
+        {% if is_paginated %}
+            <nav id="boutique_pagination">
+                <ul class="pagination">
+
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <span class="page-link"><a href="?page=1">1</a></span>
+                        </li>
+                        <li class="page-item">
+                            <span class="page-link"><a href="?page={{ page_obj.previous_page_number }}"><<</a></span>
+                        </li>
+                    {% endif %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <span class="page-link"><a href="?page={{ page_obj.next_page_number }}">>></a></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
     {% else %}
         <div>Il n'y a plus de produits en stocks ! Revennez un autre jour.</div>
     {% endif %}
@@ -130,6 +153,8 @@
                         event.currentTarget.getAttribute("data-url-value"));
                 }
             }
+
+            console.log(url.pathname + url.search)
 
             httpRequest_filter.onload = callback_onload_products_filter(event, url.pathname + url.search);
             httpRequest_filter.open('GET', url.pathname + url.search);
