@@ -207,6 +207,7 @@ body
 
             li
               @include my-(1)
+
               a:hover
                 background: darken(#ffcf95, 3)
 
@@ -568,11 +569,40 @@ body
       align-items: center
 
       #navbar-basket
+        position: relative
+
         span
           @include p-(2)
           @include m(2)
           @include radius(2)
           background-color: white
+
+        &:hover nav
+          display: block
+
+        nav
+          position: absolute
+          display: none
+
+          & > ul, & > div
+            direction: initial
+            text-align: left
+            border: 1px solid lighten(#000, 80)
+            @include p-(2)
+            background: white
+            color: black
+            width: 480px
+            @include radius(1)
+            list-style: none
+
+          &::before
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%)
+            content: ""
+            display: block
+            height: 0.5em
+            background: #4c4c4c
+            width: 25px
+            margin-right: 85px
 
       & > li.is-active > a
         background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)

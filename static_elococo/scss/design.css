@@ -900,11 +900,41 @@ body .navbar > ul {
   margin: 0em;
   align-items: center;
 }
+body .navbar > ul #navbar-basket {
+  position: relative;
+}
 body .navbar > ul #navbar-basket span {
   padding: 0.5em;
   margin: 0.5em;
   border-radius: 0.5em;
   background-color: white;
+}
+body .navbar > ul #navbar-basket:hover nav {
+  display: block;
+}
+body .navbar > ul #navbar-basket nav {
+  position: absolute;
+  display: none;
+}
+body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav > div {
+  direction: initial;
+  text-align: left;
+  border: 1px solid #cccccc;
+  padding: 0.5em;
+  background: white;
+  color: black;
+  width: 480px;
+  border-radius: 0.25em;
+  list-style: none;
+}
+body .navbar > ul #navbar-basket nav::before {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  content: "";
+  display: block;
+  height: 0.5em;
+  background: #4c4c4c;
+  width: 25px;
+  margin-right: 85px;
 }
 body .navbar > ul > li.is-active > a {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);

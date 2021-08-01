@@ -53,7 +53,7 @@ def get_promo(basket, code):
             Q(min_ht__lte=aggregate) | Q(min_ht=None)
         ).annotate(
             must_positive=Case(
-                When(type="cu", then=aggregate - F("value")),
+                When(type="cu", then=aggregate - F("dict_")),
                 default=Decimal(1), output_field=FloatField()
             )
         ).filter(

@@ -134,17 +134,7 @@ def check_promo(request, basket):
 
 class BasketSurfaceView(ListView):
     allow_empty = True
-    template_name = 'catalogue/basket_surface.html'
     model = Product
-    success_url = reverse_lazy("catalogue_basket")
-    form_class = UpdateBasketForm
-    formset_class = ProductFormSet
-    factory_kwargs = {'extra': 0,
-                      'absolute_max': settings.MAX_BASKET_PRODUCT,
-                      'max_num': settings.MAX_BASKET_PRODUCT, 'validate_max': True,
-                      'min_num': 1, 'validate_min': True,
-                      'can_order': False,
-                      'can_delete': False}
 
     def get_queryset(self):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
@@ -165,16 +155,27 @@ class BasketSurfaceView(ListView):
             **total_price_from_all_product(promo=promo_db)
         )
 
+        basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
+
         context = {
             "products": self.object_list,
             "aggregate": aggregate,
-            "promo": promo_db
+            "promo": promo_db,
+            "basket": basket
         }
 
-        return self.render_to_response(context)
+        context_ = {
+            "html": render_to_string(
+                "catalogue/basket_surface.html",
+                context,
+                self.request
+            )
+        }
+
+        return JsonResponse(context_)
 
     def get(self, request, *args, **kwargs):
-        self.get_queryset()
+        self.object_list = self.get_queryset()
         return self.response_()
 
 

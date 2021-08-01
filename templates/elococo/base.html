@@ -41,6 +41,55 @@
 
 {% include "elococo/footer.html" %}
 
+<script>
+    let httpRequest_basket_surface = new XMLHttpRequest();
+    let navbar_basket = document.getElementById("navbar-basket");
+    let sub_nav = document.createElement("nav");
+
+    let sub_nav_loaded = false;
+
+    function callback_onload_surface_basket(event) {
+        navbar_basket.appendChild(sub_nav);
+        sub_nav.innerHTML = '<div><div class="spinner-border" role="status"></div></div>'
+        return setTimeout(function () {
+            if (event !== null) {
+                event.target.parentElement.classList.add("is-active");
+            }
+            let basket_surface = httpRequest_basket_surface.response;
+            sub_nav.innerHTML = basket_surface.html;
+            filter_request = false;
+        }, 500)
+    }
+
+    function get_surface_basket(event) {
+        event.preventDefault();
+
+        if (sub_nav_loaded) {
+            return
+        }
+
+        if (!httpRequest_basket_surface) {
+            alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+            return false;
+        }
+
+        sub_nav_loaded = true;
+
+        let url = navbar_basket.querySelector("a").getAttribute("data-url-surface");
+
+        httpRequest_basket_surface.onload = callback_onload_surface_basket(event);
+        httpRequest_basket_surface.open('GET', url);
+        httpRequest_basket_surface.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        httpRequest_basket_surface.responseType = 'json';
+        httpRequest_basket_surface.send();
+    }
+
+    navbar_basket.querySelector(":scope a").addEventListener("mouseenter", get_surface_basket)
+    navbar_basket.querySelector(":scope a").addEventListener("click", (event) => {
+        event.preventDefault();
+    })
+</script>
+
 {% block body_js %}
 {% endblock %}
 

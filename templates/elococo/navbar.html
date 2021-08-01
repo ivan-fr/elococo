@@ -43,8 +43,8 @@
         {% endif %}
         {% if not index_nav %}
             <li id="navbar-basket">
-                <a href="{% url "catalogue_basket" %}">
-                    Panier <span id="">{{ basket_len }}</span>
+                <a data-url-surface="{% url "catalogue_basket_surface" %}" href="{% url "catalogue_basket" %}">
+                    Panier <span>{{ basket_len }}</span>
                 </a>
             </li>
         {% endif %}

@@ -4,8 +4,8 @@ register = template.Library()
 
 
 @register.filter
-def get_dict(value, namespace):
-    return value.get(namespace, None)
+def get_dict(dict_, namespace):
+    return dict_.get(namespace, None)
 
 
 @register.filter

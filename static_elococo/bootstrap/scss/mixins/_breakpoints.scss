@@ -32,7 +32,7 @@
 }
 
 // Maximum breakpoint width.
-// The maximum value is reduced by 0.02px to work around the limitations of
+// The maximum dict_ is reduced by 0.02px to work around the limitations of
 // `min-` and `max-` prefixes and viewports with fractional widths.
 // See https://www.w3.org/TR/mediaqueries-4/#mq-min-max
 // Uses 0.02px rather than 0.01px to work around a current rounding bug in Safari.

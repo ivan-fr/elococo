@@ -1,145 +1,45 @@
-{% extends 'elococo/base.html' %}
 {% load currency %}
+{% load getter %}
 {% load static %}
 
-{% block base_container %}
-    {% if zip_products %}
-        <form id="basket_form" method="post" action="{% url "catalogue_basket" %}">
-            {% csrf_token %}
-            {{ formset.management_form }}
+{% if products|length > 0 %}
+    <ul class="table table-striped">
+        {% for product in products %}
+            <li>
+                <a href="{% url "catalogue_product_detail" product.0.slug %}">{{ product.0.name }}</a>
+                <ul>
+                    <li>X{{ basket|get_dict:product.slug|get_dict:"quantity" }}
+                        - {{ product.price_exact_ttc_with_quantity|floatformat:2 }}€
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
 
-            {% for form in formset %}
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
-            {% endfor %}
-
-            {% if formset.errors %}
-                {% for form in formset %}
-                    <ul>
-                        {% if form.non_field_errors %}
-                            <li>{{ form.non_field_errors }}</li>
-                        {% endif %}
-                        {% for field in form %}
-                            {% if field.errors %}
-                                <li>
-                                    {{ field.label }}
-                                    <ul>
-                                        {% for error in field.errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                {% endfor %}
-            {% endif %}
-
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Nom du produit</th>
-                        <th scope="col">Prix unitaire (HT)</th>
-                        <th scope="col">Dont réduction (%)</th>
-                        <th scope="col">Quantité</th>
-                        <th scope="col">Sous Total (HT)</th>
-                        <th scope="col">Supprimer ?</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for product in zip_products %}
-                        <tr>
-                            <th scope="row">{{ forloop.counter }}</th>
-                            <td>
-                                <a href="{% url "catalogue_product_detail" product.0.slug %}">{{ product.0.name }}</a>
-                            </td>
-                            <td>{{ product.0.price_exact_ht|floatformat:2 }}€</td>
-                            <td>{% if product.0.effective_reduction > 0 %}
-                                -{{ product.0.effective_reduction }}%
-                            {% else %}
-                                Pas de reduction.
-                            {% endif %}</td>
-                            <td>
-                                {{ product.1.quantity }}
-                            </td>
-                            <td>{{ product.0.price_exact_ht_with_quantity|floatformat:2 }}€</td>
-                            <td>{{ product.1.remove }}</td>
-                        </tr>
-                    {% endfor %}
-
-                    <tr>
-                        <td><strong>Total (HT)</strong></td>
-                        <td colspan="4"></td>
-                        <td>{{ aggregate.price_exact_ht_with_quantity__sum|floatformat:2 }}€</td>
-                        <td></td>
-                    </tr>
-
-                    {% if promo is not None %}
-                        <tr>
-                            <td><strong>Promo</strong></td>
-                            <td colspan="4"></td>
-                            {% if promo.type == "pe" %}
-                                <td>-{{ promo.value }}%</td>
-                            {% else %}
-                                <td>-{{ promo.value }}€</td>
-                            {% endif %}
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Nouveau Total (HT)</strong></td>
-                            <td colspan="4"></td>
-                            <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|floatformat:2 }}€</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-                            <td colspan="4"></td>
-                            <td>{{ aggregate.price_exact_ht_with_quantity_promo__sum|deduce_tva }}€</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total (TTC)</strong></td>
-                            <td colspan="4"></td>
-                            <td>
-                                <strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
-                            </td>
-                            <td></td>
-                        </tr>
+        {% if promo is not None %}
+            <li>
+                <strong>Promo</strong>
+                <ul>
+                    {% if promo.type == "pe" %}
+                        <li>-{{ promo.value }}%</li>
                     {% else %}
-                        <tr>
-                            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-                            <td colspan="4"></td>
-                            <td>{{ aggregate.price_exact_ht_with_quantity__sum|deduce_tva }}€</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><strong>TOTAL (TTC)</strong></td>
-                            <td colspan="4"></td>
-                            <td><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></td>
-                            <td></td>
-                        </tr>
+                        <li>-{{ promo.value }}€</li>
                     {% endif %}
-                    </tbody>
-                </table>
-            </div>
-            <div id="submit_basket"></div>
-            {% if delivery_free_gt <= aggregate.price_exact_ttc_with_quantity__sum %}
-                <strong>La livraison est offerte.</strong>
-            {% else %}
-                <strong>Un tarif de livraison sera à prendre en compte.</strong>
-            {% endif %}
-        </form>
-        <div id="promo_form"></div>
-        <div id="book_form"></div>
-        <span id="basket_urls" data-basket-url-2="{{ url_get_booking }}" data-basket-url-3="{{ url_get_promo }}"></span>
+                </ul>
+            </li>
+            <li><strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong></li>
+        {% else %}
+            <li><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></li>
+        {% endif %}
+    </ul>
+    {% if delivery_free_gt <= aggregate.price_exact_ttc_with_quantity__sum %}
+        <strong>La livraison est offerte.</strong>
     {% else %}
-        Votre panier est vide :)
+        <strong>Un tarif de livraison sera à prendre en compte.</strong>
     {% endif %}
-{% endblock %}
-
-{% block body_js %}
-    <script src="{% static "js/basket.js" %}"></script>
-{% endblock %}
+{% else %}
+    <ul>
+        <li>
+            Votre panier est vide :)
+        </li>
+    </ul>
+{% endif %}
