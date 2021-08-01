@@ -909,9 +909,6 @@ body .navbar > ul #navbar-basket span {
   border-radius: 0.5em;
   background-color: white;
 }
-body .navbar > ul #navbar-basket:hover nav {
-  display: block;
-}
 body .navbar > ul #navbar-basket nav {
   position: absolute;
   display: none;
@@ -981,6 +978,9 @@ body .navbar > ul:last-child {
   justify-items: center;
   grid-column: span 2;
   direction: rtl;
+}
+body .navbar > ul:last-child:hover #navbar-basket nav {
+  display: block;
 }
 @media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child {

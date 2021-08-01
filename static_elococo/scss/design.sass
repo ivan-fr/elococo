@@ -577,9 +577,6 @@ body
           @include radius(2)
           background-color: white
 
-        &:hover nav
-          display: block
-
         nav
           position: absolute
           display: none
@@ -642,6 +639,9 @@ body
         justify-items: center
         @include span(2)
         direction: rtl
+
+        &:hover #navbar-basket nav
+          display: block
 
         @media #{$x-large-down}
           @include span(4)
