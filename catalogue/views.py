@@ -158,7 +158,7 @@ class BasketSurfaceView(ListView):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
 
         context = {
-            "products": self.object_list,
+            "products": list(self.object_list),
             "aggregate": aggregate,
             "promo": promo_db,
             "basket": basket
@@ -256,7 +256,8 @@ class BasketView(FormSetMixin, ListView):
             "zip_products": list(zip(self.object_list, formset)),
             "aggregate": aggregate,
             "formset": formset,
-            "promo": promo_db
+            "promo": promo_db,
+            "basket_view": True
         }
 
         return self.render_to_response(context)

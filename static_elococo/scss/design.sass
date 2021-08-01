@@ -459,16 +459,16 @@ body
             @include pl-(0)
             border-left: unset
 
-          li
-            list-style: none
-
-            a
-              @include p-(1)
-              display: block
-
-          ul
+          & > ul
             @include my-(0)
             @include pl-(0)
+
+            li
+              list-style: none
+
+              a
+                @include p-(1)
+                display: block
 
           li.active a
             background: darken(#ffcf95, 3)
@@ -581,6 +581,9 @@ body
           position: absolute
           display: none
 
+          a
+            text-decoration: underline
+
           & > ul, & > div
             direction: initial
             text-align: left
@@ -589,8 +592,15 @@ body
             background: white
             color: black
             width: 480px
-            @include radius(1)
+            border-top-left-radius: 0.25em
+            border-top-right-radius: 0.25em
             list-style: none
+
+          & > ul:not(:last-child)
+            @include mb-(0)
+
+          & > ul:not(:first-child)
+            border-radius: 0 0 0.25em 0.25em
 
           &::before
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%)

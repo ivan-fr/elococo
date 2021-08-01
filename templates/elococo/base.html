@@ -84,10 +84,13 @@
         httpRequest_basket_surface.send();
     }
 
-    navbar_basket.querySelector(":scope a").addEventListener("mouseenter", get_surface_basket)
-    navbar_basket.querySelector(":scope a").addEventListener("click", (event) => {
-        event.preventDefault();
-    })
+    {% if not basket_view %}
+        navbar_basket.querySelector(":scope > a").addEventListener("mouseenter", get_surface_basket)
+        navbar_basket.querySelector(":scope > a").addEventListener("click", (event) => {
+            event.preventDefault();
+        })
+    {% endif %}
+
 </script>
 
 {% block body_js %}

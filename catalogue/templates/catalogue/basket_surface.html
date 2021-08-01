@@ -6,15 +6,16 @@
     <ul class="table table-striped">
         {% for product in products %}
             <li>
-                <a href="{% url "catalogue_product_detail" product.0.slug %}">{{ product.0.name }}</a>
+                <a href="{% url "catalogue_product_detail" product.slug %}">{{ product.name }}</a>
                 <ul>
-                    <li>X{{ basket|get_dict:product.slug|get_dict:"quantity" }}
-                        - {{ product.price_exact_ttc_with_quantity|floatformat:2 }}€
+                    <li>{{ basket|get_dict:product.slug|get_dict:"quantity" }}X
+                        - {{ product.price_exact_ttc_with_quantity|floatformat:2 }}€ (TTC)
                     </li>
                 </ul>
             </li>
         {% endfor %}
-
+    </ul>
+    <ul>
         {% if promo is not None %}
             <li>
                 <strong>Promo</strong>
@@ -26,16 +27,22 @@
                     {% endif %}
                 </ul>
             </li>
-            <li><strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong></li>
+            <li>Total (TTC) <strong>{{ aggregate.price_exact_ttc_with_quantity_promo__sum|floatformat:2 }}€</strong>
+            </li>
         {% else %}
-            <li><strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></li>
+            <li>Total (TTC) <strong>{{ aggregate.price_exact_ttc_with_quantity__sum|floatformat:2 }}€</strong></li>
+        {% endif %}
+        {% if delivery_free_gt <= aggregate.price_exact_ttc_with_quantity__sum %}
+            <li><strong>La livraison est offerte.</strong></li>
+        {% else %}
+            <li><strong>Un tarif de livraison sera à prendre en compte.</strong></li>
         {% endif %}
     </ul>
-    {% if delivery_free_gt <= aggregate.price_exact_ttc_with_quantity__sum %}
-        <strong>La livraison est offerte.</strong>
-    {% else %}
-        <strong>Un tarif de livraison sera à prendre en compte.</strong>
-    {% endif %}
+    <ul>
+        <li>
+            <a href="{% url "catalogue_basket" %}">Voir mon panier</a>
+        </li>
+    </ul>
 {% else %}
     <ul>
         <li>

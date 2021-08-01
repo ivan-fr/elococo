@@ -779,17 +779,17 @@ body main.gridded > .main #boutique-container .product_categories_right {
     border-left: unset;
   }
 }
-body main.gridded > .main #boutique-container .product_categories_right li {
-  list-style: none;
-}
-body main.gridded > .main #boutique-container .product_categories_right li a {
-  padding: 0.25em;
-  display: block;
-}
-body main.gridded > .main #boutique-container .product_categories_right ul {
+body main.gridded > .main #boutique-container .product_categories_right > ul {
   margin-top: 0em;
   margin-bottom: 0em;
   padding-left: 0em;
+}
+body main.gridded > .main #boutique-container .product_categories_right > ul li {
+  list-style: none;
+}
+body main.gridded > .main #boutique-container .product_categories_right > ul li a {
+  padding: 0.25em;
+  display: block;
 }
 body main.gridded > .main #boutique-container .product_categories_right li.active a {
   background: #ffc886;
@@ -913,6 +913,9 @@ body .navbar > ul #navbar-basket nav {
   position: absolute;
   display: none;
 }
+body .navbar > ul #navbar-basket nav a {
+  text-decoration: underline;
+}
 body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav > div {
   direction: initial;
   text-align: left;
@@ -921,8 +924,15 @@ body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav 
   background: white;
   color: black;
   width: 480px;
-  border-radius: 0.25em;
+  border-top-left-radius: 0.25em;
+  border-top-right-radius: 0.25em;
   list-style: none;
+}
+body .navbar > ul #navbar-basket nav > ul:not(:last-child) {
+  margin-bottom: 0em;
+}
+body .navbar > ul #navbar-basket nav > ul:not(:first-child) {
+  border-radius: 0 0 0.25em 0.25em;
 }
 body .navbar > ul #navbar-basket nav::before {
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
