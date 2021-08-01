@@ -791,7 +791,7 @@ body main.gridded > .main #boutique-container .product_categories_right > ul > l
   padding: 0.25em;
   display: block;
 }
-body main.gridded > .main #boutique-container .product_categories_right > ul > li li a {
+body main.gridded > .main #boutique-container .product_categories_right > ul > li li:not(.active) a {
   background: #fffbf9 !important;
 }
 body main.gridded > .main #boutique-container .product_categories_right li.active a {
