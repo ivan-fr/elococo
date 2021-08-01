@@ -928,6 +928,16 @@ body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav 
   border-top-right-radius: 0.25em;
   list-style: none;
 }
+@media only screen and (max-width: 992px) {
+  body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav > div {
+    width: 400px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav > div {
+    width: 300px;
+  }
+}
 body .navbar > ul #navbar-basket nav > ul:not(:last-child) {
   margin-bottom: 0em;
 }
@@ -981,13 +991,18 @@ body .navbar > ul:first-child > li a {
   display: inline-block;
   text-align: center;
 }
-body .navbar > ul:first-child > li:hover > a {
+body .navbar > ul:first-child > li a:hover {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
 }
 body .navbar > ul:last-child {
   justify-items: center;
   grid-column: span 2;
   direction: rtl;
+}
+@media only screen and (max-width: 576px) {
+  body .navbar > ul:last-child {
+    justify-items: unset;
+  }
 }
 body .navbar > ul:last-child:hover #navbar-basket nav {
   display: block;
@@ -1013,7 +1028,12 @@ body .navbar > ul:last-child > li > a {
   display: inline-block;
   text-align: center;
 }
-body .navbar > ul:last-child > li:hover > a {
+@media only screen and (max-width: 992px) {
+  body .navbar > ul:last-child > li > a {
+    margin: 0 auto;
+  }
+}
+body .navbar > ul:last-child > li > a:hover {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
 }
 

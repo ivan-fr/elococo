@@ -596,6 +596,12 @@ body
             border-top-right-radius: 0.25em
             list-style: none
 
+            @media #{$large-down}
+              width: 400px
+
+            @media #{$medium-down}
+              width: 300px
+
           & > ul:not(:last-child)
             @include mb-(0)
 
@@ -642,13 +648,16 @@ body
             display: inline-block
             text-align: center
 
-          &:hover > a
-            background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
+            &:hover
+              background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
 
       &:last-child
         justify-items: center
         @include span(2)
         direction: rtl
+
+        @media #{$small-down}
+          justify-items: unset
 
         &:hover #navbar-basket nav
           display: block
@@ -669,5 +678,8 @@ body
             display: inline-block
             text-align: center
 
-          &:hover > a
-            background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
+            @media #{$large-down}
+              margin: 0 auto
+
+            &:hover
+              background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)

@@ -19,13 +19,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
+import catalogue.views
+
 
 def trigger_error(request):
     division_by_zero = 1 / 0
 
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name="elococo/presentation.html"), name="index"),
+    path('', catalogue.views.IndexView.as_view(), name='catalogue_index'),
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),

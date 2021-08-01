@@ -1,15 +1,6 @@
 {% load static %}
 <nav class="navbar">
     <ul>
-        {% if index_nav == 1 %}
-            <li class="is-active">
-                {% else %}
-            <li>
-        {% endif %}
-        <a href="{% url 'index' %}">
-            Présentation
-        </a>
-        </li>
         {% if not index_nav %}
             <li class="is-active">
                 {% else %}
