@@ -85,6 +85,7 @@
 
     {% if not basket_view %}
         navbar_basket.querySelector(":scope > a").addEventListener("mouseenter", get_surface_basket)
+        navbar_basket.querySelector(":scope > a").addEventListener("touchstart", get_surface_basket)
         navbar_basket.querySelector(":scope > a").addEventListener("click", (event) => {
             event.preventDefault();
         })
