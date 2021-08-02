@@ -28,7 +28,7 @@ def trigger_error(request):
 
 urlpatterns = [
     path('', catalogue.views.IndexView.as_view(), name='catalogue_index'),
-    path('admin/', include('grappelli.urls')),
+    path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),

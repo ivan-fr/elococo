@@ -55,7 +55,6 @@ ALLOWED_HOSTS = secrets['allowed_hosts']
 INSTALLED_APPS = [
     'sale.apps.SaleConfig',
     'catalogue.apps.CatalogueConfig',
-    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

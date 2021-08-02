@@ -42,11 +42,11 @@ def stock_sold_list(obj):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'dateUpdate', 'stock', stock_sold_list, reductions, price_exact_ht,
-                    price_exact_ttc, categories, 'enable_sale', 'enable_comment')
+                    price_exact_ttc, categories, 'enable_sale')
     list_editable = ('enable_sale', 'enable_comment', "stock")
     filter_horizontal = ('categories',)
     inlines = (ProductImageAdmin,)
-    exclude = ('enable_sale', 'slug')
+    exclude = ('enable_sale', 'slug', 'enable_comment')
     change_form_template = "catalogue/admin/product_change_form.html"
 
     def get_queryset(self, request):
