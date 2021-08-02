@@ -1095,17 +1095,19 @@ body .navbar > ul:first-child > li a:hover {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
 }
 body .navbar > ul:last-child {
-  justify-items: center;
   grid-column: span 2;
   direction: rtl;
+}
+body .navbar > ul:last-child #navbar-basket {
+  grid-column: span 4;
+}
+body .navbar > ul:last-child #navbar-basket:hover nav {
+  display: block;
 }
 @media only screen and (max-width: 576px) {
   body .navbar > ul:last-child {
     justify-items: unset;
   }
-}
-body .navbar > ul:last-child:hover #navbar-basket nav {
-  display: block;
 }
 @media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child {

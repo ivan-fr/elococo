@@ -666,15 +666,17 @@ body
               background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
 
       &:last-child
-        justify-items: center
         @include span(2)
         direction: rtl
 
+        #navbar-basket
+          @include span(4)
+
+          &:hover nav
+            display: block
+
         @media #{$small-down}
           justify-items: unset
-
-        &:hover #navbar-basket nav
-          display: block
 
         @media #{$x-large-down}
           @include span(4)
