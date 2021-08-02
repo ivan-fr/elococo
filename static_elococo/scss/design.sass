@@ -606,8 +606,6 @@ body
             background: white
             color: black
             width: 480px
-            border-top-left-radius: 0.25em
-            border-top-right-radius: 0.25em
             list-style: none
 
             @media #{$large-down}
@@ -616,12 +614,18 @@ body
             @media #{$medium-down}
               width: 300px
 
-          & > ul:not(:last-child)
-            @include mb-(0)
-            border-radius: 0.25em 0.25em 0 0
+          & > div
+            @include radius(1)
 
           & > ul:not(:first-child)
             border-radius: 0 0 0.25em 0.25em
+
+          & > ul:not(:last-child)
+            @include mb-(0)
+            border-radius: 0
+
+          & > ul:first-child
+            border-radius: 0.25em 0.25em 0 0
 
           &::before
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%)

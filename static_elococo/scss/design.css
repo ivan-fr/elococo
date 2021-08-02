@@ -1024,8 +1024,6 @@ body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav 
   background: white;
   color: black;
   width: 480px;
-  border-top-left-radius: 0.25em;
-  border-top-right-radius: 0.25em;
   list-style: none;
 }
 @media only screen and (max-width: 992px) {
@@ -1038,12 +1036,18 @@ body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav 
     width: 300px;
   }
 }
-body .navbar > ul #navbar-basket nav > ul:not(:last-child) {
-  margin-bottom: 0em;
-  border-radius: 0.25em 0.25em 0 0;
+body .navbar > ul #navbar-basket nav > div {
+  border-radius: 0.25em;
 }
 body .navbar > ul #navbar-basket nav > ul:not(:first-child) {
   border-radius: 0 0 0.25em 0.25em;
+}
+body .navbar > ul #navbar-basket nav > ul:not(:last-child) {
+  margin-bottom: 0em;
+  border-radius: 0;
+}
+body .navbar > ul #navbar-basket nav > ul:first-child {
+  border-radius: 0.25em 0.25em 0 0;
 }
 body .navbar > ul #navbar-basket nav::before {
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
