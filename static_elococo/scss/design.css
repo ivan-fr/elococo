@@ -1024,6 +1024,9 @@ body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav 
   color: black;
   width: 480px;
   list-style: none;
+  margin-left: 0.75em;
+  margin-right: 0.75em;
+  margin-bottom: 0.75em;
 }
 @media only screen and (max-width: 992px) {
   body .navbar > ul #navbar-basket nav > ul, body .navbar > ul #navbar-basket nav > div {
@@ -1105,7 +1108,7 @@ body .navbar > ul:last-child {
 body .navbar > ul:last-child #navbar-basket {
   grid-column: span 4;
 }
-body .navbar > ul:last-child #navbar-basket:hover nav {
+body .navbar > ul:last-child #navbar-basket nav.active {
   display: block;
 }
 @media only screen and (max-width: 576px) {

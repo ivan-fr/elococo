@@ -62,6 +62,7 @@
 
     function get_surface_basket(event) {
         event.preventDefault();
+        sub_nav.classList.toggle("active");
 
         if (sub_nav_loaded) {
             return
@@ -84,11 +85,21 @@
     }
 
     {% if not basket_view %}
-        navbar_basket.querySelector(":scope > a").addEventListener("mouseenter", get_surface_basket)
-        navbar_basket.querySelector(":scope > a").addEventListener("touchstart", get_surface_basket)
-        navbar_basket.querySelector(":scope > a").addEventListener("click", (event) => {
-            event.preventDefault();
+        function mouseenter_listener_callback(event) {
+            navbar_basket.querySelector(":scope > a").removeEventListener("mouseenter", mouseenter_listener_callback)
+            get_surface_basket(event)
+        }
+
+        function mouseenter_listener() {
+            navbar_basket.querySelector(":scope > a").addEventListener("mouseenter", mouseenter_listener_callback)
+        }
+
+        mouseenter_listener()
+        navbar_basket.parentElement.addEventListener("mouseleave", (event) => {
+            mouseenter_listener()
+            get_surface_basket(event)
         })
+        navbar_basket.querySelector(":scope > a").addEventListener("touchstart", get_surface_basket)
     {% endif %}
 
 </script>
