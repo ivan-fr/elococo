@@ -315,6 +315,8 @@ class OrderedDetail(FormMixin, DetailView):
             image_url = product.productimage_set.all()[0].image.url
             images.append(self.request.build_absolute_uri(image_url))
 
+        images = images[:8]
+
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
