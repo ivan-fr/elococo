@@ -390,22 +390,17 @@ body
 
           figure
             cursor: pointer
+            @include radius(0)
 
           & > figure:nth-child(2n-1)
             &:not(:first-child)
-              img
-                border-top: none
+              border-top: none
 
               & + figure
-                img
-                  border-top: none
+                border-top: none
 
             & + figure
-              figcaption
-                border-left: none
-
-              img
-                border-left: none
+              border-left: none
 
           & > figure:nth-of-type(2n+1):last-child:not(:first-child)
             @include span(2)
