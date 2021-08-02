@@ -100,6 +100,7 @@
             get_surface_basket(event)
         })
         navbar_basket.querySelector(":scope > a").addEventListener("touchstart", get_surface_basket)
+        navbar_basket.querySelector(":scope > a").addEventListener("click", (e) => e.preventDefault())
     {% endif %}
 
 </script>
