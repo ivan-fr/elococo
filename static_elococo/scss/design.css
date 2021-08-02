@@ -492,7 +492,9 @@ body .wrapper {
   padding-bottom: 6.25em;
   position: relative;
 }
-body .wrapper footer {
+body .wrapper::after {
+  content: "";
+  display: block;
   position: absolute;
   bottom: 0;
   z-index: 1;
@@ -962,9 +964,6 @@ body main.gridded > .main #boutique_pagination {
 }
 body main.gridded > .main #boutique_pagination .page-link {
   color: black;
-}
-body main.gridded > .main > :is(h1, h2, h3, h4, h5, h6):first-child {
-  display: none;
 }
 body main.gridded > .main > :not(:is(h1, h2, h3, h4, h5, h6)):first-of-type {
   margin-top: 0em !important;
