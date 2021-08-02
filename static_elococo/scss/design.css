@@ -424,7 +424,7 @@ body figure.hover_figure figcaption {
   box-sizing: border-box;
   width: 100%;
   font-weight: bold;
-  border: solid #f37333 1px;
+  border-top: solid #f37333 1px;
 }
 body figure img {
   max-width: 100%;
