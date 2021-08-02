@@ -43,8 +43,7 @@
                         {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
                         {% elif product.stock <= 5 %} Il ne reste plus que
                             <strong>{{ product.stock }} unité(s)</strong> de
-                            ce produit en
-                            stock !
+                            ce produit en stock !
                         {% else %}
                             <strong>Ce produit est en stock !</strong>
                         {% endif %}

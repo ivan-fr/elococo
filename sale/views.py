@@ -85,6 +85,10 @@ def capture_order(session):
                 with transaction.atomic():
                     Product.objects.bulk_update(list(products), ("stock",))
                     stripe.PaymentIntent.capture(session["id"])
+                with transaction.atomic():
+                    order.payment_status = True
+                    order.invoice_date = now()
+                    order.save()
             except IntegrityError:
                 cancel = True
         except ValueError:
@@ -107,11 +111,6 @@ def fulfill_order(request, session):
         ).prefetch_related("order_address").get()
     except Ordered.DoesNotExist:
         return HttpResponse(status=400)
-
-    with transaction.atomic():
-        order.payment_status = True
-        order.invoice_date = now()
-        order.save()
 
     context_dict = {
         "ordered": order,
@@ -213,7 +212,8 @@ def get_object(self, queryset=None, extra_filter=None):
     try:
         obj = queryset.annotate(
             **default_ordered_annotation_format()
-        ).prefetch_related("order_address").get()
+        ).prefetch_related("order_address", "from_ordered", "from_ordered__to_product",
+                           "from_ordered__to_product__productimage_set").get()
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
@@ -308,6 +308,13 @@ class OrderedDetail(FormMixin, DetailView):
         if self.object.delivery_mode is None and settings.DELIVERY_FREE_GT < amount:
             return HttpResponseRedirect(reverse("sale:delivery", kwargs={"pk": self.object.pk}))
 
+        images = []
+
+        for ordered_product in self.object.from_ordered.all():
+            product = ordered_product.to_product
+            image_url = product.productimage_set.all()[0].image.url
+            images.append(self.request.build_absolute_uri(image_url))
+
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -318,6 +325,7 @@ class OrderedDetail(FormMixin, DetailView):
                             'unit_amount_decimal': get_amount(self.object, with_delivery=True).quantize(TWO_PLACES),
                             'product_data': {
                                 'name': f'Order #{self.object.pk}',
+                                'images': images
                             },
                         },
                         'quantity': 1,
