@@ -85,9 +85,20 @@
     }
 
     {% if not basket_view %}
+        function mouseleave_listener_callback(event) {
+            navbar_basket.parentElement.removeEventListener("mouseleave", mouseleave_listener_callback)
+            mouseenter_listener()
+            get_surface_basket(event)
+        }
+
+        function mouseleave_listener() {
+            navbar_basket.parentElement.addEventListener("mouseleave", mouseleave_listener_callback)
+        }
+
         function mouseenter_listener_callback(event) {
             navbar_basket.querySelector(":scope > a").removeEventListener("mouseenter", mouseenter_listener_callback)
             get_surface_basket(event)
+            mouseleave_listener()
         }
 
         function mouseenter_listener() {
@@ -95,10 +106,7 @@
         }
 
         mouseenter_listener()
-        navbar_basket.parentElement.addEventListener("mouseleave", (event) => {
-            mouseenter_listener()
-            get_surface_basket(event)
-        })
+
         navbar_basket.querySelector(":scope > a").addEventListener("touchstart", get_surface_basket)
         navbar_basket.querySelector(":scope > a").addEventListener("click", (e) => e.preventDefault())
     {% endif %}
