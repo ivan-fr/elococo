@@ -1,0 +1,812 @@
+- model: sale.promo
+  pk: QmexNikQlWPsbMg
+  fields:
+    type: pe
+    value: 20
+    max_time: 5
+    startOfLife: null
+    endOfLife: null
+    min_ht: 25
+    min_products_basket: 1
+- model: sale.ordered
+  pk: 373a54af-7634-4e50-b64b-450a87be958e
+  fields:
+    email: ivan.besevic_fr@yahoo.com
+    phone: 0637728273
+    secrets: xhmmqafwqojcjrlclbiuubgxyuvuqw
+    payment_status: true
+    invoice_date: 2021-08-02 11:02:04.391993+00:00
+    price_exact_ttc_with_quantity_sum: 4340
+    price_exact_ht_with_quantity_sum: 3617
+    createdAt: 2021-08-02 11:02:04.392012+00:00
+    endOfLife: 2021-08-02 11:47:04.392012+00:00
+    delivery_mode: do
+    delivery_value: 599
+    promo: null
+    promo_value: null
+    promo_type: null
+    price_exact_ttc_with_quantity_sum_promo: null
+    price_exact_ht_with_quantity_sum_promo: null
+- model: sale.ordered
+  pk: d706e2ea-e2ab-413d-b3f1-851fb5ac9b60
+  fields:
+    email: ivan.besevic_fr@yahoo.com
+    phone: 0780948564
+    secrets: otyvemdthwgcmgovvcdmnfkhupruet
+    payment_status: true
+    invoice_date: 2021-07-30 13:05:39.218976+00:00
+    price_exact_ttc_with_quantity_sum: 6790
+    price_exact_ht_with_quantity_sum: 5658
+    createdAt: 2021-07-30 13:05:39.218986+00:00
+    endOfLife: 2021-07-30 13:50:39.218986+00:00
+    delivery_mode: ds
+    delivery_value: null
+    promo: QmexNikQlWPsbMg
+    promo_value: 20
+    promo_type: pe
+    price_exact_ttc_with_quantity_sum_promo: 5432
+    price_exact_ht_with_quantity_sum_promo: 4526
+- model: sale.address
+  pk: 4
+  fields:
+    order: d706e2ea-e2ab-413d-b3f1-851fb5ac9b60
+    first_name: Ivan
+    last_name: BESEVIC
+    address: 248 rue de Crimée
+    address2: apprt 252
+    postal_code: 75019
+    city: Paris
+- model: sale.address
+  pk: 5
+  fields:
+    order: 373a54af-7634-4e50-b64b-450a87be958e
+    first_name: Ivan
+    last_name: BESEVIC
+    address: 248 rue de Crimée
+    address2: apprt 252
+    postal_code: 75019
+    city: Paris
+- model: sale.orderedproduct
+  pk: 9
+  fields:
+    from_ordered: d706e2ea-e2ab-413d-b3f1-851fb5ac9b60
+    to_product: brume-parfumee-corps-cheveux-vanille-bourbon
+    quantity: 2
+    product_name: Brume Parfumée Corps & Cheveux Vanille Bourbon
+    effective_reduction: 30
+    price_exact_ttc: 2450
+    price_exact_ht: 2042
+    price_exact_ttc_with_quantity: 4900
+    price_exact_ht_with_quantity: 4083
+- model: sale.orderedproduct
+  pk: 10
+  fields:
+    from_ordered: d706e2ea-e2ab-413d-b3f1-851fb5ac9b60
+    to_product: poudre-libre-pure-light
+    quantity: 1
+    product_name: Poudre Libre Pure Light
+    effective_reduction: 10
+    price_exact_ttc: 1890
+    price_exact_ht: 1575
+    price_exact_ttc_with_quantity: 1890
+    price_exact_ht_with_quantity: 1575
+- model: sale.orderedproduct
+  pk: 11
+  fields:
+    from_ordered: 373a54af-7634-4e50-b64b-450a87be958e
+    to_product: brume-parfumee-corps-cheveux-vanille-bourbon
+    quantity: 1
+    product_name: Brume Parfumée Corps & Cheveux Vanille Bourbon
+    effective_reduction: 30
+    price_exact_ttc: 2450
+    price_exact_ht: 2042
+    price_exact_ttc_with_quantity: 2450
+    price_exact_ht_with_quantity: 2042
+- model: sale.orderedproduct
+  pk: 12
+  fields:
+    from_ordered: 373a54af-7634-4e50-b64b-450a87be958e
+    to_product: poudre-libre-pure-light
+    quantity: 1
+    product_name: Poudre Libre Pure Light
+    effective_reduction: 10
+    price_exact_ttc: 1890
+    price_exact_ht: 1575
+    price_exact_ttc_with_quantity: 1890
+    price_exact_ht_with_quantity: 1575
+- model: catalogue.category
+  pk: 1
+  fields:
+    path: '0001'
+    depth: 1
+    numchild: 1
+    category: Eau florale
+    slug: eau-florale
+- model: catalogue.category
+  pk: 2
+  fields:
+    path: '00010001'
+    depth: 2
+    numchild: 0
+    category: Poudre
+    slug: poudre
+- model: catalogue.product
+  pk: brume-parfumee-corps-cheveux-vanille-bourbon
+  fields:
+    name: Brume Parfumée Corps & Cheveux Vanille Bourbon
+    description: "<div class=\"description\">\r\n<p>Brume Parfum&eacute;e Corps &amp;
+      Cheveux Vanille Bourbon</p>\r\n</div>"
+    price: 3500
+    TTC_price: true
+    reduction: 30
+    reduction_end: 2022-04-08
+    stock: 7
+    date: 2021-07-30
+    dateUpdate: 2021-07-30
+    enable_comment: false
+    enable_sale: true
+    categories:
+    - 1
+- model: catalogue.product
+  pk: poudre-libre-pure-light
+  fields:
+    name: Poudre Libre Pure Light
+    description: "<div class=\"description\">\r\n<p>Poudre Libre Pure Light</p>\r\n</div>"
+    price: 2100
+    TTC_price: true
+    reduction: 10
+    reduction_end: 2022-04-08
+    stock: 8
+    date: 2021-07-30
+    dateUpdate: 2021-07-30
+    enable_comment: false
+    enable_sale: true
+    categories:
+    - 2
+- model: catalogue.productimage
+  pk: 2
+  fields:
+    product: brume-parfumee-corps-cheveux-vanille-bourbon
+    image: product-brume-parfumee-corps-cheveux-vanille-bourbon/1627642365475020951.jpg
+- model: catalogue.productimage
+  pk: 3
+  fields:
+    product: brume-parfumee-corps-cheveux-vanille-bourbon
+    image: product-brume-parfumee-corps-cheveux-vanille-bourbon/1627642365476906868.jpg
+- model: catalogue.productimage
+  pk: 4
+  fields:
+    product: brume-parfumee-corps-cheveux-vanille-bourbon
+    image: product-brume-parfumee-corps-cheveux-vanille-bourbon/1627642365478067637.jpg
+- model: catalogue.productimage
+  pk: 5
+  fields:
+    product: poudre-libre-pure-light
+    image: product-poudre-libre-pure-light/1627642552338845213.jpg
+- model: catalogue.productimage
+  pk: 6
+  fields:
+    product: poudre-libre-pure-light
+    image: product-poudre-libre-pure-light/1627642552343895321.jpg
+- model: catalogue.productimage
+  pk: 7
+  fields:
+    product: poudre-libre-pure-light
+    image: product-poudre-libre-pure-light/1627642552345329133.jpg
+- model: admin.logentry
+  pk: 1
+  fields:
+    action_time: 2021-06-20 11:57:23.937916+00:00
+    user: 1
+    content_type: 5
+    object_id: '1'
+    object_repr: Eau florale
+    action_flag: 1
+    change_message: '[{"added": {}}]'
+- model: admin.logentry
+  pk: 2
+  fields:
+    action_time: 2021-06-20 11:57:37.027476+00:00
+    user: 1
+    content_type: 6
+    object_id: poudre-libre-pure-light
+    object_repr: Product object (poudre-libre-pure-light)
+    action_flag: 1
+    change_message: '[{"added": {}}, {"added": {"name": "product image", "object":
+      "ProductImage object (1)"}}]'
+- model: admin.logentry
+  pk: 3
+  fields:
+    action_time: 2021-06-20 11:57:58.995088+00:00
+    user: 1
+    content_type: 6
+    object_id: poudre-libre-pure-light
+    object_repr: Product object (poudre-libre-pure-light)
+    action_flag: 2
+    change_message: '[{"changed": {"fields": ["Enable sale", "Stock"]}}]'
+- model: admin.logentry
+  pk: 4
+  fields:
+    action_time: 2021-06-20 11:58:13.502440+00:00
+    user: 1
+    content_type: 6
+    object_id: poudre-libre-pure-light
+    object_repr: Product object (poudre-libre-pure-light)
+    action_flag: 3
+    change_message: ''
+- model: admin.logentry
+  pk: 5
+  fields:
+    action_time: 2021-07-30 10:52:45.481392+00:00
+    user: 2
+    content_type: 6
+    object_id: brume-parfumee-corps-cheveux-vanille-bourbon
+    object_repr: Product object (brume-parfumee-corps-cheveux-vanille-bourbon)
+    action_flag: 1
+    change_message: '[{"added": {}}, {"added": {"name": "product image", "object":
+      "ProductImage object (2)"}}, {"added": {"name": "product image", "object": "ProductImage
+      object (3)"}}, {"added": {"name": "product image", "object": "ProductImage object
+      (4)"}}]'
+- model: admin.logentry
+  pk: 6
+  fields:
+    action_time: 2021-07-30 10:52:47.532179+00:00
+    user: 2
+    content_type: 6
+    object_id: brume-parfumee-corps-cheveux-vanille-bourbon
+    object_repr: Product object (brume-parfumee-corps-cheveux-vanille-bourbon)
+    action_flag: 2
+    change_message: '[{"changed": {"fields": ["Enable sale"]}}]'
+- model: admin.logentry
+  pk: 7
+  fields:
+    action_time: 2021-07-30 10:55:33.402048+00:00
+    user: 2
+    content_type: 5
+    object_id: '2'
+    object_repr: Poudre
+    action_flag: 1
+    change_message: '[{"added": {}}]'
+- model: admin.logentry
+  pk: 8
+  fields:
+    action_time: 2021-07-30 10:55:52.348978+00:00
+    user: 2
+    content_type: 6
+    object_id: poudre-libre-pure-light
+    object_repr: Product object (poudre-libre-pure-light)
+    action_flag: 1
+    change_message: '[{"added": {}}, {"added": {"name": "product image", "object":
+      "ProductImage object (5)"}}, {"added": {"name": "product image", "object": "ProductImage
+      object (6)"}}, {"added": {"name": "product image", "object": "ProductImage object
+      (7)"}}]'
+- model: admin.logentry
+  pk: 9
+  fields:
+    action_time: 2021-07-30 10:55:57.015721+00:00
+    user: 2
+    content_type: 6
+    object_id: poudre-libre-pure-light
+    object_repr: Product object (poudre-libre-pure-light)
+    action_flag: 2
+    change_message: '[{"changed": {"fields": ["Enable sale"]}}]'
+- model: admin.logentry
+  pk: 10
+  fields:
+    action_time: 2021-07-30 12:38:08.499661+00:00
+    user: 2
+    content_type: 2
+    object_id: QmexNikQlWPsbMg
+    object_repr: Promo object (QmexNikQlWPsbMg)
+    action_flag: 1
+    change_message: '[{"added": {}}]'
+- model: admin.logentry
+  pk: 11
+  fields:
+    action_time: 2021-07-30 12:53:16.194722+00:00
+    user: 2
+    content_type: 1
+    object_id: 741884fa-f965-4cfa-bc11-b75846eb1f24
+    object_repr: Ordered object (741884fa-f965-4cfa-bc11-b75846eb1f24)
+    action_flag: 3
+    change_message: ''
+- model: admin.logentry
+  pk: 12
+  fields:
+    action_time: 2021-07-30 12:56:43.709867+00:00
+    user: 2
+    content_type: 1
+    object_id: f1aa6901-1ebf-475d-859b-3a299f2b592c
+    object_repr: Ordered object (f1aa6901-1ebf-475d-859b-3a299f2b592c)
+    action_flag: 3
+    change_message: ''
+- model: admin.logentry
+  pk: 13
+  fields:
+    action_time: 2021-07-30 13:02:11.793156+00:00
+    user: 2
+    content_type: 1
+    object_id: 63dfb799-29fa-4a2b-b877-272301e10d89
+    object_repr: Ordered object (63dfb799-29fa-4a2b-b877-272301e10d89)
+    action_flag: 3
+    change_message: ''
+- model: admin.logentry
+  pk: 14
+  fields:
+    action_time: 2021-07-30 13:04:35.218006+00:00
+    user: 2
+    content_type: 1
+    object_id: 28015edb-92ce-41d4-acd1-e5039e226d6b
+    object_repr: Ordered object (28015edb-92ce-41d4-acd1-e5039e226d6b)
+    action_flag: 3
+    change_message: ''
+- model: auth.permission
+  pk: 1
+  fields:
+    name: Can add ordered
+    content_type: 1
+    codename: add_ordered
+- model: auth.permission
+  pk: 2
+  fields:
+    name: Can change ordered
+    content_type: 1
+    codename: change_ordered
+- model: auth.permission
+  pk: 3
+  fields:
+    name: Can delete ordered
+    content_type: 1
+    codename: delete_ordered
+- model: auth.permission
+  pk: 4
+  fields:
+    name: Can view ordered
+    content_type: 1
+    codename: view_ordered
+- model: auth.permission
+  pk: 5
+  fields:
+    name: Can add promo
+    content_type: 2
+    codename: add_promo
+- model: auth.permission
+  pk: 6
+  fields:
+    name: Can change promo
+    content_type: 2
+    codename: change_promo
+- model: auth.permission
+  pk: 7
+  fields:
+    name: Can delete promo
+    content_type: 2
+    codename: delete_promo
+- model: auth.permission
+  pk: 8
+  fields:
+    name: Can view promo
+    content_type: 2
+    codename: view_promo
+- model: auth.permission
+  pk: 9
+  fields:
+    name: Can add ordered product
+    content_type: 3
+    codename: add_orderedproduct
+- model: auth.permission
+  pk: 10
+  fields:
+    name: Can change ordered product
+    content_type: 3
+    codename: change_orderedproduct
+- model: auth.permission
+  pk: 11
+  fields:
+    name: Can delete ordered product
+    content_type: 3
+    codename: delete_orderedproduct
+- model: auth.permission
+  pk: 12
+  fields:
+    name: Can view ordered product
+    content_type: 3
+    codename: view_orderedproduct
+- model: auth.permission
+  pk: 13
+  fields:
+    name: Can add address
+    content_type: 4
+    codename: add_address
+- model: auth.permission
+  pk: 14
+  fields:
+    name: Can change address
+    content_type: 4
+    codename: change_address
+- model: auth.permission
+  pk: 15
+  fields:
+    name: Can delete address
+    content_type: 4
+    codename: delete_address
+- model: auth.permission
+  pk: 16
+  fields:
+    name: Can view address
+    content_type: 4
+    codename: view_address
+- model: auth.permission
+  pk: 17
+  fields:
+    name: Can add category
+    content_type: 5
+    codename: add_category
+- model: auth.permission
+  pk: 18
+  fields:
+    name: Can change category
+    content_type: 5
+    codename: change_category
+- model: auth.permission
+  pk: 19
+  fields:
+    name: Can delete category
+    content_type: 5
+    codename: delete_category
+- model: auth.permission
+  pk: 20
+  fields:
+    name: Can view category
+    content_type: 5
+    codename: view_category
+- model: auth.permission
+  pk: 21
+  fields:
+    name: Can add product
+    content_type: 6
+    codename: add_product
+- model: auth.permission
+  pk: 22
+  fields:
+    name: Can change product
+    content_type: 6
+    codename: change_product
+- model: auth.permission
+  pk: 23
+  fields:
+    name: Can delete product
+    content_type: 6
+    codename: delete_product
+- model: auth.permission
+  pk: 24
+  fields:
+    name: Can view product
+    content_type: 6
+    codename: view_product
+- model: auth.permission
+  pk: 25
+  fields:
+    name: Can add product to product
+    content_type: 7
+    codename: add_producttoproduct
+- model: auth.permission
+  pk: 26
+  fields:
+    name: Can change product to product
+    content_type: 7
+    codename: change_producttoproduct
+- model: auth.permission
+  pk: 27
+  fields:
+    name: Can delete product to product
+    content_type: 7
+    codename: delete_producttoproduct
+- model: auth.permission
+  pk: 28
+  fields:
+    name: Can view product to product
+    content_type: 7
+    codename: view_producttoproduct
+- model: auth.permission
+  pk: 29
+  fields:
+    name: Can add product image
+    content_type: 8
+    codename: add_productimage
+- model: auth.permission
+  pk: 30
+  fields:
+    name: Can change product image
+    content_type: 8
+    codename: change_productimage
+- model: auth.permission
+  pk: 31
+  fields:
+    name: Can delete product image
+    content_type: 8
+    codename: delete_productimage
+- model: auth.permission
+  pk: 32
+  fields:
+    name: Can view product image
+    content_type: 8
+    codename: view_productimage
+- model: auth.permission
+  pk: 33
+  fields:
+    name: Can add comment
+    content_type: 9
+    codename: add_comment
+- model: auth.permission
+  pk: 34
+  fields:
+    name: Can change comment
+    content_type: 9
+    codename: change_comment
+- model: auth.permission
+  pk: 35
+  fields:
+    name: Can delete comment
+    content_type: 9
+    codename: delete_comment
+- model: auth.permission
+  pk: 36
+  fields:
+    name: Can view comment
+    content_type: 9
+    codename: view_comment
+- model: auth.permission
+  pk: 37
+  fields:
+    name: Can add log entry
+    content_type: 10
+    codename: add_logentry
+- model: auth.permission
+  pk: 38
+  fields:
+    name: Can change log entry
+    content_type: 10
+    codename: change_logentry
+- model: auth.permission
+  pk: 39
+  fields:
+    name: Can delete log entry
+    content_type: 10
+    codename: delete_logentry
+- model: auth.permission
+  pk: 40
+  fields:
+    name: Can view log entry
+    content_type: 10
+    codename: view_logentry
+- model: auth.permission
+  pk: 41
+  fields:
+    name: Can add permission
+    content_type: 11
+    codename: add_permission
+- model: auth.permission
+  pk: 42
+  fields:
+    name: Can change permission
+    content_type: 11
+    codename: change_permission
+- model: auth.permission
+  pk: 43
+  fields:
+    name: Can delete permission
+    content_type: 11
+    codename: delete_permission
+- model: auth.permission
+  pk: 44
+  fields:
+    name: Can view permission
+    content_type: 11
+    codename: view_permission
+- model: auth.permission
+  pk: 45
+  fields:
+    name: Can add group
+    content_type: 12
+    codename: add_group
+- model: auth.permission
+  pk: 46
+  fields:
+    name: Can change group
+    content_type: 12
+    codename: change_group
+- model: auth.permission
+  pk: 47
+  fields:
+    name: Can delete group
+    content_type: 12
+    codename: delete_group
+- model: auth.permission
+  pk: 48
+  fields:
+    name: Can view group
+    content_type: 12
+    codename: view_group
+- model: auth.permission
+  pk: 49
+  fields:
+    name: Can add user
+    content_type: 13
+    codename: add_user
+- model: auth.permission
+  pk: 50
+  fields:
+    name: Can change user
+    content_type: 13
+    codename: change_user
+- model: auth.permission
+  pk: 51
+  fields:
+    name: Can delete user
+    content_type: 13
+    codename: delete_user
+- model: auth.permission
+  pk: 52
+  fields:
+    name: Can view user
+    content_type: 13
+    codename: view_user
+- model: auth.permission
+  pk: 53
+  fields:
+    name: Can add content type
+    content_type: 14
+    codename: add_contenttype
+- model: auth.permission
+  pk: 54
+  fields:
+    name: Can change content type
+    content_type: 14
+    codename: change_contenttype
+- model: auth.permission
+  pk: 55
+  fields:
+    name: Can delete content type
+    content_type: 14
+    codename: delete_contenttype
+- model: auth.permission
+  pk: 56
+  fields:
+    name: Can view content type
+    content_type: 14
+    codename: view_contenttype
+- model: auth.permission
+  pk: 57
+  fields:
+    name: Can add session
+    content_type: 15
+    codename: add_session
+- model: auth.permission
+  pk: 58
+  fields:
+    name: Can change session
+    content_type: 15
+    codename: change_session
+- model: auth.permission
+  pk: 59
+  fields:
+    name: Can delete session
+    content_type: 15
+    codename: delete_session
+- model: auth.permission
+  pk: 60
+  fields:
+    name: Can view session
+    content_type: 15
+    codename: view_session
+- model: auth.user
+  pk: 1
+  fields:
+    password: pbkdf2_sha256$260000$SqrxFWpwUNCvQLZBT25z85$hwUgxQk8xk2qNpKW1e29xRVAhTS6rpXhON51RtOhfAw=
+    last_login: 2021-06-20 11:56:59.731116+00:00
+    is_superuser: true
+    username: elodie
+    first_name: ''
+    last_name: ''
+    email: ''
+    is_staff: true
+    is_active: true
+    date_joined: 2021-06-20 10:31:39.928479+00:00
+    groups: []
+    user_permissions: []
+- model: auth.user
+  pk: 2
+  fields:
+    password: pbkdf2_sha256$260000$FdQanyZQKRSvMSxyK7Iaht$HuyMHOUBcTnbUocLHibZxJkrupMze8TH/MVRtTqeydg=
+    last_login: 2021-07-30 10:50:29.554028+00:00
+    is_superuser: true
+    username: ivan
+    first_name: ''
+    last_name: ''
+    email: elococo.demo@gmail.com
+    is_staff: true
+    is_active: true
+    date_joined: 2021-07-30 10:49:12.516441+00:00
+    groups: []
+    user_permissions: []
+- model: contenttypes.contenttype
+  pk: 1
+  fields:
+    app_label: sale
+    model: ordered
+- model: contenttypes.contenttype
+  pk: 2
+  fields:
+    app_label: sale
+    model: promo
+- model: contenttypes.contenttype
+  pk: 3
+  fields:
+    app_label: sale
+    model: orderedproduct
+- model: contenttypes.contenttype
+  pk: 4
+  fields:
+    app_label: sale
+    model: address
+- model: contenttypes.contenttype
+  pk: 5
+  fields:
+    app_label: catalogue
+    model: category
+- model: contenttypes.contenttype
+  pk: 6
+  fields:
+    app_label: catalogue
+    model: product
+- model: contenttypes.contenttype
+  pk: 7
+  fields:
+    app_label: catalogue
+    model: producttoproduct
+- model: contenttypes.contenttype
+  pk: 8
+  fields:
+    app_label: catalogue
+    model: productimage
+- model: contenttypes.contenttype
+  pk: 9
+  fields:
+    app_label: catalogue
+    model: comment
+- model: contenttypes.contenttype
+  pk: 10
+  fields:
+    app_label: admin
+    model: logentry
+- model: contenttypes.contenttype
+  pk: 11
+  fields:
+    app_label: auth
+    model: permission
+- model: contenttypes.contenttype
+  pk: 12
+  fields:
+    app_label: auth
+    model: group
+- model: contenttypes.contenttype
+  pk: 13
+  fields:
+    app_label: auth
+    model: user
+- model: contenttypes.contenttype
+  pk: 14
+  fields:
+    app_label: contenttypes
+    model: contenttype
+- model: contenttypes.contenttype
+  pk: 15
+  fields:
+    app_label: sessions
+    model: session
+- model: sessions.session
+  pk: naib4lbhns2uwxs3129pn2s6qet6ii71
+  fields:
+    session_data: .eJxVjUEOwiAURO_C2pDCL6W4dO8ZCPA_Fm1KAq2JMd5dmnShu8nMm5k3s25bJ7tVKjYhOzPJTr-ed-FByx7g3S23zENe1pI83xF-pJVfM9J8Odi_gcnVqbWD1BC8RlAjiAEMDLIfwXTYi6CEpk4JqaIW0KMcHLrOCPAajNcOo3GxjeaCVAhtqjameW6qfaYnlRc7r2WjzxfP8EP6:1mAsvr:dSPFdzZocdzTtsL9SlbanZmDxq9MQDBZY5G7puhYu7w
+    expire_date: 2021-08-17 11:50:03.317110+00:00
