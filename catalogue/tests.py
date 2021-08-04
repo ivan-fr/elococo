@@ -1,3 +1,4 @@
+from sale.models import Promo
 from catalogue.forms import AddToBasketForm
 from django.conf import settings
 from catalogue.bdd_calculations import cast_annotate_to_float, price_annotation_format
@@ -107,6 +108,17 @@ class CatalogueTests(TestCase):
 
     def test_basket_surface(self):
         response = self.client.get(reverse("catalogue_basket_surface"))
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_promo(self):
+        promo = Promo.objects.first()
+        response = self.client.post(
+            reverse("catalogue_basket_promo"), {
+                'code_promo': promo.pk
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
         self.assertEqual(response.status_code, 200)
 
 
