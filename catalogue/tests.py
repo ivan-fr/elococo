@@ -1,7 +1,7 @@
+import random
 from sale.models import Promo
-from catalogue.forms import AddToBasketForm
 from django.conf import settings
-from catalogue.bdd_calculations import cast_annotate_to_float, price_annotation_format
+from catalogue.bdd_calculations import cast_annotate_to_float, get_related_products, price_annotation_format
 from catalogue.models import Category, Product
 from django.test import TestCase
 from django.urls import reverse
@@ -36,17 +36,38 @@ def test_orders(self, product_db, category_selected, order, field_order):
         self.assertEqual(asc_product.slug, context_product.slug)
 
 
+def get_dict_data_formset(formset):
+    data = {}
+    for field in formset.management_form:
+        data["-".join((formset.management_form.prefix, field.name))] = field.value()
+    for form in formset:
+        for field in form:
+            data[field.html_name] = field.value()
+    return data
+
 
 class CatalogueTests(TestCase):
     fixtures = ["tests_dumpdata.yaml"]
+
+    @classmethod
+    def setUpTestData(cls):
+        for i in range(1, random.randint(2, 30)):
+            Product.objects.create(
+                name=i,
+                description='description',
+                price=i*10,
+                TTC_price=False,
+                enable_sale=True,
+                stock=10
+            )
 
     def test_index(self):
         response = self.client.get(reverse("catalogue_index"))
 
         context = response.context_data
 
-        product_list_context = context['product_list']
         product_db = Product.objects.all()
+        product_list_context = context['product_list']
         paginator = context['paginator']
 
         test_pages(self, product_db, product_list_context, paginator)
@@ -57,6 +78,7 @@ class CatalogueTests(TestCase):
         self.assertIsNone(context['selected_category'])
 
         category_selected = Category.objects.first()
+        product_db = get_related_products(category_selected, product_db)
         response = self.client.get(reverse("catalogue_navigation_categories", kwargs={"slug_category":category_selected.slug}))
 
         context = response.context_data
@@ -147,16 +169,41 @@ class CatalogueTests(TestCase):
         self.test_detail_basket()
         self.test_detail_basket(product_selected=Product.objects.last)
 
-        response = self.client.get(
-            reverse("catalogue_basket")
-        )
+        response = self.client.get(reverse("catalogue_basket"))
         context = response.context_data
         session = self.client.session
         basket = session.get(settings.BASKET_SESSION_KEY, {})
-        
+
         zip_products = context['zip_products']
 
         for product, _ in zip_products:
             self.assertTrue(basket.get(product.slug, False))
 
         self.assertEqual(response.status_code, 200)
+
+    def test_basket_post(self):
+        self.test_basket()
+
+        response = self.client.get(
+            reverse("catalogue_basket")
+        )
+
+        context = response.context_data
+        formset = context['formset']
+
+        for form in formset:
+            for field in form:
+                if field.name == 'remove':
+                    field.initial = True
+
+        data = get_dict_data_formset(formset)
+
+        response = self.client.post(
+            reverse("catalogue_basket"), data
+        )
+
+        session = self.client.session
+        basket = session.get(settings.BASKET_SESSION_KEY, {})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(basket), 0)
