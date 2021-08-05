@@ -3,6 +3,12 @@ language: python
 python:
   - "3.9"
 
+env:
+  global:
+    - MOZ_HEADLESS=1
+addons:
+  firefox: latest
+
 before_script:
   - pip install -r requirements.txt
 
