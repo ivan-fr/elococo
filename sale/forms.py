@@ -1,5 +1,4 @@
 from sale import get_amount
-from sale.views import TWO_PLACES
 import secrets
 import string
 from decimal import Decimal
@@ -7,7 +6,7 @@ from decimal import Decimal
 from django import forms
 from django.conf import settings
 
-from elococo.settings import BACK_TWO_PLACES
+from elococo.settings import BACK_TWO_PLACES, TWO_PLACES
 from sale.models import Address, Ordered, Promo, DELIVERY_SPEED
 
 
