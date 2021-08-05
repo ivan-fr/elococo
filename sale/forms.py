@@ -6,7 +6,7 @@ from decimal import Decimal
 from django import forms
 from django.conf import settings
 
-from elococo.settings import BACK_TWO_PLACES, TWO_PLACES
+from elococo.settings import BACK_TWO_PLACES
 from sale.models import Address, Ordered, Promo, DELIVERY_SPEED
 
 
@@ -55,7 +55,7 @@ class DeliveryMode(forms.ModelForm):
         order = super().save(commit=False)
 
         amount = get_amount(order, with_promo=False) * BACK_TWO_PLACES
-        amount = amount.quantize(TWO_PLACES)
+        amount = amount.quantize(BACK_TWO_PLACES)
 
         if settings.DELIVERY_FREE_GT < amount:
             return order
