@@ -105,3 +105,22 @@ class CatalogueTests(TestCase):
         else:
             self.assertIsNotNone(ordered.delivery_mode)
             self.assertIsNone(ordered.delivery_value)
+
+
+    def test_fill(self):
+        self.test_booking_basket()
+        
+        ordered_queryset = get_ordered_queryset()
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        response = self.client.post(
+            reverse("sale:fill", kwargs={'pk': ordered.pk}),
+            {'phone': "0101010101", 'email': 'example@example.com'}
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        self.assertIsNotNone(ordered.email)
+        self.assertIsNotNone(ordered.phone)
