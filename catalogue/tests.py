@@ -1,4 +1,5 @@
 import random
+
 from sale.models import Promo
 from django.conf import settings
 from catalogue.bdd_calculations import cast_annotate_to_float, get_related_products, price_annotation_format
