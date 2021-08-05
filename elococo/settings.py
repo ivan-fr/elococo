@@ -17,7 +17,11 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
+
+try:
+    secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json'))
+except FileNotFoundError:
+    secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json.example'))
 
 DEBUG = True
 
