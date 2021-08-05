@@ -15,14 +15,16 @@ def test_pages(self, product_db, products_context, paginator):
     for i, product in enumerate(products_in_page):
         self.assertEqual(product.slug, products_context[i].slug)
 
-    products_in_last_page = product_db[(paginator.num_pages - 1) * paginator.per_page:]
+    products_in_last_page = product_db[(
+        paginator.num_pages - 1) * paginator.per_page:]
 
     for i, product in enumerate(products_in_last_page):
         self.assertEqual(product.slug, last_page[i].slug)
 
 
 def test_orders(self, product_db, category_selected, order, field_order):
-    response = self.client.get(reverse("catalogue_navigation_categories", kwargs={"slug_category":category_selected.slug})+ "?order=" + order)
+    response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
+                               "slug_category": category_selected.slug}) + "?order=" + order)
     context = response.context_data
 
     product_list_context = context['product_list']
@@ -30,7 +32,8 @@ def test_orders(self, product_db, category_selected, order, field_order):
     annotation_p = price_annotation_format()
     cast_annotate_to_float(annotation_p, "price_exact_ttc")
 
-    asc_product_db = product_db.annotate(**annotation_p).order_by(field_order)[:paginator.per_page]
+    asc_product_db = product_db.annotate(
+        **annotation_p).order_by(field_order)[:paginator.per_page]
     zip_products = zip(asc_product_db, product_list_context)
 
     for asc_product, context_product in zip_products:
@@ -40,7 +43,8 @@ def test_orders(self, product_db, category_selected, order, field_order):
 def get_dict_data_formset(formset):
     data = {}
     for field in formset.management_form:
-        data["-".join((formset.management_form.prefix, field.name))] = field.value()
+        data["-".join((formset.management_form.prefix, field.name))
+             ] = field.value()
     for form in formset:
         for field in form:
             data[field.html_name] = field.value()
@@ -80,7 +84,8 @@ class CatalogueTests(TestCase):
 
         category_selected = Category.objects.first()
         product_db = get_related_products(category_selected, product_db)
-        response = self.client.get(reverse("catalogue_navigation_categories", kwargs={"slug_category":category_selected.slug}))
+        response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
+                                   "slug_category": category_selected.slug}))
 
         context = response.context_data
 
@@ -95,32 +100,37 @@ class CatalogueTests(TestCase):
             list_bool = []
 
             for category in product.categories.all():
-                list_bool.append(category.is_child_of(category_selected) or category.slug == category_selected.slug)
+                list_bool.append(category.is_child_of(
+                    category_selected) or category.slug == category_selected.slug)
 
             self.assertTrue(any(list_bool))
 
         test_pages(self, product_db, product_list_context, paginator)
-        
-        middle_ttc = (context['price_exact_ttc__min'] + context['price_exact_ttc__max']) / 2.
 
-        test_orders(self, product_db, category_selected, "asc", "price_exact_ttc")
-        test_orders(self, product_db, category_selected, "desc", "-price_exact_ttc")
+        middle_ttc = (context['price_exact_ttc__min'] +
+                      context['price_exact_ttc__max']) / 2.
 
-        response = self.client.get(reverse("catalogue_navigation_categories", kwargs={"slug_category":category_selected.slug})+ "?min_ttc_price=" + str(middle_ttc) + "&max_ttc_price=" + str(context['price_exact_ttc__max']))
+        test_orders(self, product_db, category_selected,
+                    "asc", "price_exact_ttc")
+        test_orders(self, product_db, category_selected,
+                    "desc", "-price_exact_ttc")
+
+        response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
+                                   "slug_category": category_selected.slug}) + "?min_ttc_price=" + str(middle_ttc) + "&max_ttc_price=" + str(context['price_exact_ttc__max']))
         context = response.context_data
 
         product_list_context = context['product_list']
         all_supp_middle = []
-        
+
         for product in product_list_context:
             all_supp_middle.append(product.price_exact_ttc >= middle_ttc)
             self.assertTrue(all(all_supp_middle))
 
-    
     def test_detail(self):
         product_selected = Product.objects.first()
 
-        response = self.client.get(reverse("catalogue_product_detail", kwargs={"slug_product": product_selected.slug}))
+        response = self.client.get(reverse("catalogue_product_detail", kwargs={
+                                   "slug_product": product_selected.slug}))
         context = response.context_data
 
         product_context = context['product']
@@ -128,11 +138,9 @@ class CatalogueTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(product_context.slug, product_selected.slug)
 
-
     def test_basket_surface(self):
         response = self.client.get(reverse("catalogue_basket_surface"))
         self.assertEqual(response.status_code, 200)
-
 
     def test_promo(self):
         promo = Promo.objects.first()
@@ -144,23 +152,25 @@ class CatalogueTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-
     def test_detail_basket(self, product_selected=Product.objects.first):
         product_selected = product_selected()
         session = self.client.session
         basket_before = session.get(settings.BASKET_SESSION_KEY, {})
-        quantity_before = basket_before.get(product_selected.slug, {'quantity': 0})['quantity']
+        quantity_before = basket_before.get(
+            product_selected.slug, {'quantity': 0})['quantity']
 
         response = self.client.post(
-            reverse("catalogue_product_detail", kwargs={"slug_product": product_selected.slug}),
-            {'quantity':1}
+            reverse("catalogue_product_detail", kwargs={
+                    "slug_product": product_selected.slug}),
+            {'quantity': 1}
         )
         self.assertEqual(response.status_code, 302)
 
         session = self.client.session
         basket_after = session.get(settings.BASKET_SESSION_KEY, {})
-        quantity_after = basket_after.get(product_selected.slug, {'quantity': 0})['quantity']
-        
+        quantity_after = basket_after.get(
+            product_selected.slug, {'quantity': 0})['quantity']
+
         try:
             self.assertEqual(len(basket_after) - 1, len(basket_before))
         except AssertionError:
