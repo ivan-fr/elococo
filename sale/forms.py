@@ -1,3 +1,5 @@
+from sale import get_amount
+from sale.views import TWO_PLACES
 import secrets
 import string
 from decimal import Decimal
@@ -52,6 +54,12 @@ class DeliveryMode(forms.ModelForm):
 
     def save(self, commit=True):
         order = super().save(commit=False)
+
+        amount = get_amount(order, with_promo=False) * BACK_TWO_PLACES
+        amount = amount.quantize(TWO_PLACES)
+
+        if settings.DELIVERY_FREE_GT < amount:
+            return order
 
         if order.delivery_mode == DELIVERY_SPEED:
             order.delivery_value = int(settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES) * Decimal(100.))
