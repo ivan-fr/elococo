@@ -15,6 +15,6 @@ env: DJANGO_SETTINGS_MODULE="elococo.settings"
 dist: xenial
 
 script:
-  - python manage.py makemigrations
+  - python manage.py makemigrations sale catalogue
   - python manage.py migrate
   - python manage.py test
