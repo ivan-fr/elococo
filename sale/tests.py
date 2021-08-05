@@ -1,4 +1,6 @@
-from sale.models import Ordered
+from sale import get_amount
+from elococo.settings import BACK_TWO_PLACES
+from sale.models import DELIVERY_SPEED, Ordered
 from django.conf import settings
 from django.urls.base import reverse
 from catalogue.models import Product
@@ -78,3 +80,28 @@ class CatalogueTests(TestCase):
                 )]
             )
         )
+
+    def test_choose_delivery(self):
+        self.test_booking_basket()
+        
+        ordered_queryset = get_ordered_queryset()
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        response = self.client.post(
+            reverse("sale:delivery", kwargs={'pk': ordered.pk}),
+            {'delivery_mode': DELIVERY_SPEED}
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        amount = get_amount(ordered, with_promo=False) * BACK_TWO_PLACES
+        amount = amount.quantize(BACK_TWO_PLACES)
+
+        if settings.DELIVERY_FREE_GT < amount:
+            self.assertIsNotNone(ordered.delivery_mode)
+            self.assertIsNotNone(ordered.delivery_value)
+        else:
+            self.assertIsNotNone(ordered.delivery_mode)
+            self.assertIsNone(ordered.delivery_value)

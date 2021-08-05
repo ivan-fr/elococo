@@ -57,7 +57,7 @@ class DeliveryMode(forms.ModelForm):
         amount = get_amount(order, with_promo=False) * BACK_TWO_PLACES
         amount = amount.quantize(BACK_TWO_PLACES)
 
-        if settings.DELIVERY_FREE_GT < amount:
+        if settings.DELIVERY_FREE_GT >= amount:
             return order
 
         if order.delivery_mode == DELIVERY_SPEED:
