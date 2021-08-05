@@ -1,3 +1,4 @@
+from elococo import get_dict_data_formset
 import random
 
 from sale.models import Promo
@@ -38,17 +39,6 @@ def test_orders(self, product_db, category_selected, order, field_order):
 
     for asc_product, context_product in zip_products:
         self.assertEqual(asc_product.slug, context_product.slug)
-
-
-def get_dict_data_formset(formset):
-    data = {}
-    for field in formset.management_form:
-        data["-".join((formset.management_form.prefix, field.name))
-             ] = field.value()
-    for form in formset:
-        for field in form:
-            data[field.html_name] = field.value()
-    return data
 
 
 class CatalogueTests(TestCase):

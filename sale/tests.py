@@ -1,3 +1,4 @@
+from elococo import get_dict_data_formset
 from sale import get_amount
 from elococo.settings import BACK_TWO_PLACES
 from sale.models import DELIVERY_SPEED, Ordered
@@ -81,9 +82,10 @@ class CatalogueTests(TestCase):
             )
         )
 
-    def test_choose_delivery(self):
-        self.test_booking_basket()
-        
+    def test_choose_delivery(self, booking=True):
+        if booking:
+            self.test_booking_basket()
+
         ordered_queryset = get_ordered_queryset()
         ordered = ordered_queryset.order_by("createdAt").last()
 
@@ -106,10 +108,10 @@ class CatalogueTests(TestCase):
             self.assertIsNotNone(ordered.delivery_mode)
             self.assertIsNone(ordered.delivery_value)
 
+    def test_fill(self, booking=True):
+        if booking:
+            self.test_booking_basket()
 
-    def test_fill(self):
-        self.test_booking_basket()
-        
         ordered_queryset = get_ordered_queryset()
         ordered = ordered_queryset.order_by("createdAt").last()
 
@@ -124,3 +126,62 @@ class CatalogueTests(TestCase):
 
         self.assertIsNotNone(ordered.email)
         self.assertIsNotNone(ordered.phone)
+
+    def test_fill_next(self, booking=True):
+        if booking:
+            self.test_booking_basket()
+
+        ordered_queryset = get_ordered_queryset()
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        response = self.client.get(
+            reverse("sale:fill_next", kwargs={'pk': ordered.pk})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context_data
+        formset = context['formset']
+
+        for form in formset:
+            for field in form:
+                if field.name == "postal_code":
+                    field.initial = 75010
+                elif field.name == "id":
+                    field.initial = ""
+                else:
+                    field.initial = "address"
+
+        data = get_dict_data_formset(formset)
+
+        response = self.client.post(
+            reverse("sale:fill_next", kwargs={'pk': ordered.pk}),
+            data
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        ordered = ordered_queryset.order_by("createdAt").last()
+        address = ordered.order_address.all()[0]
+
+        self.assertEqual(address.first_name, "address")
+        self.assertEqual(address.last_name, "address")
+        self.assertEqual(address.address, "address")
+        self.assertEqual(address.address2, "address")
+        self.assertEqual(address.postal_code, 75010)
+        self.assertEqual(address.city, "address")
+
+    def test_ordered_detail(self):
+        self.test_booking_basket()
+        self.test_choose_delivery(False)
+        self.test_fill(False)
+        self.test_fill_next(False)
+
+        ordered_queryset = get_ordered_queryset()
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        response = self.client.get(
+            reverse("sale:detail", kwargs={'pk': ordered.pk})
+        )
+
+        self.assertEqual(response.status_code, 200)
