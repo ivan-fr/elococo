@@ -1,3 +1,4 @@
+from sys import stdout
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from elococo import get_dict_data_formset
 from sale import get_amount
@@ -26,20 +27,6 @@ def get_ordered_queryset():
         "order_address", "from_ordered", "from_ordered__to_product",
         "from_ordered__to_product__productimage_set"
     )
-
-
-def get_status(logs):
-    for log in logs:
-        if log['message']:
-            d = json.loads(log['message'])
-            try:
-                content_type = 'text/html' in d['message']['params']['response']['headers']['content-type']
-                response_received = d['message']['method'] == 'Network.responseReceived'
-                if content_type and response_received:
-                    return d['message']['params']['response']['status']
-            except:
-                pass
-
 
 def setUpTestData(cls):
     for i in range(1, random.randint(2, 30)):
@@ -270,35 +257,19 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         setup = super().setUp()
         session = self.client.session
 
-        process_stripe_login = subprocess.Popen(
-            [settings.BASE_DIR / 'stripe', 'login', '--interactive'],
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE
-        )
-
-        for line in iter(process_stripe_login.stdout.readline, b''):
-            line = line.decode("utf-8").strip()
-            print(line)
-
-            if not line:
-                break
 
         stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
 
         self.assertIsNotNone(stripe_private_key)
 
-        stripe_private_key = bytes(stripe_private_key + '\n\n', 'utf-8')
-
-        process_stripe_login.communicate(input=stripe_private_key)
-
         self.process = subprocess.Popen(
-            [settings.BASE_DIR / 'stripe', 'listen', '--forward-to', '%s%s' % (
+            [settings.BASE_DIR / 'stripe', 'listen', '--api-key', stripe_private_key, '--forward-to', '%s%s' % (
                 self.live_server_url,
                 reverse("sale:webhook")
             )],
             stderr=subprocess.PIPE
         )
         
-
         for line in iter(self.process.stderr.readline, b''):
             line = line.decode("utf-8").strip()
 
