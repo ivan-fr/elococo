@@ -1,4 +1,3 @@
-from sys import stdout
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from elococo import get_dict_data_formset
 from sale import get_amount
@@ -240,6 +239,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
         opts.add_argument("--enable-javascript")
+        opts.add_argument('--no-sandbox')
 
         cls.selenium = WebDriver(chrome_options=opts)
         cls.selenium.implicitly_wait(10)
@@ -255,7 +255,6 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
     def setUp(self):
         setup = super().setUp()
         session = self.client.session
-
 
         stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
 
@@ -280,7 +279,8 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
 
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(
-            {'name': 'sessionid', 'value': session.session_key})
+            {'name': 'sessionid', 'value': session.session_key}
+        )
 
         for i, product in enumerate(self.setup_products, start=1):
             if i > settings.MAX_BASKET_PRODUCT:
