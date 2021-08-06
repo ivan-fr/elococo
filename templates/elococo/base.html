@@ -40,6 +40,12 @@
 
 {% include "elococo/footer.html" %}
 
+<script type="text/javascript">
+    window.onerror=function(msg){
+        document.body.setAttribute("JSError", msg);
+    }
+</script>
+
 <script>
     let httpRequest_basket_surface = new XMLHttpRequest();
     let navbar_basket = document.getElementById("navbar-basket");
