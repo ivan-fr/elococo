@@ -10,6 +10,7 @@ import random
 from django.test import TestCase
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.keys import Keys
@@ -219,11 +220,11 @@ class SaleTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-def wait_next_page(selenium, timeout):
+def wait_next_page(selenium, current_url, timeout):
     WebDriverWait(
         selenium, timeout
     ).until(
-        lambda driver: driver.find_element_by_tag_name('body')
+        EC.url_changes(current_url)
     )
 
 
@@ -237,8 +238,6 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         setUpTestData(cls)
 
         opts = ChromeOptions()
-        opts.add_argument("--headless")
-        opts.add_argument("--disable-gpu")
         opts.add_argument("--enable-javascript")
         opts.add_argument('--no-sandbox')
         opts.add_argument('--no-first-run')
@@ -311,6 +310,8 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         ordered_queryset = get_ordered_queryset()
         ordered = ordered_queryset.order_by("createdAt").last()
 
+        current_url = self.selenium.current_url
+
         self.selenium.get(
             '%s%s' % (
                 self.live_server_url,
@@ -318,15 +319,16 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             )
         )
 
-        wait_next_page(self.selenium, timeout)
+        wait_next_page(self.selenium, current_url, timeout)
 
+        current_url = self.selenium.current_url
         self.selenium.find_element_by_css_selector(
             'button#checkout-button'
         ).send_keys(
             Keys.ENTER
         )
 
-        wait_next_page(self.selenium, timeout)
+        wait_next_page(self.selenium, current_url, timeout)
 
         try:
             cardNumber = self.selenium.find_element_by_name("cardNumber")
@@ -345,11 +347,15 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         billingName = self.selenium.find_element_by_name("billingName")
         billingName.send_keys('The tester')
 
+        current_url = self.selenium.current_url
         self.selenium.find_element_by_css_selector(
             'button[type=submit].SubmitButton').send_keys(Keys.ENTER)
 
-        wait_next_page(self.selenium, timeout)
-        time.sleep(15)
+        wait_next_page(self.selenium, current_url, timeout)
+
+        current_url = self.selenium.current_url
+
+        wait_next_page(self.selenium, current_url, timeout)
 
         try:
             self.selenium.find_element_by_css_selector('body .retrieve_order')
