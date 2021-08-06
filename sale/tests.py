@@ -235,7 +235,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         setUpTestData(cls)
-        
+
         opts = ChromeOptions()
         opts.add_argument("--headless")
         opts.add_argument("--disable-gpu")
@@ -325,8 +325,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             cardNumber = self.selenium.find_element_by_name("cardNumber")
             cardNumber.send_keys('4242 4242 4242 4242')
         except NoSuchElementException:
-            print(self.selenium.current_url)
-            self.fail()
+            self.fail(self.selenium.current_url)
 
         cardExpiry = self.selenium.find_element_by_name("cardExpiry")
         cardExpiry.send_keys('04 / 24')
