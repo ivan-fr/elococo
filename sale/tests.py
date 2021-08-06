@@ -247,11 +247,6 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
 
     def tearDown(self):
         self.process.terminate()
-        process_stripe_logout = subprocess.Popen(
-            [settings.BASE_DIR / 'stripe', 'logout'],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE
-        )
-        process_stripe_logout.wait()
 
     def setUp(self):
         setup = super().setUp()
@@ -267,7 +262,8 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
                 self.live_server_url,
                 reverse("sale:webhook")
             )],
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE
         )
         
         for line in iter(self.process.stderr.readline, b''):
