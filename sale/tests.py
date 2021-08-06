@@ -27,6 +27,7 @@ def get_ordered_queryset():
         "from_ordered__to_product__productimage_set"
     )
 
+
 def setUpTestData(cls):
     for i in range(1, random.randint(2, 30)):
         cls.setup_products.append(
@@ -240,6 +241,9 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         opts.add_argument("--disable-gpu")
         opts.add_argument("--enable-javascript")
         opts.add_argument('--no-sandbox')
+        opts.add_argument('--no-first-run')
+        opts.add_argument('--no-default-browser-check')
+        opts.add_argument('--disable-default-apps')
 
         cls.selenium = WebDriver(chrome_options=opts)
         cls.selenium.implicitly_wait(10)
@@ -268,7 +272,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE
         )
-        
+
         for line in iter(self.process.stderr.readline, b''):
             line = line.decode("utf-8").strip()
 
@@ -317,7 +321,10 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         wait_next_page(self.selenium, timeout)
 
         self.selenium.find_element_by_css_selector(
-            'button#checkout-button').send_keys(Keys.ENTER)
+            'button#checkout-button'
+        ).send_keys(
+            Keys.ENTER
+        )
 
         wait_next_page(self.selenium, timeout)
 
@@ -325,7 +332,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             cardNumber = self.selenium.find_element_by_name("cardNumber")
             cardNumber.send_keys('4242 4242 4242 4242')
         except NoSuchElementException:
-            body = self.selenium.find_element_by_css_selector("body")
+            body = self.selenium.find_element_by_tag_name("body")
             js_error = body.get_attribute("JSError")
             self.fail(f"{self.selenium.current_url}, JSONerror: {js_error}")
 
