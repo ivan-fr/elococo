@@ -16,6 +16,7 @@ import time
 import re
 import json
 import os
+from selenium.webdriver import FirefoxOptions
 
 STOCK = 10
 
@@ -247,7 +248,9 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         setUpTestData(cls)
-        cls.selenium = WebDriver()
+        opts = FirefoxOptions()
+        opts.add_argument("--headless")
+        cls.selenium = WebDriver(firefox_options=opts)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
@@ -269,8 +272,15 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
 
         process_stripe_login = subprocess.Popen(
             [settings.BASE_DIR / 'stripe', 'login', '--interactive'],
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE
+            stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE
         )
+
+        for line in iter(process_stripe_login.stdout.readline, b''):
+            line = line.decode("utf-8").strip()
+            print(line)
+
+            if not line:
+                break
 
         stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
 
@@ -279,7 +289,6 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         stripe_private_key = bytes(stripe_private_key + '\n\n', 'utf-8')
 
         process_stripe_login.communicate(input=stripe_private_key)
-        process_stripe_login.wait()
 
         self.process = subprocess.Popen(
             [settings.BASE_DIR / 'stripe', 'listen', '--forward-to', '%s%s' % (
@@ -290,7 +299,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         )
         
 
-        for line in iter(self.process.stderr.readline, ''):
+        for line in iter(self.process.stderr.readline, b''):
             line = line.decode("utf-8").strip()
 
             if line.startswith("Ready"):
