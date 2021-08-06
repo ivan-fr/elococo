@@ -4,7 +4,7 @@ python:
   - "3.9"
 
 addons:
-  chrome: 92
+  chrome: stable
 
 before_install:
   - wget https://chromedriver.storage.googleapis.com/92.0.4515.107/chromedriver_linux64.zip -P ~/
