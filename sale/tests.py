@@ -11,7 +11,7 @@ from django.test import TestCase
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.keys import Keys
 import subprocess
@@ -332,15 +332,15 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             Keys.ENTER
         )
 
-        wait_next_page(self.selenium, current_url, timeout)
-
         try:
-            cardNumber = self.selenium.find_element_by_name("cardNumber")
-            cardNumber.send_keys('4242 4242 4242 4242')
-        except NoSuchElementException:
+            wait_next_page(self.selenium, current_url, timeout)
+        except TimeoutException:
             body = self.selenium.find_element_by_tag_name("body")
             js_error = body.get_attribute("JSError")
-            self.fail(f"{self.selenium.current_url}, JSONerror: {js_error}")
+            self.fail(f"{self.selenium.current_url}, JSerror: {js_error}")
+
+        cardNumber = self.selenium.find_element_by_name("cardNumber")
+        cardNumber.send_keys('4242 4242 4242 4242')
 
         cardExpiry = self.selenium.find_element_by_name("cardExpiry")
         cardExpiry.send_keys('04 / 24')
