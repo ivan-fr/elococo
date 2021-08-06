@@ -9,10 +9,10 @@ from django.urls.base import reverse
 from catalogue.models import Product
 import random
 from django.test import TestCase
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import FirefoxOptions
+from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.keys import Keys
 import subprocess
 import time
@@ -235,9 +235,13 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
         setUpTestData(cls)
-        opts = FirefoxOptions()
+        
+        opts = ChromeOptions()
         opts.add_argument("--headless")
-        cls.selenium = WebDriver(firefox_options=opts)
+        opts.add_argument("--disable-gpu")
+        opts.add_argument("--enable-javascript")
+
+        cls.selenium = WebDriver(chrome_options=opts)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
