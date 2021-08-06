@@ -294,7 +294,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         return setup
 
     def test_post_ordered_detail(self):
-        timeout = 6
+        timeout = 60
         booking_basket(self)
         choose_delivery(self, False)
         fill(self, False)
@@ -317,8 +317,12 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
 
         wait_next_page(self.selenium, timeout)
 
-        cardNumber = self.selenium.find_element_by_name("cardNumber")
-        cardNumber.send_keys('4242 4242 4242 4242')
+        try:
+            cardNumber = self.selenium.find_element_by_name("cardNumber")
+            cardNumber.send_keys('4242 4242 4242 4242')
+        except NoSuchElementException:
+            print(self.selenium.current_url)
+            self.fail()
 
         cardExpiry = self.selenium.find_element_by_name("cardExpiry")
         cardExpiry.send_keys('04 / 24')
