@@ -239,6 +239,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
 
         opts = ChromeOptions()
         opts.add_argument("--enable-javascript")
+        opts.add_argument("--headless")
         opts.add_argument('--no-sandbox')
         opts.add_argument('--no-first-run')
         opts.add_argument('--no-default-browser-check')
