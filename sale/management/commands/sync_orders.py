@@ -1,3 +1,4 @@
+import datetime
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -17,12 +18,12 @@ class Command(BaseCommand):
 
         count = orders.count()
         self.stdout.write(self.style.WARNING(
-            f"There is {count} no valid to delete."
+            f"{datetime.now()} There is {count} no valid to delete."
         ))
 
         with transaction.atomic():
             orders.delete()
 
         self.stdout.write(self.style.SUCCESS(
-            f"There is {count} order(s) deleted."
+            f"{datetime.now()} There is {count} order(s) deleted."
         ))

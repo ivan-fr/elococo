@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import decimal
 import json
 from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -25,7 +24,7 @@ except FileNotFoundError:
 
 DEBUG = True
 
-if not DEBUG:
+if DEBUG:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 

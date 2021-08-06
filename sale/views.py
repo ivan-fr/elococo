@@ -286,7 +286,8 @@ class OrderedDetail(FormMixin, DetailView):
         context = self.get_context_data(
             object=self.object, public_api_key=public_api_key,
             amount=str(
-                (get_amount(self.object, with_delivery=True) * settings.BACK_TWO_PLACES).quantize(TWO_PLACES)
+                (get_amount(self.object, with_delivery=True) *
+                 settings.BACK_TWO_PLACES).quantize(TWO_PLACES)
             )
         )
         return self.render_to_response(context)
@@ -312,8 +313,12 @@ class OrderedDetail(FormMixin, DetailView):
 
         for ordered_product in self.object.from_ordered.all():
             product = ordered_product.to_product
-            image_url = product.productimage_set.all()[0].image.url
-            images.append(self.request.build_absolute_uri(image_url))
+
+            try:
+                image_url = product.productimage_set.all()[0].image.url
+                images.append(self.request.build_absolute_uri(image_url))
+            except IndexError:
+                continue
 
         images = images[:8]
 
@@ -344,8 +349,10 @@ class OrderedDetail(FormMixin, DetailView):
                 },
                 customer_email=self.object.email,
                 mode='payment',
-                success_url=self.request.build_absolute_uri(self.get_success_url()),
-                cancel_url=self.request.build_absolute_uri(self.get_invalid_url()),
+                success_url=self.request.build_absolute_uri(
+                    self.get_success_url()),
+                cancel_url=self.request.build_absolute_uri(
+                    self.get_invalid_url()),
             )
 
             return JsonResponse({"id": checkout_session.id})
@@ -582,10 +589,12 @@ class BookingBasketView(BaseFormView):
             return response
 
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
-        promo_session = self.request.session.get(settings.PROMO_SESSION_KEY, {})
+        promo_session = self.request.session.get(
+            settings.PROMO_SESSION_KEY, {})
         promo = get_promo(basket, promo_session.get("code_promo", None))
 
-        aggregate = self.get_queryset().aggregate(**total_price_from_all_product(promo=promo))
+        aggregate = self.get_queryset().aggregate(
+            **total_price_from_all_product(promo=promo))
 
         try:
             with transaction.atomic():
@@ -593,10 +602,12 @@ class BookingBasketView(BaseFormView):
                     dict_ = {
                         "promo": promo, "promo_value": promo.value, "promo_type": promo.type,
                         "price_exact_ttc_with_quantity_sum_promo": int(
-                            aggregate["price_exact_ttc_with_quantity_promo__sum"] * Decimal(100.)
+                            aggregate["price_exact_ttc_with_quantity_promo__sum"] *
+                            Decimal(100.)
                         ),
                         "price_exact_ht_with_quantity_sum_promo": int(
-                            aggregate["price_exact_ht_with_quantity_promo__sum"] * Decimal(100.)
+                            aggregate["price_exact_ht_with_quantity_promo__sum"] *
+                            Decimal(100.)
                         ),
                     }
                 else:
@@ -628,10 +639,12 @@ class BookingBasketView(BaseFormView):
                             product_name=product.name,
                             effective_reduction=product.effective_reduction,
                             price_exact_ht=int(
-                                product.price_exact_ht.quantize(settings.BACK_TWO_PLACES) * Decimal(100.)
+                                product.price_exact_ht.quantize(
+                                    settings.BACK_TWO_PLACES) * Decimal(100.)
                             ),
                             price_exact_ttc=int(
-                                product.price_exact_ttc.quantize(settings.BACK_TWO_PLACES) * Decimal(100.)
+                                product.price_exact_ttc.quantize(
+                                    settings.BACK_TWO_PLACES) * Decimal(100.)
                             ),
                             price_exact_ht_with_quantity=int(
                                 product.price_exact_ht_with_quantity.quantize(settings.BACK_TWO_PLACES) *
@@ -646,7 +659,8 @@ class BookingBasketView(BaseFormView):
                     )
 
             del self.request.session[settings.BASKET_SESSION_KEY]
-            self.request.session[settings.BOOKING_SESSION_KEY] = list(self.ordered.pk.bytes)
+            self.request.session[settings.BOOKING_SESSION_KEY] = list(
+                self.ordered.pk.bytes)
             try:
                 del self.request.session[settings.PROMO_SESSION_KEY]
             except KeyError:

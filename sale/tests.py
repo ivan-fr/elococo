@@ -10,6 +10,12 @@ import random
 from django.test import TestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
+import subprocess
+import time
+import re
+import json
+import os
 
 STOCK = 10
 
@@ -19,6 +25,19 @@ def get_ordered_queryset():
         "order_address", "from_ordered", "from_ordered__to_product",
         "from_ordered__to_product__productimage_set"
     )
+
+
+def get_status(logs):
+    for log in logs:
+        if log['message']:
+            d = json.loads(log['message'])
+            try:
+                content_type = 'text/html' in d['message']['params']['response']['headers']['content-type']
+                response_received = d['message']['method'] == 'Network.responseReceived'
+                if content_type and response_received:
+                    return d['message']['params']['response']['status']
+            except:
+                pass
 
 
 def setUpTestData(cls):
@@ -98,12 +117,12 @@ def choose_delivery(self, booking=True):
     amount = get_amount(ordered, with_promo=False) * BACK_TWO_PLACES
     amount = amount.quantize(BACK_TWO_PLACES)
 
-    if settings.DELIVERY_FREE_GT < amount:
-        self.assertIsNotNone(ordered.delivery_mode)
-        self.assertIsNotNone(ordered.delivery_value)
-    else:
+    if settings.DELIVERY_FREE_GT <= amount:
         self.assertIsNotNone(ordered.delivery_mode)
         self.assertIsNone(ordered.delivery_value)
+    else:
+        self.assertIsNotNone(ordered.delivery_mode)
+        self.assertIsNotNone(ordered.delivery_value)
 
 
 def fill(self, booking=True):
@@ -212,6 +231,14 @@ class SaleTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+def wait_next_page(selenium, timeout):
+    WebDriverWait(
+        selenium, timeout
+    ).until(
+        lambda driver: driver.find_element_by_tag_name('body')
+    )
+
+
 class SaleSeleniumTests(StaticLiveServerTestCase):
     fixtures = ["tests_dumpdata.yaml"]
     setup_products = []
@@ -228,8 +255,52 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         cls.selenium.quit()
         super().tearDownClass()
 
+    def tearDown(self):
+        self.process.terminate()
+        process_stripe_logout = subprocess.Popen(
+            [settings.BASE_DIR / 'stripe', 'logout'],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        )
+        process_stripe_logout.wait()
+
     def setUp(self):
         setup = super().setUp()
+        session = self.client.session
+
+        process_stripe_login = subprocess.Popen(
+            [settings.BASE_DIR / 'stripe', 'login', '--interactive'],
+            stdin=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+
+        stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
+
+        self.assertIsNotNone(stripe_private_key)
+
+        stripe_private_key = bytes(stripe_private_key + '\n\n', 'utf-8')
+
+        process_stripe_login.communicate(input=stripe_private_key)
+        process_stripe_login.wait()
+
+        self.process = subprocess.Popen(
+            [settings.BASE_DIR / 'stripe', 'listen', '--forward-to', '%s%s' % (
+                self.live_server_url,
+                reverse("sale:webhook")
+            )],
+            stderr=subprocess.PIPE
+        )
+        
+
+        for line in iter(self.process.stderr.readline, ''):
+            line = line.decode("utf-8").strip()
+
+            if line.startswith("Ready"):
+                settings.STRIPE_WEBHOOK = re.search(
+                    r'^.*(whsec_[\w]+).*$', line).group(1)
+                break
+
+        self.selenium.get(self.live_server_url)
+        self.selenium.add_cookie(
+            {'name': 'sessionid', 'value': session.session_key})
 
         for i, product in enumerate(self.setup_products, start=1):
             if i > settings.MAX_BASKET_PRODUCT:
@@ -247,7 +318,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         return setup
 
     def test_post_ordered_detail(self):
-        timeout = 5
+        timeout = 6
         booking_basket(self)
         choose_delivery(self, False)
         fill(self, False)
@@ -263,24 +334,37 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
             )
         )
 
-        self.selenium.find_element_by_id('checkout-button').click()
+        wait_next_page(self.selenium, timeout)
 
-        WebDriverWait(
-            self.selenium, timeout
-        ).until(
-            lambda driver: driver.find_element_by_tag_name('body')
-        )
+        self.selenium.find_element_by_css_selector(
+            'button#checkout-button').click()
+
+        wait_next_page(self.selenium, timeout)
 
         cardNumber = self.selenium.find_element_by_name("cardNumber")
         cardNumber.send_keys('4242 4242 4242 4242')
 
         cardExpiry = self.selenium.find_element_by_name("cardExpiry")
         cardExpiry.send_keys('04 / 24')
-        
+
         cardCvc = self.selenium.find_element_by_name("cardCvc")
         cardCvc.send_keys('424')
-        
+
         billingName = self.selenium.find_element_by_name("billingName")
         billingName.send_keys('The tester')
-        
-        self.selenium.find_element_by_css_selector('button[type=submit].SubmitButton').click()
+
+        self.selenium.find_element_by_css_selector(
+            'button[type=submit].SubmitButton').click()
+
+        wait_next_page(self.selenium, timeout)
+        time.sleep(15)
+
+        try:
+            self.selenium.find_element_by_css_selector('body .retrieve_order')
+        except NoSuchElementException:
+            self.fail("Retrieve order was fail.")
+
+        ordered_queryset = get_ordered_queryset()
+        ordered = ordered_queryset.order_by("createdAt").last()
+
+        self.assertTrue(ordered.payment_status)
