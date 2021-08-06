@@ -12,12 +12,12 @@ from django.test import TestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import FirefoxOptions
+from selenium.webdriver.common.keys import Keys
 import subprocess
 import time
 import re
-import json
 import os
-from selenium.webdriver import FirefoxOptions
 
 STOCK = 10
 
@@ -313,7 +313,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         wait_next_page(self.selenium, timeout)
 
         self.selenium.find_element_by_css_selector(
-            'button#checkout-button').click()
+            'button#checkout-button').send_keys(Keys.ENTER)
 
         wait_next_page(self.selenium, timeout)
 
@@ -330,7 +330,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         billingName.send_keys('The tester')
 
         self.selenium.find_element_by_css_selector(
-            'button[type=submit].SubmitButton').click()
+            'button[type=submit].SubmitButton').send_keys(Keys.ENTER)
 
         wait_next_page(self.selenium, timeout)
         time.sleep(15)
