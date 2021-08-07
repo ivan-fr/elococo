@@ -8,10 +8,11 @@ class CategorySerializer(serializers.ModelSerializer):
         view_name='catalogue_api:product-list-category',
         lookup_field='slug'
     )
+    products_count__sum = serializers.IntegerField(default=None)
 
     class Meta:
         model = catalogue_models.Category
-        fields = ['url', 'category', 'slug']
+        fields = ['url', 'category', 'slug', 'products_count__sum']
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
