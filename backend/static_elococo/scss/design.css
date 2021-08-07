@@ -1259,8 +1259,8 @@ body .navbar > ul {
   list-style: none;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: (1fr)[8];
-      grid-template-columns: repeat(8, 1fr);
+  -ms-grid-columns: (1fr)[6];
+      grid-template-columns: repeat(6, 1fr);
   grid-auto-rows: auto;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
@@ -1403,10 +1403,6 @@ body .navbar > ul:first-child > li a:hover {
 body .navbar > ul:last-child {
   grid-column: span 2;
   direction: rtl;
-}
-
-body .navbar > ul:last-child #navbar-basket {
-  grid-column: span 4;
 }
 
 body .navbar > ul:last-child #navbar-basket nav.active {

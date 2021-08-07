@@ -1,6 +1,7 @@
 from django.urls import path
-
+from rest_framework import routers
 import catalogue.views
+import catalogue.rest_views
 
 urlpatterns = [
     path('', catalogue.views.IndexView.as_view(), name='catalogue_index'),
@@ -10,3 +11,6 @@ urlpatterns = [
     path('capte/basket/surface', catalogue.views.BasketSurfaceView.as_view(), name='catalogue_basket_surface'),
     path('capte/basket/promo', catalogue.views.PromoBasketView.as_view(), name='catalogue_basket_promo'),
 ]
+
+router = routers.SimpleRouter()
+router.register(r'catalogue', catalogue.rest_views.CatalogueViewSet)

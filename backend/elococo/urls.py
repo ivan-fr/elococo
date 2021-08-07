@@ -20,7 +20,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 import catalogue.views
-
+from catalogue.urls import router as catalogue_router
 
 def trigger_error(request):
     division_by_zero = 1 / 0
@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
-    path('api/', include('rest_framework.urls')),
+    path('api/', include((catalogue_router.urls, 'catalogue'), namespace="catalogue_api")),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),
 ]
 

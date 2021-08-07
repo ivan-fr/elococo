@@ -180,6 +180,11 @@ WEBSITE_TITLE = secrets["WEBSITE_TITLE"]
 # MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 30
+}
+
 stripe.api_key = secrets["stripe"]["private_key"]
 STRIPE_PUBLIC_KEY = secrets["stripe"]["public_key"]
 
