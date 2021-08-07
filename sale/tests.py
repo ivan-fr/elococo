@@ -241,7 +241,7 @@ def run_stripe_triggers(self, ordered):
     os.environ['STRIPE_FIXTURE_ORDER_PK'] = str(ordered.pk)
 
     process_stripe_fixture = subprocess.Popen(
-        [settings.BASE_DIR / 'stripe', 'fixtures',
+        [settings.BASE_DIR / 'stripe', 'fixtures', '--api-key', stripe_private_key,
             settings.BASE_DIR / 'sale' / 'fixtures' / 'stripe.json'],
         stderr=subprocess.PIPE
     )
