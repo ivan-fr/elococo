@@ -243,7 +243,7 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         opts.add_argument('--no-first-run')
         opts.add_argument('--no-default-browser-check')
         opts.add_argument('--disable-default-apps')
-        opts.add_argument("network.http.prompt-temp-redirect=true")
+        opts.add_argument('--disable-web-security')
 
         cls.selenium = WebDriver(chrome_options=opts)
         cls.selenium.implicitly_wait(10)
