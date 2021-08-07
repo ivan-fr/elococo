@@ -24,7 +24,7 @@ except FileNotFoundError:
 
 DEBUG = True
 
-if DEBUG:
+if not DEBUG:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 

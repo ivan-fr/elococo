@@ -14,6 +14,7 @@ import subprocess
 import re
 import os
 import time
+import stripe
 
 STOCK = 10
 
@@ -220,8 +221,6 @@ class SaleTests(TestCase):
 def run_stripe_triggers(self, ordered):
     stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
 
-    self.assertIsNotNone(stripe_private_key)
-
     process = subprocess.Popen(
         [settings.BASE_DIR / 'stripe', 'listen', '--api-key', stripe_private_key, '--forward-to', '%s%s' % (
             self.live_server_url,
@@ -247,7 +246,7 @@ def run_stripe_triggers(self, ordered):
     )
     process_stripe_fixture.wait()
 
-    time.sleep(20)
+    time.sleep(10)
 
     process.terminate()
 
@@ -258,6 +257,7 @@ class LiveSaleTests(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        stripe.api_key = os.getenv('STRIPE_PRIVATE_KEY')
 
     def setUp(self):
         setup = super().setUp()
