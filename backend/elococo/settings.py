@@ -108,7 +108,7 @@ DATABASES = {}
 if DEBUG:
     DATABASES.update({'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'elococo.db',  # This is where you put the name of the db file.
+        'NAME': BASE_DIR / 'elococo.db',  # This is where you put the name of the db file.
         # If one doesn't exist, it will be created at migration time.
     }})
 else:
