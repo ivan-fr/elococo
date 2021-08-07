@@ -10,7 +10,7 @@ branches:
   only:
     - master
 
-env: DJANGO_SETTINGS_MODULE="backend.elococo.settings"
+env: DJANGO_SETTINGS_MODULE="elococo.settings"
 
 dist: focal
 
