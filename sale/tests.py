@@ -220,6 +220,7 @@ class SaleTests(TestCase):
 
 def run_stripe_triggers(self, ordered):
     stripe_private_key = os.getenv('STRIPE_PRIVATE_KEY')
+    self.assertIsNotNone(stripe_private_key)
 
     process = subprocess.Popen(
         [settings.BASE_DIR / 'stripe', 'listen', '--api-key', stripe_private_key, '--forward-to', '%s%s' % (
