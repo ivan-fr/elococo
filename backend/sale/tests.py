@@ -285,7 +285,7 @@ class LiveSaleTests(LiveServerTestCase):
         self.assertTrue(ordered.payment_status)
 
         response = self.client.get(
-            reverse("sale:paypal_return", kwargs={
+            reverse("sale:payment_return", kwargs={
                     "pk": ordered.pk, "secrets_": ordered.secrets})
         )
 
