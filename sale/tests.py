@@ -17,7 +17,6 @@ from selenium.webdriver.common.keys import Keys
 import subprocess
 import re
 import os
-from pyvirtualdisplay import Display
 
 STOCK = 10
 
@@ -237,15 +236,14 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         super().setUpClass()
         setUpTestData(cls)
 
-        cls.display = Display(visible=0, size=(2880, 1800))
-        cls.display.start()
-
         opts = ChromeOptions()
+        opts.add_argument("--headless")
         opts.add_argument("--enable-javascript")
         opts.add_argument('--no-sandbox')
         opts.add_argument('--no-first-run')
         opts.add_argument('--no-default-browser-check')
         opts.add_argument('--disable-default-apps')
+        opts.set_capability("network.http.prompt-temp-redirect", True)
 
         cls.selenium = WebDriver(chrome_options=opts)
         cls.selenium.implicitly_wait(10)
@@ -253,7 +251,6 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
-        cls.display.stop()
         super().tearDownClass()
 
     def tearDown(self):
