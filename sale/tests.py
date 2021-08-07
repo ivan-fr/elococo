@@ -243,7 +243,7 @@ def run_stripe_triggers(self, ordered):
     process_stripe_fixture = subprocess.Popen(
         [settings.BASE_DIR / 'stripe', 'fixtures',
             settings.BASE_DIR / 'sale' / 'fixtures' / 'stripe.json'],
-        stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        stderr=subprocess.PIPE
     )
     process_stripe_fixture.wait()
 
