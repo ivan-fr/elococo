@@ -13,6 +13,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver import ChromeOptions
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 import subprocess
 import re
@@ -245,7 +246,10 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         opts.add_argument('--disable-default-apps')
         opts.add_argument('--disable-web-security')
 
-        cls.selenium = WebDriver(chrome_options=opts)
+        caps = DesiredCapabilities.CHROME
+        caps['goog:loggingPrefs'] = {'performance': 'ALL'}
+
+        cls.selenium = WebDriver(chrome_options=opts, desired_capabilities=caps)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
@@ -332,9 +336,12 @@ class SaleSeleniumTests(StaticLiveServerTestCase):
         try:
             wait_next_page(self.selenium, current_url, timeout)
         except TimeoutException:
-            body = self.selenium.find_element_by_tag_name("body")
-            js_error = body.get_attribute("JSError")
-            self.fail(f"{self.selenium.current_url}, JSerror: {js_error}")
+            print()
+
+            for entry in self.selenium.get_log('performance'):
+                print(entry)
+
+            self.fail(f"URL: {self.selenium.current_url}")
 
         cardNumber = self.selenium.find_element_by_name("cardNumber")
         cardNumber.send_keys('4242 4242 4242 4242')
