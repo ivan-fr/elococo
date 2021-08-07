@@ -11,6 +11,7 @@ class CatalogueViewSet(viewsets.ReadOnlyModelViewSet):
         "productimage_set"
     )
     serializer_class = catalogue_serializers.ProductSerializer
+    ordering = None
 
     def list(self, request, *args, **kwargs):
         self.serializer_class = catalogue_serializers.CatalogueSerializer
@@ -32,6 +33,28 @@ class CatalogueViewSet(viewsets.ReadOnlyModelViewSet):
 
         self.queryset = self.queryset.annotate(**annotation_p)
         dict_data.update(self.queryset.aggregate(*data_from_all_product()))
+
+        if request.GET.get("min_ttc_price", None) is not None \
+                and request.GET.get("max_ttc_price", None) is not None:
+            self.queryset = self.queryset.filter(
+                price_exact_ttc__range=(
+                    float(request.GET["min_ttc_price"]) - 1e-1,
+                    float(request.GET["max_ttc_price"]) + 1e-1
+                )
+            )
+
+        if request.GET.get("order", None) is not None:
+            if request.GET["order"].lower() == "asc":
+                self.ordering = ("price_exact_ttc",)
+                dict_data.update({"order": 0})
+            elif self.request.GET["order"].lower() == "desc":
+                self.ordering = ("-price_exact_ttc",)
+                dict_data.update({"order": 1})
+        else:
+            dict_data.update({"order": -1})
+
+        if self.ordering is not None:
+            self.queryset = self.queryset.order_by(self.ordering)
 
         queryset = self.filter_queryset(self.get_queryset())
 
