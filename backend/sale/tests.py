@@ -247,7 +247,7 @@ def run_stripe_triggers(self, ordered):
     )
     process_stripe_fixture.wait()
 
-    time.sleep(10)
+    time.sleep(15)
 
     process.terminate()
 
