@@ -243,11 +243,11 @@ def run_stripe_triggers(self, ordered):
     process_stripe_fixture = subprocess.Popen(
         [settings.BASE_DIR / 'stripe', 'fixtures', '--api-key', stripe_private_key,
             settings.BASE_DIR / 'sale' / 'fixtures' / 'stripe.json'],
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
     process_stripe_fixture.wait()
 
-    time.sleep(10)
+    time.sleep(20)
 
     process.terminate()
 
