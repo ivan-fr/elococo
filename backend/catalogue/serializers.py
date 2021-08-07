@@ -35,3 +35,6 @@ class CatalogueSerializer(serializers.Serializer):
     price_exact_ttc__max = serializers.DecimalField(7, 2)
     order = serializers.IntegerField(min_value=-1, max_value=1)
     index = serializers.CharField()
+    selected_category = CategorySerializer()
+    selected_category_root = CategorySerializer()
+    filled_category = CategorySerializer(many=True)

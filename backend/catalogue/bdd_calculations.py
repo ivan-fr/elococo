@@ -100,7 +100,8 @@ def price_annotation_format(basket=None):
     }
 
     if basket is not None and bool(basket):
-        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(basket)
+        my_dict["effective_basket_quantity"] = effective_quantity_per_product_from_basket(
+            basket)
     else:
         my_dict["effective_basket_quantity"] = Value(0)
     return my_dict
@@ -123,14 +124,16 @@ def total_price_from_all_product(promo=None):
              "price_exact_ht_with_quantity__sum": Sum("price_exact_ht_with_quantity")}
     if promo is not None:
         if promo.type == "pe":
-            promo_percentage = Decimal(1.) - promo.value * settings.BACK_TWO_PLACES
+            promo_percentage = Decimal(
+                1.) - promo.value * settings.BACK_TWO_PLACES
             ht_promo = promo_percentage * Sum("price_exact_ht_with_quantity")
             dict_.update({
                 "price_exact_ht_with_quantity_promo__sum": ht_promo,
                 "price_exact_ttc_with_quantity_promo__sum": ht_promo * settings.TVA,
             })
         elif promo.type == "cu":
-            ht_promo = Sum("price_exact_ht_with_quantity") - Decimal(promo.value)
+            ht_promo = Sum("price_exact_ht_with_quantity") - \
+                Decimal(promo.value)
             dict_.update({
                 "price_exact_ht_with_quantity_promo__sum": ht_promo,
                 "price_exact_ttc_with_quantity_promo__sum": ht_promo * settings.TVA,
@@ -183,7 +186,8 @@ def get_descendants_products(with_products=True, include_self=False, **filters):
 
 class SQSum(Subquery, ABC):
     def __init__(self, queryset, column, output_field=None, **extra):
-        self.template = '(SELECT SUM({}) FROM (%(subquery)s) _min)'.format(column)
+        self.template = '(SELECT SUM({}) FROM (%(subquery)s) _min)'.format(
+            column)
         super(SQSum, self).__init__(queryset, output_field, **extra)
 
     output_field = PositiveIntegerField()
@@ -191,7 +195,8 @@ class SQSum(Subquery, ABC):
 
 class SQMin(Subquery, ABC):
     def __init__(self, queryset, column, output_field=None, **extra):
-        self.template = '(SELECT min({}) FROM (%(subquery)s) _min)'.format(column)
+        self.template = '(SELECT min({}) FROM (%(subquery)s) _min)'.format(
+            column)
         super(SQMin, self).__init__(queryset, output_field, **extra)
 
     output_field = PositiveIntegerField()
@@ -238,8 +243,10 @@ def filled_category(limit, selected_category=None, products_queryset=None):
         selected_category_root = dict_["selected_category_root"]
         try:
             obj = selected_category_root.get()
-            selected_category = Category.objects.filter(slug=selected_category).get()
-            dict_["related_products"] = get_related_products(selected_category, products_queryset)
+            selected_category = Category.objects.filter(
+                slug=selected_category).get()
+            dict_["related_products"] = get_related_products(
+                selected_category, products_queryset)
 
             annotated_list = Category.get_tree(
                 obj
