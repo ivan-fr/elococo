@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'treebeard',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
