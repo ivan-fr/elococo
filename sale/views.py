@@ -58,13 +58,40 @@ def webhook_view(request):
     elif event['type'] == 'charge.captured':
         session = event['data']['object']
         return fulfill_order(request, session)
+    elif event['type'] == 'payment_intent.canceled':
+        session = event['data']['object']
+        return cancel_order(session)
+
+    return HttpResponse(status=200)
+
+
+def cancel_order(session):
+    try:
+        ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    except ValueError:
+        ordered_uuid = None
+
+    try:
+        order = Ordered.objects.filter(
+            pk=ordered_uuid,
+        ).prefetch_related("order_address").get()
+    except Ordered.DoesNotExist:
+        return HttpResponse(status=400)
+
+    with transaction.atomic():
+        order.payment_status = False
+        order.save()
 
     return HttpResponse(status=200)
 
 
 def capture_order(session):
-    ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
     cancel = False
+
+    try:
+        ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    except ValueError:
+        ordered_uuid = None
 
     try:
         order = Ordered.objects.filter(
@@ -84,8 +111,6 @@ def capture_order(session):
             try:
                 with transaction.atomic():
                     Product.objects.bulk_update(list(products), ("stock",))
-                    stripe.PaymentIntent.capture(session["id"])
-                with transaction.atomic():
                     order.payment_status = True
                     order.invoice_date = now()
                     order.save()
@@ -97,13 +122,18 @@ def capture_order(session):
         cancel = True
 
     if cancel:
+        stripe.PaymentIntent.cancel(session["id"])
         return HttpResponse(status=400)
 
+    stripe.PaymentIntent.capture(session["id"])
     return HttpResponse(status=200)
 
 
 def fulfill_order(request, session):
-    ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    try:
+        ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
+    except ValueError:
+        ordered_uuid = None
 
     try:
         order = Ordered.objects.filter(
@@ -158,7 +188,7 @@ class InvoiceView(TemplateView):
 class PaymentDoneView(TemplateView, View):
     template_name = "sale/invoice.html"
     pdf_stylesheets = [
-        settings.STATICFILES_DIRS[0] / 'css/invoice.css',
+        settings.STATICFILES_DIRS[0] / 'css' / 'invoice.css',
     ]
 
     @method_decorator(csrf_exempt)

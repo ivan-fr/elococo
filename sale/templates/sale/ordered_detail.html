@@ -53,7 +53,7 @@
                         return response_json;
                     })
                     .then(function (session) {
-                        window.location.href = window.location.origin;
+                        return stripe.redirectToCheckout({sessionId: session.id});
                     })
                     .then(function (result) {
                         // If redirectToCheckout fails due to a browser or network

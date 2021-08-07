@@ -1,0 +1,40 @@
+{
+    "_meta": {
+        "template_version": 0
+    },
+    "fixtures": [
+        {
+            "name": "payment_method",
+            "path": "/v1/payment_methods",
+            "method": "post",
+            "params": {
+                "type": "card",
+                "card": {
+                    "number": "4242424242424242",
+                    "exp_year": 2030,
+                    "exp_month": 8,
+                    "cvc": 341
+                }
+            }
+        },
+        {
+            "name": "paymentIntent",
+            "path": "/v1/payment_intents",
+            "method": "post",
+            "params": {
+                "metadata": {
+                    "pk_order": "${.env:STRIPE_FIXTURE_ORDER_PK}"
+                },
+                "amount":1000,
+                "currency": "eur",            
+                "capture_method": "manual",
+                "payment_method": "${payment_method:id}"
+            }
+        },
+        {
+            "name": "paymentIntent_confirm",
+            "path": "/v1/payment_intents/${paymentIntent:id}/confirm",
+            "method": "post"
+        }
+    ]
+}
