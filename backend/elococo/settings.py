@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import stripe
+import psycopg2
 import json
 from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -42,8 +44,6 @@ if not DEBUG:
         send_default_pii=True
     )
 
-import psycopg2
-import stripe
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'treebeard',
+    'oauth2_provider',
     'rest_framework'
 ]
 
@@ -108,7 +109,8 @@ DATABASES = {}
 if DEBUG:
     DATABASES.update({'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'elococo.db',  # This is where you put the name of the db file.
+        # This is where you put the name of the db file.
+        'NAME': BASE_DIR / 'elococo.db',
         # If one doesn't exist, it will be created at migration time.
     }})
 else:
@@ -122,7 +124,7 @@ else:
     },
         'OPTIONS': {
             'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
-        }
+    }
     })
 
 # Password validation
@@ -180,9 +182,17 @@ WEBSITE_TITLE = secrets["WEBSITE_TITLE"]
 # MESSAGES
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 30
+    'PAGE_SIZE': 30,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
 }
 
 stripe.api_key = secrets["stripe"]["private_key"]

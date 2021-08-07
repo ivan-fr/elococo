@@ -1,10 +1,11 @@
-from django.db.models.expressions import F
+from elococo.base_permission import ReadOnly
 from catalogue.bdd_calculations import cast_annotate_to_float, data_from_all_product, filled_category, price_annotation_format
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 import catalogue.models as catalogue_models
 import catalogue.serializers as catalogue_serializers
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 
 def list_catalogue(self, request, **kwargs):
@@ -69,6 +70,7 @@ class CatalogueViewSet(viewsets.ReadOnlyModelViewSet):
     )
     serializer_class = catalogue_serializers.ProductSerializer
     ordering = None
+    permission_classes = [TokenHasReadWriteScope | ReadOnly]
 
     def list(self, request, *args, **kwargs):
         return list_catalogue(self, request, **kwargs)
@@ -78,3 +80,9 @@ class CatalogueViewSet(viewsets.ReadOnlyModelViewSet):
             url_path=r'categories/(?P<slug>[-\w]+)')
     def list_category(self, request, *args, **kwargs):
         return list_catalogue(self, request, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        self.queryset = self.queryset.annotate(
+            **price_annotation_format()
+        )
+        return super().retrieve(request, *args, **kwargs)

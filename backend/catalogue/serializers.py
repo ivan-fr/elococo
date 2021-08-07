@@ -22,6 +22,10 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='catalogue_api:product-detail',
+        lookup_field='pk'
+    )
     productimage_set = ProductImageSerializer(many=True)
     categories = CategorySerializer(many=True)
     price_exact_ttc = serializers.DecimalField(7, 2)
