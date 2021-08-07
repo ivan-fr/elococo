@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
-    path('api/', include((catalogue_router.urls, 'catalogue'), namespace="catalogue_api")),
+    path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),
 ]
 
