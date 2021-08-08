@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, fields
 import catalogue.models as catalogue_models
 from django.conf import settings
 
@@ -6,7 +6,8 @@ from django.conf import settings
 class CategorySerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='catalogue_api:product-list-category',
-        lookup_field='slug'
+        lookup_field='slug',
+        lookup_url_kwarg='slug_category'
     )
     products_count__sum = serializers.IntegerField(default=None)
 
@@ -33,11 +34,62 @@ class ProductSerializer(serializers.ModelSerializer):
     price_base_ttc = serializers.DecimalField(7, 2)
     effective_reduction = serializers.IntegerField(min_value=0, max_value=100)
     effective_basket_quantity = serializers.IntegerField(
-        min_value=0, max_value=settings.BASKET_MAX_QUANTITY_PER_FORM)
+        min_value=0, max_value=settings.BASKET_MAX_QUANTITY_PER_FORM
+    )
+
+    def __init__(self, instance=None, data=fields.empty, **kwargs):
+        self.basket = {}
+
+        if data is not fields.empty:
+            self.basket = data.pop('basket', {})
+
+        super(ProductSerializer, self).__init__(
+            instance=instance, data=data, **kwargs
+        )
+
+        for field in self.fields:
+            if field != 'quantity':
+                self.fields[field].read_only = True
+
+        if instance is not None:
+            try:
+                self.fields['quantity'] = serializers.ChoiceField(
+                    source="stock",
+                    choices=range(
+                        1,
+                        min(
+                            instance.stock,
+                            settings.BASKET_MAX_QUANTITY_PER_FORM
+                        ) + 1
+                    )
+                )
+            except KeyError:
+                pass
+
+    def validate(self, data):
+        quantity = data['stock']
+
+        if not self.instance.enable_sale:
+            raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
+
+        if len(self.basket) >= settings.MAX_BASKET_PRODUCT:
+            raise serializers.ValidationError(
+            f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
+        )
+
+        if bool(self.basket) and self.basket.get(self.instance.slug, None) is not None:
+            if quantity + self.basket[self.instance.slug]["quantity"] > max(self.choices):
+                raise serializers.ValidationError(
+                    f"""Votre panier possède déjà {self.basket[self.instance.slug]["quantity"]} quantité 
+                    de ce produit, en ajoutant {quantity} vous depassez la limite autorisé."""
+                )
+
+        return data
 
     class Meta:
         model = catalogue_models.Product
         exclude = ['enable_comment']
+        read_only_fields = ['account_name']
 
 
 class FilterAnnotatedSerializer(serializers.Serializer):
@@ -69,5 +121,4 @@ class CatalogueSerializer(serializers.Serializer):
     selected_category = CategorySerializer()
     selected_category_root = CategorySerializer()
     filled_category = CategorySerializer(many=True)
-
     filter_list = CatalogueFilterAnnotatedSerializer(many=True)
