@@ -10,7 +10,8 @@ def list_catalogue(self, request, **kwargs):
     self.serializer_class = catalogue_serializers.CatalogueSerializer
 
     dict_data = filled_category(5, kwargs.get(
-        'slug_category', None), products_queryset=self.queryset)
+        'slug_category', None), products_queryset=self.queryset,
+        dump=True, request=request)
     dict_data.update({"index": None})
 
     selected_category_root = dict_data.get("selected_category_root", None)
@@ -80,7 +81,8 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             **price_annotation_format()
         )
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         return Response(status=status.HTTP_202_ACCEPTED)

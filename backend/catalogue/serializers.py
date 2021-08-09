@@ -3,6 +3,21 @@ import catalogue.models as catalogue_models
 from django.conf import settings
 
 
+class CategoryDumpSerializer(serializers.Serializer):
+    category = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    def get_category(self, ret):
+        return ret['category'].data
+
+    def get_children(self, ret):
+        child = ret.get('children', None)
+        if child is None:
+            return None
+
+        return CategoryDumpSerializer(child, many=True).data
+
+
 class CategorySerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='catalogue_api:product-list-category',
@@ -10,10 +25,52 @@ class CategorySerializer(serializers.ModelSerializer):
         lookup_url_kwarg='slug_category'
     )
     products_count__sum = serializers.IntegerField(default=None)
+    path = serializers.CharField()
+
+    @classmethod
+    def MP_Node_dump_bulk_drf(cls, request, parent=None, annotates={}, depth_lte=None):
+        """Dumps a tree branch to a python data structure."""
+
+        # Because of fix_tree, this method assumes that the depth
+        # and numchild properties in the nodes can be incorrect,
+        # so no helper methods are used
+        qset = cls.Meta.model.objects.all()
+        if parent:
+            qset = qset.filter(path__startswith=parent.path,
+                               depth__gte=parent.depth)
+
+        if depth_lte is not None:
+            qset = qset.filter(
+                depth__lte=depth_lte
+            )
+
+        ret, lnk = [], {}
+
+        if bool(annotates):
+            qset = qset.annotate(**annotates)
+
+        for obj in qset:
+            newobj = {cls.Meta.model.__name__.lower(): cls(
+                obj, context={'request': request})}
+
+            path = obj.path
+            depth = int(len(path) / cls.Meta.model.steplen)
+
+            if (not parent and depth == 1) or\
+               (parent and len(path) == len(parent.path)):
+                ret.append(newobj)
+            else:
+                parentpath = cls.Meta.model._get_basepath(path, depth - 1)
+                parentobj = lnk[parentpath]
+                if 'children' not in parentobj:
+                    parentobj['children'] = []
+                parentobj['children'].append(newobj)
+            lnk[path] = newobj
+        return ret
 
     class Meta:
         model = catalogue_models.Category
-        fields = ['url', 'category', 'slug', 'products_count__sum']
+        fields = ['url', 'category', 'slug', 'path', 'products_count__sum']
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -70,12 +127,13 @@ class ProductSerializer(serializers.ModelSerializer):
         quantity = data['stock']
 
         if not self.instance.enable_sale:
-            raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
+            raise serializers.ValidationError(
+                "Le produit n'est pas disponible à la vente.")
 
         if len(self.basket) >= settings.MAX_BASKET_PRODUCT:
             raise serializers.ValidationError(
-            f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
-        )
+                f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
+            )
 
         if bool(self.basket) and self.basket.get(self.instance.slug, None) is not None:
             if quantity + self.basket[self.instance.slug]["quantity"] > max(self.choices):
@@ -98,20 +156,6 @@ class FilterAnnotatedSerializer(serializers.Serializer):
     level = serializers.IntegerField()
 
 
-class CatalogueFilterAnnotatedSerializer(serializers.Serializer):
-    category = serializers.SerializerMethodField()
-    annotation = serializers.SerializerMethodField()
-
-    def get_category(self, data_tuple):
-        return CategorySerializer(
-            data_tuple[0],
-            context={'request': self.context['request']}
-        ).data
-
-    def get_annotation(self, data_tuple):
-        return FilterAnnotatedSerializer(data_tuple[1]).data
-
-
 class CatalogueSerializer(serializers.Serializer):
     related_products = ProductSerializer(many=True)
     price_exact_ttc__min = serializers.DecimalField(7, 2)
@@ -121,4 +165,4 @@ class CatalogueSerializer(serializers.Serializer):
     selected_category = CategorySerializer()
     selected_category_root = CategorySerializer()
     filled_category = CategorySerializer(many=True)
-    filter_list = CatalogueFilterAnnotatedSerializer(many=True)
+    filter_list = CategoryDumpSerializer(many=True)

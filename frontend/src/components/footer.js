@@ -5,9 +5,9 @@ import visa1 from '../images/visa1.png'
 import master from '../images/master.png'
 import cb from '../images/cb.svg'
 
-class Footer extends React.Component {
-    render() {
-        return <footer>
+
+function Footer() {
+    return <footer>
         <section className="logos">
             <h3>Logos</h3>
             <figure>
@@ -41,18 +41,17 @@ class Footer extends React.Component {
             </h3>
             <div className="payments_mode">
                 <figure>
-                    <img src={visa1} alt="visa"/>
+                    <img src={visa1} alt="visa" />
                 </figure>
                 <figure>
-                    <img src={master} alt="master"/>
+                    <img src={master} alt="master" />
                 </figure>
                 <figure>
-                    <img src={cb} alt="carte bleue"/>
+                    <img src={cb} alt="carte bleue" />
                 </figure>
             </div>
         </section>
     </footer>
-    }
 }
 
 export default Footer;

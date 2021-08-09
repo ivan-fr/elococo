@@ -99,7 +99,11 @@ class Command(BaseCommand):
 
         urlconf = options['urlconf']
 
-        views = []
+        if format_style == 'json':
+            views = {}
+        else:
+            views = []
+        
         if not hasattr(settings, urlconf):
             raise CommandError("Settings module {} does not have the attribute {}.".format(settings, urlconf))
 
@@ -142,7 +146,7 @@ class Command(BaseCommand):
                 continue
 
             if format_style == 'json':
-                views.append({"url": url, "module": module, "name": url_name, "decorators": decorator})
+                views[url_name] = {"url": url, "module": module, "name": url_name, "decorators": decorator}
             else:
                 views.append(fmtr.format(
                     module='{0}.{1}'.format(style.MODULE(func.__module__), style.MODULE_NAME(func_name)),

@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from treebeard.mp_tree import MP_Node
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,7 +10,6 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
-from treebeard.mp_tree import MP_Node
 
 
 def product_image_path(instance, filename: str):
@@ -44,7 +44,8 @@ class Product(models.Model):
     price = models.PositiveSmallIntegerField()
     TTC_price = models.BooleanField(default=False)
 
-    reduction = models.PositiveSmallIntegerField(validators=(MaxValueValidator(100),), default=0)
+    reduction = models.PositiveSmallIntegerField(
+        validators=(MaxValueValidator(100),), default=0)
     reduction_end = models.DateField(null=True, blank=True)
     stock = models.PositiveSmallIntegerField(default=0)
 

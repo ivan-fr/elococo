@@ -1,4 +1,5 @@
 from abc import ABC
+from catalogue.serializers import CategorySerializer
 from decimal import Decimal
 
 from django.conf import settings
@@ -222,7 +223,7 @@ def get_related_products(selected_category, products_queryset=None):
     return related_products
 
 
-def filled_category(limit, selected_category=None, products_queryset=None):
+def filled_category(limit, selected_category=None, products_queryset=None, dump=False, request=None):
     filled_category_ = Category.get_root_nodes().filter(
         Exists(get_descendants_products(include_self=True))
     ).annotate(products_count__sum=SQCount(get_descendants_products(include_self=True)))[:limit]
@@ -242,27 +243,36 @@ def filled_category(limit, selected_category=None, products_queryset=None):
 
         selected_category_root = dict_["selected_category_root"]
         try:
-            obj = selected_category_root.get()
+            selected_category_root_db = selected_category_root.get()
             selected_category = Category.objects.filter(
                 slug=selected_category).get()
             dict_["related_products"] = get_related_products(
                 selected_category, products_queryset)
 
-            annotated_list = Category.get_tree(
-                obj
-            ).filter(
-                depth__lte=2
-            ).annotate(
-                products_count__sum=SQCount(
-                    get_descendants_products(include_self=True)
+            if dump:
+                if request is not None:
+                    dict_["filter_list"] = CategorySerializer.MP_Node_dump_bulk_drf(
+                        request,
+                        selected_category_root_db, annotates={"products_count__sum": SQCount(
+                            get_descendants_products(include_self=True)
+                        )},
+                        depth_lte=2
+                    )
+            else:
+                annotated_list = Category.get_tree(
+                    selected_category_root_db
+                ).filter(
+                    depth__lte=2
+                ).annotate(
+                    products_count__sum=SQCount(
+                        get_descendants_products(include_self=True)
+                    )
                 )
-            )
+                dict_["filter_list"] = Category.get_annotated_list_qs(
+                    annotated_list
+                )
 
-            dict_["filter_list"] = Category.get_annotated_list_qs(
-                annotated_list
-            )
-
-            dict_["selected_category_root"] = obj
+            dict_["selected_category_root"] = selected_category_root_db
             dict_["selected_category"] = selected_category
         except selected_category_root.model.DoesNotExist:
             dict_["selected_category_root"] = None

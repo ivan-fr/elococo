@@ -154,8 +154,6 @@
                 }
             }
 
-            console.log(url.pathname + url.search)
-
             httpRequest_filter.onload = callback_onload_products_filter(event, url.pathname + url.search);
             httpRequest_filter.open('GET', url.pathname + url.search);
             httpRequest_filter.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
