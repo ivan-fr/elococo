@@ -9,44 +9,48 @@ function BoutiqueContainer({ mainReponse, subResponse }) {
     let [response, setResponse] = useState(mainReponse)
 
     useEffect(() => {
-        switch (subResponse.isLoading) {
-            case false:
-                setResponse(subResponse)
-                break;
-        }
+        if (subResponse.data) setResponse(subResponse)
     }, [subResponse])
 
     let results = useMemo(() => {
         return response.data?.results
     }, [response.data])
 
+    if (response.error) {
+        return <div id="boutique-container" className={results?.filter_list && "with_filters"}>
+            <div id="boutique">Erreur lors du chargement.</div>
+        </div>
+    }
+
     return <>
         <div id="boutique-container" className={results?.filter_list && "with_filters"}>
             <div id="boutique">
-                {subResponse.isLoading == false && results?.related_products ? results.related_products.map((product, i) => (
-                    <article key={i}>
-                        <h3>{product.name}</h3>
+                {subResponse.isLoading == true ?
+                    <Loading /> :
+                    results?.related_products && results.related_products.map((product, i) => (
+                        <article key={i}>
+                            <h3>{product.name}</h3>
 
-                        <figure className="hover_figure">
-                            <Link to="/">
-                                <img src={product.productimage_set[0].image}
-                                    alt={'product' + i} />
+                            <figure className="hover_figure">
+                                <Link to="/">
+                                    <img src={product.productimage_set[0].image}
+                                        alt={'product' + i} />
 
-                                {product.effective_reduction > 0 &&
-                                    <div className="info_reduction">
-                                        -{product.effective_reduction}%
+                                    {product.effective_reduction > 0 &&
+                                        <div className="info_reduction">
+                                            -{product.effective_reduction}%
+                                        </div>
+                                    }
+                                    <div className="info_price">
+                                        {product.price_exact_ttc}€ TTC
                                     </div>
-                                }
-                                <div className="info_price">
-                                    {product.price_exact_ttc}€ TTC
-                                </div>
-                                <figcaption>
-                                    {product.name}
-                                </figcaption>
-                            </Link>
-                        </figure>
-                    </article>
-                )) : <Loading />}
+                                    <figcaption>
+                                        {product.name}
+                                    </figcaption>
+                                </Link>
+                            </figure>
+                        </article>
+                    ))}
             </div>
 
             {results?.filter_list && (
