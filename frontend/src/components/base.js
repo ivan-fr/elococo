@@ -10,7 +10,7 @@ import {
 import Catalogue from './catalogue';
 
 function Base() {
-    return <>
+    return <BrowserRouter>
         <div className="wrapper">
             <figure id="main_logo">
                 <img src={logo} alt="logo" />
@@ -19,18 +19,15 @@ function Base() {
 
             <main className="gridded">
                 <div className="main">
-                    <BrowserRouter>
-                        <Switch>
-                            <Route exact path="/" component={Catalogue} />
-                            <Route component={Catalogue} />
-                        </Switch>
-                    </BrowserRouter>
+                    <Switch>
+                        <Route exact path="/" component={Catalogue} />
+                    </Switch>
                 </div>
             </main>
         </div>
 
         <Footer />
-    </>
+    </BrowserRouter>
 }
 
 export default Base;

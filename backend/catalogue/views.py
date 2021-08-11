@@ -6,7 +6,7 @@ from django.http import JsonResponse, Http404, HttpResponseForbidden
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import ListView, DetailView, RedirectView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin, FormView
 
 from catalogue.bdd_calculations import (

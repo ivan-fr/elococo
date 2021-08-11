@@ -1,4 +1,5 @@
-from catalogue.bdd_calculations import cast_annotate_to_float, data_from_all_product, filled_category, price_annotation_format
+from catalogue.bdd_calculations import (
+    cast_annotate_to_float, data_from_all_product, filled_category, price_annotation_format)
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -33,20 +34,23 @@ def list_catalogue(self, request, **kwargs):
             and request.GET.get("max_ttc_price", None) is not None:
         self.queryset = self.queryset.filter(
             price_exact_ttc__range=(
-                float(request.GET["min_ttc_price"]) - 1e-1,
-                float(request.GET["max_ttc_price"]) + 1e-1
+                float(request.GET["min_ttc_price"]) - 1e-2,
+                float(request.GET["max_ttc_price"]) + 1e-2
             )
         )
 
-    if request.GET.get("order", None) is not None:
-        if request.GET["order"].lower() == "asc":
+    order = request.GET.get("order", None)
+
+    if order is not None:
+        order = order.lower()
+        if order == "asc":
             self.ordering = ("price_exact_ttc",)
-            dict_data.update({"order": 0})
-        elif self.request.GET["order"].lower() == "desc":
+            dict_data.update({"order": order})
+        elif order == "desc":
             self.ordering = ("-price_exact_ttc",)
-            dict_data.update({"order": 1})
+            dict_data.update({"order": order})
     else:
-        dict_data.update({"order": -1})
+        dict_data.update({"order": order})
 
     if self.ordering is not None:
         self.queryset = self.queryset.order_by(self.ordering)

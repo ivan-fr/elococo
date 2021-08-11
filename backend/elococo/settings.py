@@ -66,12 +66,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'treebeard',
     'oauth2_provider',
-    'rest_framework'
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -187,6 +189,7 @@ OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
 }
 
+# DRF
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 30,
@@ -194,6 +197,11 @@ REST_FRAMEWORK = {
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     )
 }
+
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000'
+]
 
 stripe.api_key = secrets["stripe"]["private_key"]
 STRIPE_PUBLIC_KEY = secrets["stripe"]["public_key"]

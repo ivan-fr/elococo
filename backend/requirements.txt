@@ -8,6 +8,7 @@ coverage==5.5
 cryptography==3.4.7
 Deprecated==1.2.12
 Django==3.2.5
+django-cors-headers==3.7.0
 django-oauth-toolkit==1.5.0
 django-treebeard==4.5.1
 djangorestframework==3.12.4
