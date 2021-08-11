@@ -44,11 +44,13 @@ def list_catalogue(self, request, **kwargs):
     if order is not None:
         order = order.lower()
         if order == "asc":
-            self.ordering = ("price_exact_ttc",)
-            dict_data.update({"order": order})
+            self.ordering = "price_exact_ttc"
         elif order == "desc":
-            self.ordering = ("-price_exact_ttc",)
-            dict_data.update({"order": order})
+            self.ordering = "-price_exact_ttc"
+        else:
+            order = None
+
+        dict_data.update({"order": order})
     else:
         dict_data.update({"order": order})
 

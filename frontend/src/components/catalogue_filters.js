@@ -8,34 +8,38 @@ function CatalogueFilters({ query }) {
     let history = useHistory()
 
     const onClickOrder = useCallback(
-        (order) => {
+        (e, order) => {
             query.set('order', order)
-            return (e) => {
-                e.preventDefault()
-                history.push({
-                    search: `?${query.toString()}`
-                })
-            }
+            e.preventDefault()
+            history.push({
+                search: `?${query.toString()}`
+            })
         }, [query, history]
     )
 
-    const order = useMemo(() => query.get('order'), [query])
+    const order = useMemo(() => {
+        const order = query.get('order')
+        if (order == 'null') {
+            return null
+        }
+        return order
+    }, [query])
 
     return <div className="filters">
         <nav className="order_filters">
             <ul>
                 <li className={order && order == "asc" ? "is-active" : ""}>
-                    <a onClick={onClickOrder("asc")}>
+                    <a href="" onClick={(e) => onClickOrder(e, "asc")}>
                         Prix croissant
                     </a>
                 </li>
                 <li className={order && order == "desc" ? "is-active" : ""}>
-                    <a onClick={onClickOrder("desc")}>
+                    <a href="" onClick={(e) => onClickOrder(e, "desc")}>
                         Prix décroissant
                     </a>
                 </li>
-                <li className={order && order == null ? "is-active" : ""}>
-                    <a onClick={onClickOrder(null)}>
+                <li className={order === null ? "is-active" : ""}>
+                    <a href="" onClick={(e) => onClickOrder(e, null)}>
                         Derniers ajouts
                     </a>
                 </li>
@@ -47,7 +51,7 @@ function CatalogueFilters({ query }) {
 }
 
 CatalogueFilters.propTypes = {
-    query: PropTypes.func.isRequired,
+    query: PropTypes.object.isRequired,
 }
 
 export default CatalogueFilters;

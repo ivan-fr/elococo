@@ -1,18 +1,19 @@
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { useSimpleFetch } from '../hooks/fetcher';
+import { useFetchOnlyDepsFromName, useSubFetch } from '../hooks/fetcher';
 import { Loading } from './loading';
 import { Link, useHistory, useLocation } from 'react-router-dom'
-import { AnnotatedTree } from './annotated_tree';
 import "../css/double_range.css"
 import CatalogueFilters from './catalogue_filters';
 import { doubleRangeContext, onChange } from '../contexts/double_range';
+import BoutiqueContainer from './boutique_container';
 
 function Catalogue() {
     let history = useHistory()
     let { search } = useLocation()
-    const query = useMemo(() => new URLSearchParams(search), [search]);  
+    const query = useMemo(() => new URLSearchParams(search), [search]);
 
-    const response = useSimpleFetch('catalogue_api:product-list', [], query)
+    const response = useFetchOnlyDepsFromName('catalogue_api:product-list', [], query)
+    const subResponse = useSubFetch('catalogue_api:product-list', [], response.isLoading, query)
 
     const [doubleRange, setDoubleRange] = useState({
         'min_base': null, 'max_base': null, 'kwargs_min': 'min_ttc_price', 'kwargs_max': 'max_ttc_price'
@@ -72,63 +73,7 @@ function Catalogue() {
                     <CatalogueFilters query={query} />
                 </doubleRangeContext.Provider>
 
-                <div id="boutique-container" className={results?.filter_list && "with_filters"}>
-                    <div id="boutique">
-                        {results?.related_products && results.related_products.map((product, i) => (
-                            <article key={i}>
-                                <h3>{product.name}</h3>
-
-                                <figure className="hover_figure">
-                                    <Link to="/">
-                                        <img src={product.productimage_set[0].image}
-                                            alt={'product' + i} />
-
-                                        {product.effective_reduction > 0 &&
-                                            <div className="info_reduction">
-                                                -{product.effective_reduction}%
-                                            </div>
-                                        }
-                                        <div className="info_price">
-                                            {product.price_exact_ttc}€ TTC
-                                        </div>
-                                        <figcaption>
-                                            {product.name}
-                                        </figcaption>
-                                    </Link>
-                                </figure>
-                            </article>
-                        ))}
-                    </div>
-
-                    {results?.filter_list && (
-                        <section className="product_categories_right">
-                            <h2>Filtres associés</h2>
-                            <AnnotatedTree tree={results.filter_list} selected_category={results.selected_category} />
-                        </section>
-                    )}
-                </div>
-                {(response.data?.next || response.data?.previous) && <nav id="boutique_pagination">
-                    <ul className="pagination">
-                        {response.data?.previous && <>
-                            <li className="page-item">
-                                <span className="page-link">
-                                    <Link to="/">
-                                        Prec
-                                    </Link>
-                                </span>
-                            </li>
-                        </>}
-                        {response.data?.next && <>
-                            <li className="page-item">
-                                <span className="page-link">
-                                    <Link to="/">
-                                        Suiv
-                                    </Link>
-                                </span>
-                            </li>
-                        </>}
-                    </ul>
-                </nav>}
+                <BoutiqueContainer mainReponse={response} subResponse={subResponse} />
             </div>
         default:
             return <div className="catalog">Envoie de la requête.</div>

@@ -160,7 +160,7 @@ class CatalogueSerializer(serializers.Serializer):
     related_products = ProductSerializer(many=True)
     price_exact_ttc__min = serializers.DecimalField(7, 2)
     price_exact_ttc__max = serializers.DecimalField(7, 2)
-    order = serializers.IntegerField(min_value=-1, max_value=1)
+    order = serializers.CharField()
     index = serializers.CharField()
     selected_category = CategorySerializer()
     selected_category_root = CategorySerializer()
