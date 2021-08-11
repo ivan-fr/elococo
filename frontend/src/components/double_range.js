@@ -3,13 +3,13 @@ import { doubleRangeContext } from '../contexts/double_range';
 
 
 function DoubleRange() {
-    const {min, max} = useContext(doubleRangeContext)
+    const {min_base, max_base} = useContext(doubleRangeContext)
 
     return <nav className="range_filter">
         <ul>
             <li>
-                <div className="dr_value_left text-left" data-dr-left={min}>
-                    {min} €
+                <div className="dr_value_left text-left" data-dr-left={min_base}>
+                    {min_base} €
                 </div>
                 <div className="dr_main">
                     <div className="dr_wrapper">
@@ -23,8 +23,8 @@ function DoubleRange() {
                     <div className="double_range">
                     </div>
                 </div>
-                <div className="dr_value_right text-right" data-dr-right={max}>
-                    {max} €
+                <div className="dr_value_right text-right" data-dr-right={max_base}>
+                    {max_base} €
                 </div>
             </li>
         </ul>

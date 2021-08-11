@@ -12,7 +12,7 @@ function Catalogue() {
     let { search } = useLocation()
     const query = useMemo(() => new URLSearchParams(search), [search]);  
 
-    const response = useSimpleFetch('catalogue_api:product-list', [])
+    const response = useSimpleFetch('catalogue_api:product-list', [], query)
 
     const [doubleRange, setDoubleRange] = useState({
         'min_base': null, 'max_base': null, 'kwargs_min': 'min_ttc_price', 'kwargs_max': 'max_ttc_price'
@@ -34,7 +34,7 @@ function Catalogue() {
                 }
             )
         }
-    }, [response.isLoading, results.price_exact_ttc__min, results.price_exact_ttc__max])
+    }, [response.isLoading, results?.price_exact_ttc__min, results?.price_exact_ttc__max])
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     let onDoubleRangeChange = useCallback(onChange(doubleRange, history, query), [])

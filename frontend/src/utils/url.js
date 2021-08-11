@@ -7,8 +7,17 @@ export function get_path_with_args(path, args = []) {
     return path_to_transform
 }
 
-export function get_url(origin, path) {
+export function get_url(origin, path, urlSearchParams=null) {
     let url = new URL(path, origin)
     url.searchParams.set("format", "json")
+
+    if (urlSearchParams == null) {
+        return url
+    }
+    
+    for (const pair of urlSearchParams.entries()) {
+        url.searchParams.set(pair[0], pair[1])
+    }
+
     return url
 }

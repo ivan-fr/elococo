@@ -2,7 +2,7 @@ import { useEffect, useContext, useState } from 'react';
 import { PathsContext, OriginUrlContext } from '../contexts/paths';
 import { get_path_with_args, get_url } from '../utils/url';
 
-export function useSimpleFetch(route_name, args) {
+export function useSimpleFetch(route_name, args, urlSearchParams=null) {
     const paths_data = useContext(PathsContext)
     const origin = useContext(OriginUrlContext)
 
@@ -10,7 +10,7 @@ export function useSimpleFetch(route_name, args) {
 
     useEffect(() => {
         const path = get_path_with_args(paths_data[route_name]['url'], args)
-        const url = get_url(origin, path)
+        const url = get_url(origin, path, urlSearchParams)
 
         setResponse(
             r => {
