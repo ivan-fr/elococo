@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { doubleRangeContext } from '../contexts/double_range';
 
 
@@ -17,6 +17,7 @@ function reverse_linear(start, end, r) {
 function DoubleRange() {
     const { min_base, max_base, drChange, kwargs_min, kwargs_max } = useContext(doubleRangeContext)
     const zIndex = useRef(10)
+    let history = useHistory()
     let { search } = useLocation()
     const query = useMemo(() => new URLSearchParams(search), [search]);
 
@@ -163,9 +164,16 @@ function DoubleRange() {
         max.current = parseFloat(query.get(kwargs_max)) || max_base
         refreshLeft()
         refreshRight()
+
+        query.set(kwargs_min, min.current)
+        query.set(kwargs_max, max.current)
+        history.push({
+            search: `?${query.toString()}`
+        })
+
         minFetch.current = min.current
         maxFetch.current = max.current
-    }, [min_base, max_base, query, kwargs_max, kwargs_min, refreshRight, refreshLeft])
+    }, [min_base, max_base, query, kwargs_max, kwargs_min, refreshRight, refreshLeft, history])
 
     const move = useCallback(
         (event) => {

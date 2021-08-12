@@ -29,18 +29,24 @@ def list_catalogue(self, request, **kwargs):
 
     self.queryset = self.queryset.annotate(**annotation_p)
     dict_data.update(self.queryset.aggregate(*data_from_all_product()))
-
-    if request.GET.get("min_ttc_price", None) is not None \
-            and request.GET.get("max_ttc_price", None) is not None:
-        try:
-            self.queryset = self.queryset.filter(
-                price_exact_ttc__range=(
-                    float(request.GET["min_ttc_price"]) - 1e-2,
-                    float(request.GET["max_ttc_price"]) + 1e-2
+    
+    try:
+        min_ttc_price = float(request.GET.get("min_ttc_price", None))
+        max_ttc_price = float(request.GET.get("max_ttc_price", None))
+        if min_ttc_price is not None \
+                and max_ttc_price is not None:
+            if min_ttc_price < dict_data['price_exact_ttc__min']:
+                min_ttc_price = dict_data['price_exact_ttc__min']
+            if max_ttc_price > dict_data['price_exact_ttc__max']:
+                max_ttc_price = dict_data['price_exact_ttc__max']
+                self.queryset = self.queryset.filter(
+                    price_exact_ttc__range=(
+                        min_ttc_price - 1e-2,
+                        max_ttc_price + 1e-2
+                    )
                 )
-            )
-        except ValueError:
-            pass
+    except ValueError:
+        pass
 
     order = request.GET.get("order", None)
 
