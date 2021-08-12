@@ -179,6 +179,7 @@ function dr(dr_grid, on_up) {
             let value_target = start + 2 * quotient_relative;
             let back_base_percentage = reverse_linear(start, end, value_target);
 
+
             if (isNaN(back_base_percentage)) {
                 box_right.style.background = "#ff6969";
                 box_left.style.background = "#ff6969";
@@ -198,11 +199,11 @@ function dr(dr_grid, on_up) {
             if (direction === 1) {
                 distance_value = (Math.round((distance_value + Number.EPSILON) * 100) / 100)
                 dr_value_right.setAttribute("data-dr-right", `${distance_value}`);
-                dr_value_right.textContent = `${distance_value.toFixed(2).toString().replace(".", ",")} €`;
+                dr_value_right.textContent = `${distance_value.toFixed(2).replace(".", ",")} €`;
             } else {
                 distance_value = (Math.round((distance_value + Number.EPSILON) * 100) / 100)
                 dr_value_left.setAttribute("data-dr-left", `${distance_value}`);
-                dr_value_left.textContent = `${distance_value.toFixed(2).toString().replace(".", ",")} €`;
+                dr_value_left.textContent = `${distance_value.toFixed(2).replace(".", ",")} €`;
             }
 
             box.parentElement.style.setProperty(

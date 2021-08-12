@@ -32,12 +32,15 @@ def list_catalogue(self, request, **kwargs):
 
     if request.GET.get("min_ttc_price", None) is not None \
             and request.GET.get("max_ttc_price", None) is not None:
-        self.queryset = self.queryset.filter(
-            price_exact_ttc__range=(
-                float(request.GET["min_ttc_price"]) - 1e-2,
-                float(request.GET["max_ttc_price"]) + 1e-2
+        try:
+            self.queryset = self.queryset.filter(
+                price_exact_ttc__range=(
+                    float(request.GET["min_ttc_price"]) - 1e-2,
+                    float(request.GET["max_ttc_price"]) + 1e-2
+                )
             )
-        )
+        except ValueError:
+            pass
 
     order = request.GET.get("order", None)
 

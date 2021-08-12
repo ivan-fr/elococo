@@ -1,19 +1,9 @@
 import React from 'react'
 
-export const onChange = (doubleRange, history, query) => {
-    return ({ name, value }) => {
-
-    switch (name) {
-        case 'min':
-            query.set(doubleRange.kwargs_min, value)
-            break;
-        case 'max':
-            query.set(doubleRange.kwargs_max, value)
-            break;
-        default:
-            break;
-    }
-
+export const onDrChange = (doubleRangeContext, history, query) => {
+    return ({ min, max }) => {
+    query.set(doubleRangeContext.kwargs_min, min)
+    query.set(doubleRangeContext.kwargs_max, max)
     history.push({
         search: `?${query.toString()}`
     })

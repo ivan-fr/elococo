@@ -12,9 +12,9 @@ function BoutiqueContainer({ mainReponse, subResponse }) {
     useEffect(() => {
         if (isInitialMount.current) {
             isInitialMount.current = false;
-         } else { 
-             setResponse(subResponse)
-         }
+        } else {
+            setResponse(subResponse)
+        }
     }, [subResponse])
 
     let results = useMemo(() => {

@@ -4,7 +4,7 @@ import { Loading } from './loading';
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import "../css/double_range.css"
 import CatalogueFilters from './catalogue_filters';
-import { doubleRangeContext, onChange } from '../contexts/double_range';
+import { doubleRangeContext, onDrChange } from '../contexts/double_range';
 import BoutiqueContainer from './boutique_container';
 
 function Catalogue() {
@@ -29,8 +29,8 @@ function Catalogue() {
                 dr => {
                     return {
                         ...dr,
-                        'min_base': results.price_exact_ttc__min,
-                        'max_base': results.price_exact_ttc__max
+                        'min_base': parseFloat(results.price_exact_ttc__min),
+                        'max_base': parseFloat(results.price_exact_ttc__max)
                     }
                 }
             )
@@ -38,9 +38,9 @@ function Catalogue() {
     }, [response.isLoading, results?.price_exact_ttc__min, results?.price_exact_ttc__max])
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    let onDoubleRangeChange = useCallback(onChange(doubleRange, history, query), [])
+    let onDoubleRangeChange = useCallback(onDrChange(doubleRange, history, query), [doubleRange, history, query])
     const doubleRangeValue = useMemo(() => {
-        return { ...doubleRange, 'change': onDoubleRangeChange }
+        return { ...doubleRange, 'drChange': onDoubleRangeChange }
     }, [doubleRange, onDoubleRangeChange])
 
     if (response.isLoading == null) {
