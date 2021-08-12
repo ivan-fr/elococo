@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnnotatedTree } from './annotated_tree'
 import { Loading } from './loading'
@@ -7,9 +7,14 @@ import PropTypes from 'prop-types';
 
 function BoutiqueContainer({ mainReponse, subResponse }) {
     let [response, setResponse] = useState(mainReponse)
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
-        if (subResponse.data) setResponse(subResponse)
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+         } else { 
+             setResponse(subResponse)
+         }
     }, [subResponse])
 
     let results = useMemo(() => {
@@ -25,7 +30,7 @@ function BoutiqueContainer({ mainReponse, subResponse }) {
     return <>
         <div id="boutique-container" className={results?.filter_list && "with_filters"}>
             <div id="boutique">
-                {subResponse.isLoading == true ?
+                {response.isLoading == true ?
                     <Loading /> :
                     results?.related_products && results.related_products.map((product, i) => (
                         <article key={i}>

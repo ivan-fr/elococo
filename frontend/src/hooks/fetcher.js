@@ -72,7 +72,7 @@ export function useSubFetch(route_name, args, prevLoading, urlSearchParams = nul
         {
             doAfetch(origin, paths_data, route_name, args, urlSearchParams, setResponse)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [route_name, urlSearchParams.toString()]);
 
     return response
