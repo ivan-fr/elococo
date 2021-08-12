@@ -1,0 +1,20 @@
+{
+    "catalogue_api:product-list": {
+        "url": "/api/catalogue/",
+        "module": "catalogue.rest_views.CatalogueViewSet",
+        "name": "catalogue_api:product-list",
+        "decorators": ""
+    },
+    "catalogue_api:product-list-category": {
+        "url": "/api/catalogue/categories/<slug_category>/",
+        "module": "catalogue.rest_views.CatalogueViewSet",
+        "name": "catalogue_api:product-list-category",
+        "decorators": ""
+    },
+    "catalogue_api:product-detail": {
+        "url": "/api/catalogue/<pk>/",
+        "module": "catalogue.rest_views.CatalogueViewSet",
+        "name": "catalogue_api:product-detail",
+        "decorators": ""
+    }
+}

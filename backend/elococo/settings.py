@@ -200,7 +200,7 @@ REST_FRAMEWORK = {
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
+    'http://0.0.0.0:3000'
 ]
 
 stripe.api_key = secrets["stripe"]["private_key"]

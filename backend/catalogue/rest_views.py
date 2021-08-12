@@ -46,6 +46,8 @@ def list_catalogue(self, request, **kwargs):
             )
     except ValueError:
         pass
+    except TypeError:
+        pass
 
     order = request.GET.get("order", None)
 
