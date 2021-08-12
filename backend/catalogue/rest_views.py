@@ -29,22 +29,21 @@ def list_catalogue(self, request, **kwargs):
 
     self.queryset = self.queryset.annotate(**annotation_p)
     dict_data.update(self.queryset.aggregate(*data_from_all_product()))
-    
+
     try:
         min_ttc_price = float(request.GET.get("min_ttc_price", None))
         max_ttc_price = float(request.GET.get("max_ttc_price", None))
-        if min_ttc_price is not None \
-                and max_ttc_price is not None:
+        if min_ttc_price is not None and max_ttc_price is not None:
             if min_ttc_price < dict_data['price_exact_ttc__min']:
                 min_ttc_price = dict_data['price_exact_ttc__min']
             if max_ttc_price > dict_data['price_exact_ttc__max']:
                 max_ttc_price = dict_data['price_exact_ttc__max']
-                self.queryset = self.queryset.filter(
-                    price_exact_ttc__range=(
-                        min_ttc_price - 1e-2,
-                        max_ttc_price + 1e-2
-                    )
+            self.queryset = self.queryset.filter(
+                price_exact_ttc__range=(
+                    min_ttc_price - 1e-2,
+                    max_ttc_price + 1e-2
                 )
+            )
     except ValueError:
         pass
 
@@ -66,14 +65,12 @@ def list_catalogue(self, request, **kwargs):
     if self.ordering is not None:
         self.queryset = self.queryset.order_by(self.ordering)
 
-    queryset = self.filter_queryset(self.get_queryset())
-
-    dict_data["related_products"] = self.paginate_queryset(queryset)
+    dict_data["related_products"] = self.paginate_queryset(self.queryset)
     if dict_data["related_products"] is not None:
         serializer = self.get_serializer(dict_data)
         return self.get_paginated_response(serializer.data)
 
-    dict_data["related_products"] = queryset
+    dict_data["related_products"] = self.queryset
     serializer = self.get_serializer(dict_data["related_products"])
     return Response(serializer.data)
 
@@ -86,6 +83,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
     ordering = None
 
     def list(self, request, *args, **kwargs):
+        self.paginate_queryset
         return list_catalogue(self, request, **kwargs)
 
     def update(self, request, *args, **kwargs):
