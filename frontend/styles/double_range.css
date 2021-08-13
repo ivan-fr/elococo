@@ -45,6 +45,10 @@
     border-radius: 1em;
 }
 
+.dr_box.base {
+    display: none;
+}
+
 .dr_wrapper:nth-of-type(2) {
     width: unset;
     right: 0;

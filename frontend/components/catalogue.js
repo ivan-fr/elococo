@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import Link from 'next/link'
 import CatalogueFilters from './catalogue_filters';
 import {doubleRangeContext} from '../contexts/double_range';
@@ -16,9 +16,7 @@ function Catalogue({response}) {
         'kwargs_max': 'max_ttc_price'
     })
 
-    const isUpdate = useRef(false)
-
-    useEffect(() => {
+    useLayoutEffect(() => {
         setDoubleRange(
             dr => {
                 return {
@@ -34,13 +32,13 @@ function Catalogue({response}) {
         <nav className="product_categories">
             <h3>Categories</h3>
             <ul>
-                <li className={results?.index == null && "is-active"}>
+                <li className={results?.index == null ? "is-active" : undefined}>
                     <Link href="/"><a>Tous les produit</a></Link>
                 </li>
 
                 {results?.filled_category && results.filled_category.map((category, i) => (
                     <li key={i} className={results?.index && results?.index === category?.slug && "is-active"}>
-                        <Link href="/"><a>{category?.category} ({category?.products_count__sum})</a></Link>
+                        <Link href={`/category/${category.slug}`}><a>{category.category} ({category.products_count__sum})</a></Link>
                     </li>
                 ))}
             </ul>

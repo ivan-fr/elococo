@@ -1,10 +1,10 @@
+import catalogue.models as catalogue_models
+import catalogue.serializers as catalogue_serializers
 from catalogue.bdd_calculations import (
     cast_annotate_to_float, data_from_all_product, filled_category, price_annotation_format)
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-import catalogue.models as catalogue_models
-import catalogue.serializers as catalogue_serializers
 
 
 def list_catalogue(self, request, **kwargs):
@@ -12,7 +12,7 @@ def list_catalogue(self, request, **kwargs):
 
     dict_data = filled_category(5, kwargs.get(
         'slug_category', None), products_queryset=self.queryset,
-        dump=True, request=request)
+                                dump=True, request=request)
     dict_data.update({"index": None})
 
     selected_category_root = dict_data.get("selected_category_root", None)
@@ -31,8 +31,19 @@ def list_catalogue(self, request, **kwargs):
     dict_data.update(self.queryset.aggregate(*data_from_all_product()))
 
     try:
-        min_ttc_price = float(request.GET.get("min_ttc_price", None))
-        max_ttc_price = float(request.GET.get("max_ttc_price", None))
+
+        min_ttc_price = request.GET.get("min_ttc_price", None)
+        max_ttc_price = request.GET.get("max_ttc_price", None)
+
+        try:
+            var = min_ttc_price[8], max_ttc_price[8]
+            raise TypeError()
+        except IndexError:
+            if min_ttc_price == 'NaN' or max_ttc_price == 'Nan':
+                raise TypeError()
+            min_ttc_price = float(min_ttc_price)
+            max_ttc_price = float(max_ttc_price)
+
         if min_ttc_price is not None and max_ttc_price is not None:
             if min_ttc_price < dict_data['price_exact_ttc__min']:
                 min_ttc_price = dict_data['price_exact_ttc__min']

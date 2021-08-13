@@ -27,17 +27,17 @@ function CatalogueFilters() {
     return <div className="filters">
         <nav className="order_filters">
             <ul>
-                <li className={order && order === "asc" ? "is-active" : ""}>
+                <li className={order && order === "asc" ? "is-active" : undefined}>
                     <a href="" onClick={(e) => onClickOrder(e, "asc")}>
                         Prix croissant
                     </a>
                 </li>
-                <li className={order && order === "desc" ? "is-active" : ""}>
+                <li className={order && order === "desc" ? "is-active" : undefined}>
                     <a href="" onClick={(e) => onClickOrder(e, "desc")}>
                         Prix décroissant
                     </a>
                 </li>
-                <li className={order === null ? "is-active" : ""}>
+                <li className={order === null ? "is-active" : undefined}>
                     <a href="" onClick={(e) => onClickOrder(e, null)}>
                         Derniers ajouts
                     </a>
