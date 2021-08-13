@@ -56,20 +56,23 @@ function DoubleRange() {
     const delta_value = useMemo(() => max_base - min_base, [max_base, min_base])
 
     const update_bar = useCallback(function update_bar() {
-        let new_with = Math.abs(
+        let new_with = box_right.current ? Math.abs(
             (
                 box_right.current.getBoundingClientRect().right
                 - box_left.current.getBoundingClientRect().left
                 - box_left.current.getBoundingClientRect().width
             )
-        );
-        let new_left = (
+        ) : 0;
+        let new_left = box_left.current ? (
             box_left.current.getBoundingClientRect().left
             - dr_witness.current.getBoundingClientRect().left
             + box_left.current.getBoundingClientRect().width
-        );
-        dr.current.style.width = `${new_with}px`;
-        dr.current.style.left = `${new_left}px`;
+        ) : 0;
+
+        if (dr.current) {
+            dr.current.style.width = `${new_with}px`;
+            dr.current.style.left = `${new_left}px`;
+        }
     }, [])
 
     useEffect(() => {
@@ -150,7 +153,6 @@ function DoubleRange() {
 
     useLayoutEffect(() => {
         if (!history.query[kwargs_max] || !history.query[kwargs_min]) {
-            console.log("do")
             percentage_.current = [0, 0]
             min.current = null
             max.current = null
@@ -170,12 +172,9 @@ function DoubleRange() {
 
         let prevMin = isNaN(pMin) ? min_base : pMin
         let prevMax = isNaN(pMax) ? max_base : pMax
-        console.log(prevMin, min.current, max.current)
 
         let [nextMin, perLeft] = refreshLeft(prevMin, prevMax, min_base, max_base)
         let [nextMax, perRight] = refreshRight(prevMin, prevMax, min_base, max_base)
-
-        console.log(prevMin, min.current, max.current, nextMin, nextMax)
 
         if (Math.abs(prevMin - nextMin) < 1e-2 && Math.abs(prevMax - nextMax) < 1e-2) {
             minFetch.current = min.current = nextMin
@@ -198,7 +197,9 @@ function DoubleRange() {
 
     useLayoutEffect(() => {
         update_bar()
-    }, [refresh, update_bar])
+
+        return () => update_bar()
+    }, [refresh, update_bar, history])
 
     const move = useCallback(
         (event) => {
@@ -316,6 +317,12 @@ function DoubleRange() {
             let value_target = start.current + 2 * quotient_relative;
             let back_base_percentage = reverse_linear(start.current, end.current, value_target);
 
+            if (isNaN(back_base_percentage)) {
+                box_right.current.style.background = "#ff6969";
+                box_left.current.style.background = "#ff6969";
+                return;
+            }
+
             let percentage = Math.max(0, Math.min(back_base_percentage, limitMax.current));
 
             let distance_value = linear(start.current, end.current, percentage);
@@ -412,7 +419,7 @@ function DoubleRange() {
                             (
                                 min.current > min_base ? min.current.toFixed(2) : min_base.toFixed(2)
                             ) : min_base && min_base.toFixed(2)
-                    } € {min.current} {min_base}
+                    } €
                 </div>
                 <div ref={dr_main} className="dr_main">
                     <div
