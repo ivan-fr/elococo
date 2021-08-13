@@ -1,3 +1,5 @@
+import paths from "../api_urls"
+
 export function getUrlSearchParams(urlParsedQuery) {
     let str = '?';
 
@@ -12,6 +14,10 @@ export function getUrlSearchParams(urlParsedQuery) {
     return new URLSearchParams(str.slice(0, -1))
 }
 
+export function get_route_with_args(route_name, args = []) {
+    return get_path_with_args(paths.route[route_name]['url'], args)
+}
+
 export function get_path_with_args(path, args = []) {
     let path_to_transform = path
     for (const arg of args) {
@@ -21,8 +27,8 @@ export function get_path_with_args(path, args = []) {
     return path_to_transform
 }
 
-export function get_url(origin, path, urlParsedQuey=null) {
-    let url = new URL(path, origin)
+export function get_url(path, urlParsedQuey=null) {
+    let url = new URL(path, paths.origin, false)
     url.searchParams.set("format", "json")
 
     if (urlParsedQuey == null) {

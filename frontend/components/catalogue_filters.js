@@ -4,35 +4,35 @@ import { useRouter } from 'next/router'
 import { getUrlSearchParams } from '../utils/url';
 
 function CatalogueFilters() {
-    let history = useRouter()
+    let router = useRouter()
 
     const onClickOrder = useCallback(
         (e, order) => {
             e.preventDefault()
-            const query = history.query
+            const query = router.query
             query['order'] = order
-            history.push('?' + getUrlSearchParams(query).toString(), undefined, {shallow:true})
-        }, [history]
+            router.push('?' + getUrlSearchParams(query).toString())
+        }, [router]
     )
 
     const order = useMemo(() => {
-        const query = history.query
+        const query = router.query
         const order = query['order']
-        if (order == 'null') {
+        if (!order || order === 'null') {
             return null
         }
         return order
-    }, [history])
+    }, [router])
 
     return <div className="filters">
         <nav className="order_filters">
             <ul>
-                <li className={order && order == "asc" ? "is-active" : ""}>
+                <li className={order && order === "asc" ? "is-active" : ""}>
                     <a href="" onClick={(e) => onClickOrder(e, "asc")}>
                         Prix croissant
                     </a>
                 </li>
-                <li className={order && order == "desc" ? "is-active" : ""}>
+                <li className={order && order === "desc" ? "is-active" : ""}>
                     <a href="" onClick={(e) => onClickOrder(e, "desc")}>
                         Prix décroissant
                     </a>

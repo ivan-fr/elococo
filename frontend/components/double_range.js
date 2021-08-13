@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { useRouter } from 'next/router'
-import { doubleRangeContext } from '../contexts/double_range';
-import { getUrlSearchParams } from '../utils/url';
+import React, {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
+import {useRouter} from 'next/router'
+import {doubleRangeContext} from '../contexts/double_range';
+import {getUrlSearchParams} from '../utils/url';
 
 function linear(start, end, x) {
     let a = (end - start);
@@ -14,7 +14,7 @@ function reverse_linear(start, end, r) {
 }
 
 function DoubleRange() {
-    const { min_base, max_base, drChange, kwargs_min, kwargs_max } = useContext(doubleRangeContext)
+    const {min_base, max_base, drChange, kwargs_min, kwargs_max} = useContext(doubleRangeContext)
     const zIndex = useRef(10)
     const history = useRouter()
 
@@ -170,11 +170,11 @@ function DoubleRange() {
 
         if (Math.abs(prevMin - min.current) < 1e-2 || Math.abs(prevMax - max.current) < 1e-2) {
             minFetch.current = min.current
-            maxFetch.current = max.current      
+            maxFetch.current = max.current
         } else {
             query[kwargs_min] = min.current
             query[kwargs_max] = max.current
-            history.push('?' + getUrlSearchParams(query).toString(), undefined, {shallow:true})              
+            history.push('?' + getUrlSearchParams(query).toString())
         }
     }, [min_base, max_base, kwargs_max, kwargs_min, refreshRight, refreshLeft, history])
 
@@ -346,7 +346,7 @@ function DoubleRange() {
     }, [])
 
     const upCallback = useCallback(
-        (event) => {
+        () => {
             cleanEvent()
             document.body.style.cursor = null;
             document.body.style.userSelect = null;
@@ -357,9 +357,12 @@ function DoubleRange() {
                 minFetch.current = min.current
                 maxFetch.current = max.current
 
-                drChange({ 'min': minFetch.current, 'max': maxFetch.current })
+                const query = history.query
+                query[kwargs_min] = minFetch.current
+                query[kwargs_max] = maxFetch.current
+                history.push('?' + getUrlSearchParams(query).toString())
             }
-        }, [drChange, cleanEvent])
+        }, [history, cleanEvent, kwargs_min, kwargs_max])
 
     const downCallback = useCallback(
         (event) => {
@@ -409,10 +412,10 @@ function DoubleRange() {
                 </div>
                 <div ref={dr_main} className="dr_main">
                     <div className="dr_wrapper">
-                        <div ref={box_left} onMouseDown={leftDown} className="dr_box"></div>
+                        <div ref={box_left} onMouseDown={leftDown} className="dr_box"/>
                     </div>
                     <div className="dr_wrapper">
-                        <div ref={box_right} onMouseDown={rightDown} className="dr_box"></div>
+                        <div ref={box_right} onMouseDown={rightDown} className="dr_box"/>
                     </div>
                     <div ref={dr_witness} className="double_range_temoin">
                     </div>
