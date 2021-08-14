@@ -1,8 +1,12 @@
+from queue import Queue, Empty
+from threading import Thread
+import sys
 import logging
 import os
 import random
 import re
 import subprocess
+from sys import stdout
 import time
 
 import stripe
@@ -17,6 +21,15 @@ from sale import get_amount
 from sale.models import DELIVERY_SPEED, Ordered
 
 STOCK = 10
+
+
+ON_POSIX = 'posix' in sys.builtin_module_names
+
+
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line.decode('utf-8'))
+    out.close()
 
 
 def get_ordered_queryset():
@@ -229,10 +242,22 @@ def run_stripe_triggers(self, ordered):
         )],
         stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
+    q1 = Queue()
+    q2 = Queue()
 
-    for line in iter(process.stderr.readline, b''):
-        line = line.decode("utf-8").strip()
+    t1 = Thread(target=enqueue_output, args=(process.stderr, q1))
+    t1.daemon = True
+    t1.start()
+    t2 = Thread(target=enqueue_output, args=(process.stdout, q2))
+    t2.daemon = True
+    t2.start()
 
+    while True:
+        try:
+            line = q1.get_nowait()
+        except Empty:
+            continue
+        
         if line.startswith("Ready"):
             settings.STRIPE_WEBHOOK = re.search(
                 r'^.*(whsec_[\w]+).*$', line).group(1)
@@ -249,13 +274,17 @@ def run_stripe_triggers(self, ordered):
 
     start = False
 
-    for line in iter(process.stderr.readline, b''):
-        line = line.decode("utf-8").strip()
+    while True:
 
-        if line != '' and not start:
-            start = True
-        elif (not line or line == '\n') and start:
-            break
+        try:
+            line = q2.get_nowait()
+            if "-->" in line and not start:
+                start = True
+        except Empty:
+            if start:
+                break
+        
+        time.sleep(1)
 
     process.terminate()
 
