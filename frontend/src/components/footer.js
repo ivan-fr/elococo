@@ -27,7 +27,7 @@ function Footer() {
         <section>
             <h3>À Propos</h3>
             <p>Développé par BESEVIC Ivan.</p>
-            <p> Tous droits réservés. .</p>
+            <p> Tous droits réservés. {new Date().getFullYear()}.</p>
             <p>Ceci est un site de démonstration.</p>
             <figure>
                 <a target="_blank" rel="noreferrer" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">

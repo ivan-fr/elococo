@@ -16,10 +16,15 @@ function CatalogueOrder() {
 
     const order = useMemo(() => {
         const order = query.get('order')
-        if (!order || order === 'null') {
-            return null
+
+        switch (order) {
+            case "desc":
+                return order
+            case "asc":
+                return order
+            default:
+                return null
         }
-        return order
     }, [query])
 
     return <nav className="order_filters">
@@ -41,7 +46,6 @@ function CatalogueOrder() {
             </li>
         </ul>
     </nav>
-
 }
 
 export default CatalogueOrder;

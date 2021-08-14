@@ -96,7 +96,6 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
     ordering = None
 
     def list(self, request, *args, **kwargs):
-        self.paginate_queryset
         return list_catalogue(self, request, **kwargs)
 
     def update(self, request, *args, **kwargs):

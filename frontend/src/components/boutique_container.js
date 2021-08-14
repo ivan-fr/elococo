@@ -16,7 +16,7 @@ function BoutiqueContainer({response}) {
                         <h3>{product.name}</h3>
 
                         <figure className="hover_figure">
-                            <Link to="/">
+                            <Link to={`/catalogue/${product.slug}`}>
                                 <img src={product.productimage_set[0].image} alt={'product' + i}/>
 
                                 {product.effective_reduction > 0 &&
