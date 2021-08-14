@@ -1,13 +1,11 @@
-from queue import Queue, Empty
-from threading import Thread
-import sys
-import logging
 import os
 import random
 import re
 import subprocess
-from sys import stdout
+import sys
 import time
+from queue import Queue, Empty
+from threading import Thread
 
 import stripe
 from django.conf import settings
@@ -21,7 +19,6 @@ from sale import get_amount
 from sale.models import DELIVERY_SPEED, Ordered
 
 STOCK = 10
-
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 
@@ -257,7 +254,7 @@ def run_stripe_triggers(self, ordered):
             line = q1.get_nowait()
         except Empty:
             continue
-        
+
         if line.startswith("Ready"):
             settings.STRIPE_WEBHOOK = re.search(
                 r'^.*(whsec_[\w]+).*$', line).group(1)
@@ -283,7 +280,7 @@ def run_stripe_triggers(self, ordered):
         except Empty:
             if start:
                 break
-        
+
         time.sleep(1)
 
     process.terminate()
