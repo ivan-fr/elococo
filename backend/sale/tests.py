@@ -1,20 +1,20 @@
-from elococo import get_dict_data_formset
-from sale import get_amount
-from elococo import get_dict_data_formset
-from sale import get_amount
-from elococo.settings import BACK_TWO_PLACES
-from sale.models import DELIVERY_SPEED, Ordered
-from catalogue.models import Product
-from django.conf import settings
-from django.urls.base import reverse
-from django.test import TestCase, LiveServerTestCase
-from catalogue.models import Product
-import random
-import subprocess
-import re
+import logging
 import os
+import random
+import re
+import subprocess
 import time
+
 import stripe
+from django.conf import settings
+from django.test import TestCase, LiveServerTestCase
+from django.urls.base import reverse
+
+from catalogue.models import Product
+from elococo import get_dict_data_formset
+from elococo.settings import BACK_TWO_PLACES
+from sale import get_amount
+from sale.models import DELIVERY_SPEED, Ordered
 
 STOCK = 10
 
@@ -32,7 +32,7 @@ def setUpTestData(cls):
             Product.objects.create(
                 name=i,
                 description='description',
-                price=i*10,
+                price=i * 10,
                 TTC_price=False,
                 enable_sale=True,
                 stock=STOCK
@@ -47,7 +47,7 @@ def setUp(self):
 
         response = self.client.post(
             reverse("catalogue_product_detail", kwargs={
-                    "slug_product": product.slug}),
+                "slug_product": product.slug}),
             {'quantity': random.randint(
                 1, min(settings.BASKET_MAX_QUANTITY_PER_FORM, STOCK))}
         )
@@ -197,7 +197,7 @@ class SaleTests(TestCase):
         choose_delivery(self, booking)
 
     def test_fill(self, booking=True):
-        fill(self,  booking)
+        fill(self, booking)
 
     def test_fill_next(self, booking=True):
         fill_next(self, booking)
@@ -242,12 +242,20 @@ def run_stripe_triggers(self, ordered):
 
     process_stripe_fixture = subprocess.Popen(
         [settings.BASE_DIR / 'stripe', 'fixtures', '--api-key', stripe_private_key,
-            settings.BASE_DIR / 'sale' / 'fixtures' / 'stripe.json'],
+         settings.BASE_DIR / 'sale' / 'fixtures' / 'stripe.json'],
         stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
     process_stripe_fixture.wait()
 
-    time.sleep(15)
+    start = False
+
+    for line in iter(process.stderr.readline, b''):
+        line = line.decode("utf-8").strip()
+
+        if line != '' and not start:
+            start = True
+        elif (not line or line == '\n') and start:
+            break
 
     process.terminate()
 
@@ -286,7 +294,7 @@ class LiveSaleTests(LiveServerTestCase):
 
         response = self.client.get(
             reverse("sale:payment_return", kwargs={
-                    "pk": ordered.pk, "secrets_": ordered.secrets})
+                "pk": ordered.pk, "secrets_": ordered.secrets})
         )
 
         self.assertEqual(response.status_code, 200)

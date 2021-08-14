@@ -199,9 +199,24 @@ REST_FRAMEWORK = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    'http://0.0.0.0:3000'
-]
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'http://0.0.0.0:3000',
+        'http://3.18.12.63',
+        'http://3.130.192.231',
+        'http://13.235.14.237',
+        'http://13.235.122.149',
+        'http://18.211.135.69',
+        'http://35.154.171.200',
+        'http://52.15.183.38',
+        'http://54.88.130.119',
+        'http://54.88.130.237',
+        'http://54.187.174.169',
+        'http://54.187.205.235',
+        'http://54.187.216.72'
+    ]
 
 stripe.api_key = secrets["stripe"]["private_key"]
 STRIPE_PUBLIC_KEY = secrets["stripe"]["public_key"]

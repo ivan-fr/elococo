@@ -1,12 +1,13 @@
-from elococo import get_dict_data_formset
 import random
 
-from sale.models import Promo
 from django.conf import settings
-from catalogue.bdd_calculations import cast_annotate_to_float, get_related_products, price_annotation_format
-from catalogue.models import Category, Product
 from django.test import TestCase
 from django.urls import reverse
+
+from catalogue.bdd_calculations import cast_annotate_to_float, get_related_products, price_annotation_format
+from catalogue.models import Category, Product
+from elococo import get_dict_data_formset
+from sale.models import Promo
 
 
 def test_pages(self, product_db, products_context, paginator):
@@ -17,7 +18,7 @@ def test_pages(self, product_db, products_context, paginator):
         self.assertEqual(product.slug, products_context[i].slug)
 
     products_in_last_page = product_db[(
-        paginator.num_pages - 1) * paginator.per_page:]
+                                               paginator.num_pages - 1) * paginator.per_page:]
 
     for i, product in enumerate(products_in_last_page):
         self.assertEqual(product.slug, last_page[i].slug)
@@ -25,7 +26,7 @@ def test_pages(self, product_db, products_context, paginator):
 
 def test_orders(self, product_db, category_selected, order, field_order):
     response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
-                               "slug_category": category_selected.slug}) + "?order=" + order)
+        "slug_category": category_selected.slug}) + "?order=" + order)
     context = response.context_data
 
     product_list_context = context['product_list']
@@ -50,7 +51,7 @@ class CatalogueTests(TestCase):
             Product.objects.create(
                 name=i,
                 description='description',
-                price=i*10,
+                price=i * 10,
                 TTC_price=False,
                 enable_sale=True,
                 stock=10
@@ -75,7 +76,7 @@ class CatalogueTests(TestCase):
         category_selected = Category.objects.first()
         product_db = get_related_products(category_selected, product_db)
         response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
-                                   "slug_category": category_selected.slug}))
+            "slug_category": category_selected.slug}))
 
         context = response.context_data
 
@@ -106,7 +107,8 @@ class CatalogueTests(TestCase):
                     "desc", "-price_exact_ttc")
 
         response = self.client.get(reverse("catalogue_navigation_categories", kwargs={
-                                   "slug_category": category_selected.slug}) + "?min_ttc_price=" + str(middle_ttc) + "&max_ttc_price=" + str(context['price_exact_ttc__max']))
+            "slug_category": category_selected.slug}) + "?min_ttc_price=" + str(middle_ttc) + "&max_ttc_price=" + str(
+            context['price_exact_ttc__max']))
         context = response.context_data
 
         product_list_context = context['product_list']
@@ -120,7 +122,7 @@ class CatalogueTests(TestCase):
         product_selected = Product.objects.first()
 
         response = self.client.get(reverse("catalogue_product_detail", kwargs={
-                                   "slug_product": product_selected.slug}))
+            "slug_product": product_selected.slug}))
         context = response.context_data
 
         product_context = context['product']
@@ -151,7 +153,7 @@ class CatalogueTests(TestCase):
 
         response = self.client.post(
             reverse("catalogue_product_detail", kwargs={
-                    "slug_product": product_selected.slug}),
+                "slug_product": product_selected.slug}),
             {'quantity': 1}
         )
         self.assertEqual(response.status_code, 302)
