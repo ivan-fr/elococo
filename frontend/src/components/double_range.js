@@ -313,6 +313,10 @@ function DoubleRange({min_base, max_base, kwargs_min, kwargs_max}) {
 
             let percentage = Math.max(0, Math.min(back_base_percentage, limitMax.current));
 
+            if (percentage === percentage_.current[direction.current]) {
+                return;
+            }
+
             let distance_value = linear(start.current, end.current, percentage);
 
             if (direction.current === 1) {
@@ -320,8 +324,8 @@ function DoubleRange({min_base, max_base, kwargs_min, kwargs_max}) {
             } else {
                 min.current = (Math.round((distance_value + Number.EPSILON) * 100) / 100)
             }
-            percentage_.current[direction.current] = percentage
 
+            percentage_.current[direction.current] = percentage
             setRefresh(r => !r)
         }, [delta_value, max_base, min_base]
     )
