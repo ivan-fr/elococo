@@ -1,7 +1,6 @@
 import React, {useMemo} from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import {AnnotatedTree} from './annotated_tree'
+import {Link} from "react-router-dom";
 
 
 function BoutiqueContainer({response}) {
@@ -17,22 +16,19 @@ function BoutiqueContainer({response}) {
                         <h3>{product.name}</h3>
 
                         <figure className="hover_figure">
-                            <Link href="/"><a>
-                                <Image layout='fill' src={product.productimage_set[0].image}
-                                       alt={'product' + i}/>
+                            <Link to="/">
+                                <img src={product.productimage_set[0].image} alt={'product' + i}/>
 
                                 {product.effective_reduction > 0 &&
                                 <div className="info_reduction">
                                     -{product.effective_reduction}%
-                                </div>
-                                }
+                                </div>}
                                 <div className="info_price">
                                     {product.price_exact_ttc}€ TTC
                                 </div>
                                 <figcaption>
                                     {product.name}
                                 </figcaption>
-                            </a>
                             </Link>
                         </figure>
                     </article>
@@ -51,7 +47,7 @@ function BoutiqueContainer({response}) {
                 {response?.previous && <>
                     <li className="page-item">
                         <span className="page-link">
-                            <Link href="/">
+                            <Link to="/">
                                 Prec
                             </Link>
                         </span>
@@ -60,7 +56,7 @@ function BoutiqueContainer({response}) {
                 {response?.next && <>
                     <li className="page-item">
                         <span className="page-link">
-                            <Link href="/">
+                            <Link to="/">
                                 Suiv
                             </Link>
                         </span>

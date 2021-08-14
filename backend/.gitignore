@@ -1,5 +1,5 @@
 *.db
-.vscode/
+../.vscode/
 .idea/
 elococo/secrets.json
 migrations/

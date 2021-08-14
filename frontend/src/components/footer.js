@@ -1,5 +1,9 @@
 import React from 'react'
-import Image from 'next/image'
+import logo from '../public/logo.png'
+import rule2 from '../public/rule2.bmp'
+import visa1 from '../public/visa1.png'
+import master from '../public/master.png'
+import cb from '../public/cb.svg'
 
 
 function Footer() {
@@ -7,7 +11,7 @@ function Footer() {
         <section className="logos">
             <h3>Logos</h3>
             <figure>
-                <Image src={'/logo.png'}  width={400} height={150} alt="logo" />
+                <img src={logo} alt="logo" />
             </figure>
             <div>
             </div>
@@ -22,12 +26,12 @@ function Footer() {
         </section>
         <section>
             <h3>À Propos</h3>
-            <p>Développé par <a target="_blank" href="{% url 'ivan_cv' %}">BESEVIC Ivan</a>.</p>
+            <p>Développé par BESEVIC Ivan.</p>
             <p> Tous droits réservés. .</p>
             <p>Ceci est un site de démonstration.</p>
             <figure>
                 <a target="_blank" rel="noreferrer" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
-                    <Image src={'/rule2.bmp'} alt="licence"  width={50} height={50} />
+                    <img src={rule2} alt="licence" />
                 </a>
             </figure>
         </section>
@@ -37,13 +41,13 @@ function Footer() {
             </h3>
             <div className="payments_mode">
                 <figure>
-                    <Image src='/visa1.png' width={70} height={70} alt="visa" />
+                    <img src={visa1} alt="visa" />
                 </figure>
                 <figure>
-                    <Image src='/master.png' width={70} height={70} alt="master" />
+                    <img src={master} alt="master" />
                 </figure>
                 <figure>
-                    <Image src='/cb.svg' width={70} height={70} alt="carte bleue" />
+                    <img src={cb} alt="carte bleue" />
                 </figure>
             </div>
         </section>

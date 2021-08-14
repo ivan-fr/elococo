@@ -1,15 +1,12 @@
 import React from 'react'
-import Link from 'next/link'
-import PropTypes from 'prop-types';
+import {Link} from "react-router-dom";
 
 export function AnnotatedTree({tree, selected_category, key_ = 0}) {
 
     return <ul key={key_.toString()}>
         {tree.map((node, i) => (
             <li key={`${key_}-${i}`} className={selected_category.slug === node.category.slug ? "active" : undefined}>
-                <Link
-                    href={`/category/${node.category.slug}`}><a>{node.category.category}({node.category.products_count__sum})
-                </a>
+                <Link to={`/category/${node.category.slug}`}>{node.category.category}({node.category.products_count__sum})
                 </Link>
                 {
                     node.children !== null &&
@@ -18,9 +15,4 @@ export function AnnotatedTree({tree, selected_category, key_ = 0}) {
             </li>
         ))}
     </ul>
-}
-
-AnnotatedTree.propTypes = {
-    tree: PropTypes.array.isRequired,
-    selected_category: PropTypes.object.isRequired
 }

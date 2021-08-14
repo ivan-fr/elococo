@@ -1,7 +1,7 @@
-import React, {useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {useRouter} from 'next/router'
-import {doubleRangeContext} from '../contexts/double_range';
-import {getUrlSearchParams} from '../utils/url';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useHistory, useLocation} from "react-router-dom";
+import '../styles/double_range.css'
+
 
 function linear(start, end, x) {
     let a = (end - start);
@@ -13,10 +13,11 @@ function reverse_linear(start, end, r) {
     return (r - start) / a;
 }
 
-function DoubleRange() {
-    const {min_base, max_base, kwargs_min, kwargs_max} = useContext(doubleRangeContext)
+function DoubleRange({min_base, max_base, kwargs_min, kwargs_max}) {
     const zIndex = useRef(10)
-    const history = useRouter()
+    const history = useHistory()
+    const {search} = useLocation()
+    const query = useMemo(() => new URLSearchParams(search), [search]);
 
     // ref for DOM
     const dr = useRef(null)
@@ -45,7 +46,6 @@ function DoubleRange() {
     const end = useRef(null)
 
     const box = useRef(null)
-    const isMount = useRef(false)
 
     const [refresh, setRefresh] = useState(false)
 
@@ -55,7 +55,7 @@ function DoubleRange() {
 
     const delta_value = useMemo(() => max_base - min_base, [max_base, min_base])
 
-    const update_bar = useCallback(function update_bar() {
+    const update_bar = useCallback(() => {
         let new_with = box_right.current ? Math.abs(
             (
                 box_right.current.getBoundingClientRect().right
@@ -151,24 +151,18 @@ function DoubleRange() {
         return [distance_value, percentage]
     }, [])
 
-    useLayoutEffect(() => {
-        if (!history.query[kwargs_max] || !history.query[kwargs_min]) {
+    useEffect(() => {
+        if (!query.get(kwargs_max) || !query.get(kwargs_min)) {
             percentage_.current = [0, 0]
             min.current = null
             max.current = null
             limitQuotient.current = [null, null]
         }
-    }, [history, kwargs_max, kwargs_min])
+    }, [query, kwargs_max, kwargs_min])
 
-    useLayoutEffect(() => {
-        if (!isMount.current) {
-            isMount.current = true
-            return
-        }
-
-        const query = history.query
-        const pMin = parseFloat(query[kwargs_min])
-        const pMax = parseFloat(query[kwargs_max])
+    useEffect(() => {
+        const pMin = parseFloat(query.get(kwargs_min))
+        const pMax = parseFloat(query.get(kwargs_max))
 
         let prevMin = isNaN(pMin) ? min_base : pMin
         let prevMax = isNaN(pMax) ? max_base : pMax
@@ -184,22 +178,16 @@ function DoubleRange() {
             setRefresh(r => !r)
         } else {
             if (min.current && max.current) {
-                query[kwargs_min] = min.current
-                query[kwargs_max] = max.current
-                history.push('?' + getUrlSearchParams(query).toString())
+                query.set(kwargs_min, min.current)
+                query.set(kwargs_max, max.current)
+                history.push({search: '?' + query.toString()})
             }
         }
-
-        return () => {
-            isMount.current = false
-        }
-    }, [min_base, max_base, kwargs_max, kwargs_min, refreshRight, refreshLeft, history])
+    }, [min_base, max_base, kwargs_max, kwargs_min, refreshRight, refreshLeft, history, query])
 
     useLayoutEffect(() => {
         update_bar()
-
-        return () => update_bar()
-    }, [refresh, update_bar, history])
+    }, [update_bar, refresh])
 
     const move = useCallback(
         (event) => {
@@ -361,12 +349,11 @@ function DoubleRange() {
                 minFetch.current = min.current ? min.current : min_base
                 maxFetch.current = max.current ? max.current : max_base
 
-                const query = history.query
-                query[kwargs_min] = minFetch.current
-                query[kwargs_max] = maxFetch.current
-                history.push('?' + getUrlSearchParams(query).toString())
+                query.set(kwargs_min, minFetch.current)
+                query.set(kwargs_max, maxFetch.current)
+                history.push({search: '?' + query.toString()})
             }
-        }, [history, cleanEvent, kwargs_min, kwargs_max, min_base, max_base])
+        }, [history, query, cleanEvent, kwargs_min, kwargs_max, min_base, max_base])
 
     const downCallback = useCallback(
         (event) => {
