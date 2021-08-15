@@ -1,10 +1,15 @@
 {
-    "origin": "http://127.0.0.1:8000",
     "route": {
         "catalogue_api:product-list": {
             "url": "/api/catalogue/",
             "module": "catalogue.rest_views.CatalogueViewSet",
             "name": "catalogue_api:product-list",
+            "decorators": ""
+        },
+        "catalogue_api:product-basket-surface": {
+            "url": "/api/catalogue/basket/surface/<basket_sign>/<promo>/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-surface",
             "decorators": ""
         },
         "catalogue_api:product-list-category": {
@@ -19,5 +24,9 @@
             "name": "catalogue_api:product-detail",
             "decorators": ""
         }
-    }
+    },
+    "origin": [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ]
 }

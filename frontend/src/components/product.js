@@ -4,10 +4,12 @@ import axios from "axios";
 import {get_route_with_args, get_url} from "../utils/url";
 import {useLocation, useParams} from "react-router-dom";
 import rule from "../public/rule2.bmp"
+import {FormWithContext, SelectField, SubmitButton} from "./form";
 
 function Product() {
     const [response, setResponse] = useState(null)
     const [isError, setIsError] = useState(false)
+    const [formError, setFormError] = useState(null)
     const {search} = useLocation()
     let {slug} = useParams();
     const zoom_span = useRef(null)
@@ -34,6 +36,25 @@ function Product() {
 
         fetchData().then(() => null)
     }, [search, slug])
+
+    const handleSubmit = useCallback((data) => {
+        const patchData = async () => {
+            try {
+                const path = get_route_with_args('catalogue_api:product-detail', [slug])
+                const url = get_url(path, null)
+                const response = await axios.patch(url.href, {...data, 'basket': localStorage.getItem('basket')})
+                localStorage.setItem('basket_len', response.data.basket_len)
+                localStorage.setItem('basket', response.data.basket)
+                setFormError(null)
+            } catch ({response}) {
+                if (response.status === 400) {
+                    setFormError(response.data)
+                }
+            }
+        }
+
+        patchData().then(() => null)
+    }, [slug])
 
     if (isError) {
         return <div className="catalog">Erreur lors du chargement.</div>
@@ -77,7 +98,7 @@ function Product() {
             <section className="sale_infos">
                 <h3>Informations de vente</h3>
                 <div>
-                    <p>Son prix à l'unité est de <strong>{response?.price_exact_ttc}€ TTC</strong>.
+                    <p>Son prix à l'unité est de <strong>{response?.price_exact_ttc}€ TTC.</strong>
                     </p>
                     {response.effective_reduction > 0 && <>
                         <p>Il y a une réduction de <strong>-{response.effective_reduction}%</strong> sur ce
@@ -98,6 +119,18 @@ function Product() {
                     </p>
                 </div>
                 <h3>Ajouter dans mon panier</h3>
+                <FormWithContext id="addBasketForm" defaultValue={{'quantity': 1}} formError={formError}
+                                 onSubmit={handleSubmit}>
+                    <SelectField name={"quantity"} labelText={"Quantité souhaité"}>
+                        {
+                            [...Array(Math.min(3, response.stock)).keys()].map(i =>
+                                <option key={i} value={i + 1}>{i + 1}</option>
+                            )
+                        }
+                    </SelectField>
+                    <p>Au plus {Math.min(3, response.stock)} unités de ce produit dans le panier.</p>
+                    <SubmitButton>Ajouter dans le panier</SubmitButton>
+                </FormWithContext>
             </section>}
 
             <div className="description" dangerouslySetInnerHTML={{__html: response.description}}>

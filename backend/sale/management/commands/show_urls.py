@@ -1,4 +1,3 @@
-
 import functools
 import json
 import re
@@ -7,11 +6,10 @@ from django.conf import settings
 from django.contrib.admindocs.views import simplify_regex
 from django.core.exceptions import ViewDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
+from django.urls import URLPattern, URLResolver  # type: ignore
 from django.utils import translation
 
 from sale.management.color import color_style, no_style
-
-from django.urls import URLPattern, URLResolver  # type: ignore
 
 
 class RegexURLPattern:  # type: ignore
@@ -69,6 +67,14 @@ class Command(BaseCommand):
             "--urlstartwith", "-s", dest="urlstartwith", default=None,
             help="Url must startwith the string passed in argument"
         )
+        parser.add_argument(
+            "--https", '-ht', dest="isHttps", default=False,
+            help="origin url have https"
+        )
+        parser.add_argument(
+            "--port", '-po', dest="port", default=None,
+            help="port origin"
+        )
 
     def handle(self, *args, **options):
         style = no_style() if options['no_color'] else color_style()
@@ -78,7 +84,7 @@ class Command(BaseCommand):
             translation.activate(language)
             self.LANGUAGES = [(code, name) for code, name in getattr(settings, 'LANGUAGES', []) if code == language]
         else:
-            self.LANGUAGES = getattr(settings, 'LANGUAGES', ((None, None), ))
+            self.LANGUAGES = getattr(settings, 'LANGUAGES', ((None, None),))
 
         decorator = options['decorator']
         if not decorator:
@@ -100,10 +106,16 @@ class Command(BaseCommand):
         urlconf = options['urlconf']
 
         if format_style == 'json':
-            views = {}
+            port = ''
+            if options['port'] is not None:
+                port = f":{options['port']}"
+            views = {'route': {}, 'origin': [
+                f'https://{host}{port}' if options["isHttps"] else f'http://{host}{port}'
+                for host in settings.ALLOWED_HOSTS
+            ]}
         else:
             views = []
-        
+
         if not hasattr(settings, urlconf):
             raise CommandError("Settings module {} does not have the attribute {}.".format(settings, urlconf))
 
@@ -146,7 +158,7 @@ class Command(BaseCommand):
                 continue
 
             if format_style == 'json':
-                views[url_name] = {"url": url, "module": module, "name": url_name, "decorators": decorator}
+                views['route'][url_name] = {"url": url, "module": module, "name": url_name, "decorators": decorator}
             else:
                 views.append(fmtr.format(
                     module='{0}.{1}'.format(style.MODULE(func.__module__), style.MODULE_NAME(func_name)),
@@ -172,7 +184,8 @@ class Command(BaseCommand):
             widths = [len(max(columns, key=len)) for columns in zip(*views)]
             table_views = []
 
-            header = (style.MODULE_NAME('URL'), style.MODULE_NAME('Module'), style.MODULE_NAME('Name'), style.MODULE_NAME('Decorator'))
+            header = (style.MODULE_NAME('URL'), style.MODULE_NAME('Module'), style.MODULE_NAME('Name'),
+                      style.MODULE_NAME('Decorator'))
             table_views.append(
                 ' | '.join('{0:<{1}}'.format(title, width) for width, title in zip(widths, header))
             )
@@ -225,7 +238,8 @@ class Command(BaseCommand):
                 if isinstance(p, LocaleRegexURLResolver):
                     for language in self.LANGUAGES:
                         with translation.override(language[0]):
-                            views.extend(self.extract_views_from_urlpatterns(patterns, base + pattern, namespace=_namespace))
+                            views.extend(
+                                self.extract_views_from_urlpatterns(patterns, base + pattern, namespace=_namespace))
                 else:
                     views.extend(self.extract_views_from_urlpatterns(patterns, base + pattern, namespace=_namespace))
             elif hasattr(p, '_get_callback'):
@@ -238,7 +252,8 @@ class Command(BaseCommand):
                     patterns = p.url_patterns
                 except ImportError:
                     continue
-                views.extend(self.extract_views_from_urlpatterns(patterns, base + describe_pattern(p), namespace=namespace))
+                views.extend(
+                    self.extract_views_from_urlpatterns(patterns, base + describe_pattern(p), namespace=namespace))
             else:
                 raise TypeError("%s does not appear to be a urlpattern object" % p)
         return views

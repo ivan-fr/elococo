@@ -3,7 +3,7 @@
 {% load static %}
 
 {% if products|length > 0 %}
-    <ul class="table table-striped">
+    <ul>
         {% for product in products %}
             <li>
                 <a href="{% url "catalogue_product_detail" product.slug %}">{{ product.name }}</a>

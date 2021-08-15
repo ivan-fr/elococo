@@ -50,25 +50,23 @@
                     </p>
                 </div>
                 <h3>Ajouter dans mon panier</h3>
-                <div>
-                    <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
-                          method="post">
-                        {% csrf_token %}
-                        {% if form.non_field_errors %}
-                            {{ form.non_field_errors }}
-                        {% endif %}
-                        <div>
-                            {{ form.quantity.errors }}
-                            <label
-                                    for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
+                      method="post">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        {{ form.non_field_errors }}
+                    {% endif %}
+                    <div>
+                        {{ form.quantity.errors }}
+                        <label
+                                for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
 
-                            <span id="basic-addon1"><i></i></span>
-                            {{ form.quantity }}
-                            {{ form.quantity.help_text }}
-                        </div>
-                        <input type="submit" value="Ajouter dans le panier"/>
-                    </form>
-                </div>
+                        <span id="basic-addon1"><i></i></span>
+                        {{ form.quantity }}
+                        {{ form.quantity.help_text }}
+                    </div>
+                    <input type="submit" value="Ajouter dans le panier"/>
+                </form>
             </section>
         {% endif %}
 

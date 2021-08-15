@@ -13,14 +13,16 @@ export function get_path_with_args(path, args = []) {
     return path_to_transform
 }
 
-export function get_url(path, searchString=null) {
-    let url = new URL(path, paths.origin, false)
+export function get_url(path, searchString = null) {
+    let url = new URL(path, paths.origin[0], false)
     url.searchParams.set("format", "json")
 
-    const urlSearchParams = new URLSearchParams(searchString)
-    
-    for (const pair of urlSearchParams.entries()) {
-        url.searchParams.set(pair[0], pair[1])
+    if (searchString) {
+        const urlSearchParams = new URLSearchParams(searchString)
+
+        for (const pair of urlSearchParams.entries()) {
+            url.searchParams.set(pair[0], pair[1])
+        }
     }
 
     return url

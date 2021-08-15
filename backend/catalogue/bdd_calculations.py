@@ -49,8 +49,13 @@ def range_ttc(with_reduction=True):
 
 
 def effective_quantity(data):
+    try:
+        quantity = data["quantity"]
+    except TypeError:
+        quantity = data
+
     return Least(
-        data["quantity"],
+        quantity,
         settings.BASKET_MAX_QUANTITY_PER_FORM,
         F("stock"),
         output_field=PositiveIntegerField()

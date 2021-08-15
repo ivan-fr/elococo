@@ -1,6 +1,8 @@
-from rest_framework import serializers, fields
-import catalogue.models as catalogue_models
 from django.conf import settings
+from rest_framework import serializers, fields
+
+import catalogue.models as catalogue_models
+import sale.models as sale_models
 
 
 class CategoryDumpSerializer(serializers.Serializer):
@@ -28,12 +30,14 @@ class CategorySerializer(serializers.ModelSerializer):
     path = serializers.CharField()
 
     @classmethod
-    def MP_Node_dump_bulk_drf(cls, request, parent=None, annotates={}, depth_lte=None):
+    def MP_Node_dump_bulk_drf(cls, request, parent=None, annotates=None, depth_lte=None):
         """Dumps a tree branch to a python data structure."""
 
         # Because of fix_tree, this method assumes that the depth
         # and numchild properties in the nodes can be incorrect,
         # so no helper methods are used
+        if annotates is None:
+            annotates = {}
         qset = cls.Meta.model.objects.all()
         if parent:
             qset = qset.filter(path__startswith=parent.path,
@@ -50,14 +54,16 @@ class CategorySerializer(serializers.ModelSerializer):
             qset = qset.annotate(**annotates)
 
         for obj in qset:
-            newobj = {cls.Meta.model.__name__.lower(): cls(
-                obj, context={'request': request})}
+            newobj = {
+                cls.Meta.model.__name__.lower(): cls(
+                    obj, context={'request': request})
+            }
 
             path = obj.path
             depth = int(len(path) / cls.Meta.model.steplen)
 
-            if (not parent and depth == 1) or\
-               (parent and len(path) == len(parent.path)):
+            if (not parent and depth == 1) or \
+                    (parent and len(path) == len(parent.path)):
                 ret.append(newobj)
             else:
                 parentpath = cls.Meta.model._get_basepath(path, depth - 1)
@@ -96,9 +102,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def __init__(self, instance=None, data=fields.empty, **kwargs):
         self.basket = {}
+        self.choices = range(1, settings.BASKET_MAX_QUANTITY_PER_FORM + 1)
 
-        if data is not fields.empty:
-            self.basket = data.pop('basket', {})
+        if isinstance(data, dict):
+            self.basket = data.get(settings.BASKET_SESSION_KEY, {})
+
+            if bool(self.basket):
+                data = data.copy()
+                del data[settings.BASKET_SESSION_KEY]
 
         super(ProductSerializer, self).__init__(
             instance=instance, data=data, **kwargs
@@ -110,15 +121,16 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if instance is not None:
             try:
+                self.choices = range(
+                    1,
+                    min(
+                        instance.stock,
+                        settings.BASKET_MAX_QUANTITY_PER_FORM
+                    ) + 1
+                )
                 self.fields['quantity'] = serializers.ChoiceField(
                     source="stock",
-                    choices=range(
-                        1,
-                        min(
-                            instance.stock,
-                            settings.BASKET_MAX_QUANTITY_PER_FORM
-                        ) + 1
-                    )
+                    choices=self.choices
                 )
             except KeyError:
                 pass
@@ -127,8 +139,7 @@ class ProductSerializer(serializers.ModelSerializer):
         quantity = data['stock']
 
         if not self.instance.enable_sale:
-            raise serializers.ValidationError(
-                "Le produit n'est pas disponible à la vente.")
+            raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
 
         if len(self.basket) >= settings.MAX_BASKET_PRODUCT:
             raise serializers.ValidationError(
@@ -136,9 +147,9 @@ class ProductSerializer(serializers.ModelSerializer):
             )
 
         if bool(self.basket) and self.basket.get(self.instance.slug, None) is not None:
-            if quantity + self.basket[self.instance.slug]["quantity"] > max(self.choices):
+            if quantity + self.basket[self.instance.slug] > max(self.choices):
                 raise serializers.ValidationError(
-                    f"""Votre panier possède déjà {self.basket[self.instance.slug]["quantity"]} quantité 
+                    f"""Votre panier possède déjà {self.basket[self.instance.slug]} unité(s) 
                     de ce produit, en ajoutant {quantity} vous depassez la limite autorisé."""
                 )
 
@@ -148,6 +159,11 @@ class ProductSerializer(serializers.ModelSerializer):
         model = catalogue_models.Product
         exclude = ['enable_comment']
         read_only_fields = ['account_name']
+
+
+class BasketProductSerializer(ProductSerializer):
+    price_exact_ttc_with_quantity = serializers.DecimalField(7, 2)
+    price_exact_ht_with_quantity = serializers.DecimalField(7, 2)
 
 
 class FilterAnnotatedSerializer(serializers.Serializer):
@@ -166,3 +182,19 @@ class CatalogueSerializer(serializers.Serializer):
     selected_category_root = CategorySerializer()
     filled_category = CategorySerializer(many=True)
     filter_list = CategoryDumpSerializer(many=True)
+
+
+class PromoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = sale_models.Promo
+        fields = ('code', 'type', 'value')
+
+
+class BasketSurfaceSerializer(serializers.Serializer):
+    products = BasketProductSerializer(many=True)
+    promo = PromoSerializer()
+    basket_sign = serializers.CharField()
+    price_exact_ttc_with_quantity__sum = serializers.DecimalField(7, 2)
+    price_exact_ht_with_quantity__sum = serializers.DecimalField(7, 2)
+    price_exact_ht_with_quantity_promo__sum = serializers.DecimalField(7, 2, default=None)
+    price_exact_ttc_with_quantity_promo__sum = serializers.DecimalField(7, 2, default=None)
