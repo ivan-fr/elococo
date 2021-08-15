@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from "react";
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {formContext} from "../contexts/form";
 
 export function FormWithContext({id, defaultValue, formError, onSubmit, children}) {
@@ -51,9 +51,10 @@ export function SelectField({name, labelText, children}) {
     }, [context])
 
     return <>
-        <label htmlFor={name}>
+
+        {labelText && <label htmlFor={name}>
             {labelText}
-        </label>
+        </label>}
         {context.formError && context.formError[name] && <ul>
             {context.formError[name].map((textError, i) => <li key={i}>{textError}</li>)}
         </ul>}
@@ -63,6 +64,38 @@ export function SelectField({name, labelText, children}) {
     </>
 }
 
-export function SubmitButton({children}) {
+export function CheckBoxField({name, children}) {
+    const context = useContext(formContext)
+    const handleChange = useCallback(function (e) {
+        context.handleChange(e.currentTarget.name, e.currentTarget.checked)
+    }, [context])
+
+    return <>
+        {children && <label htmlFor={name}>
+            {children}
+        </label>}
+        {context.formError && context.formError[name] && <ul>
+            {context.formError[name].map((textError, i) => <li key={i}>{textError}</li>)}
+        </ul>}
+        <input type="checkbox" checked={context[name]} name={name} id={name} onChange={handleChange}/>
+    </>
+}
+
+export function SubmitButton({children, ifChange}) {
+    const context = useContext(formContext)
+    const isMount = useRef(false)
+    const [hide, setHide] = useState(ifChange)
+
+    useEffect(() => {
+        if (isMount.current) {
+            setHide(false)
+        }
+        isMount.current = true
+    }, [context])
+
+    if (hide) {
+        return <></>
+    }
+
     return <button type="submit">{children}</button>
 }
