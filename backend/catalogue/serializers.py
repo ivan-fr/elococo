@@ -196,5 +196,7 @@ class BasketSurfaceSerializer(serializers.Serializer):
     basket_sign = serializers.CharField()
     price_exact_ttc_with_quantity__sum = serializers.DecimalField(7, 2)
     price_exact_ht_with_quantity__sum = serializers.DecimalField(7, 2)
+    deduce_tva = serializers.DecimalField(7, 2)
     price_exact_ht_with_quantity_promo__sum = serializers.DecimalField(7, 2, default=None)
     price_exact_ttc_with_quantity_promo__sum = serializers.DecimalField(7, 2, default=None)
+    deduce_tva_promo = serializers.DecimalField(7, 2, default=None)

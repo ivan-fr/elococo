@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.core import signing
 from django.core.signing import Signer
@@ -225,6 +227,12 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             "products": list(products),
             "promo": promo_db,
             "basket_sign": signer.sign_object(basket),
+            "deduce_tva":  Decimal(
+                aggregate['price_exact_ht_with_quantity__sum']
+            ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
+            "deduce_tva_promo": Decimal(
+                aggregate.get('price_exact_ht_with_quantity_promo__sum', Decimal(0))
+            ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
             **aggregate
         }
         serializer = self.get_serializer(context)

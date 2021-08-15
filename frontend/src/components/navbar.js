@@ -7,7 +7,7 @@ function NavBar() {
     const [showBasket, setShowBasket] = useState(false)
     const [, setRefresh] = useState(false)
     const basketSign = useRef(localStorage.getItem('basket'))
-    const {search} = useLocation()
+    const {pathname, search} = useLocation()
     const data = useRef(null)
 
     const basket_callback = useCallback((e) => {
@@ -64,7 +64,7 @@ function NavBar() {
             <li>
                 <Link to="/">Completer ma commande (1/3)</Link>
             </li>
-            <li id="navbar-basket">
+            {pathname !== "/basket" && <li id="navbar-basket">
                 <a href={"/"} onClick={(e) => e.preventDefault()}
                    onMouseEnter={basket_callback}>Panier
                     <span>{localStorage.getItem('basket_len') ? localStorage.getItem('basket_len') : 0}</span>
@@ -109,7 +109,7 @@ function NavBar() {
                         </ul>
                         <ul>
                             <li>
-                                <Link to="/">Voir mon panier</Link>
+                                <Link onClick={() => setShowBasket(false)} to="/basket">Voir mon panier</Link>
                             </li>
                         </ul>
                     </> : <ul>
@@ -118,7 +118,7 @@ function NavBar() {
                         </li>
                     </ul>}
                 </nav>}
-            </li>
+            </li>}
         </ul>
     </nav>
 }
