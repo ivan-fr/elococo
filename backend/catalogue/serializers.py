@@ -100,65 +100,72 @@ class ProductSerializer(serializers.ModelSerializer):
         min_value=0, max_value=settings.BASKET_MAX_QUANTITY_PER_FORM
     )
 
+    class Meta:
+        model = catalogue_models.Product
+        exclude = ['enable_comment']
+        read_only_fields = ['account_name']
+
+
+choices = tuple(range(1, settings.BASKET_MAX_QUANTITY_PER_FORM + 1))
+
+
+class AddToBasketSerializer(serializers.Serializer):
+    product = ProductSerializer()
+    basket = serializers.DictField(default={})
+    quantity = serializers.ChoiceField(choices=choices, default=None)
+
     def __init__(self, instance=None, data=fields.empty, **kwargs):
-        self.basket = {}
-        self.choices = range(1, settings.BASKET_MAX_QUANTITY_PER_FORM + 1)
-
-        if isinstance(data, dict):
-            self.basket = data.get(settings.BASKET_SESSION_KEY, {})
-
-            if bool(self.basket):
-                data = data.copy()
-                del data[settings.BASKET_SESSION_KEY]
-
-        super(ProductSerializer, self).__init__(
+        super(AddToBasketSerializer, self).__init__(
             instance=instance, data=data, **kwargs
         )
 
-        for field in self.fields:
-            if field != 'quantity':
-                self.fields[field].read_only = True
-
-        if instance is not None:
+        if instance.get('product', None) is not None:
             try:
                 self.choices = range(
                     1,
                     min(
-                        instance.stock,
+                        instance['product'].stock,
                         settings.BASKET_MAX_QUANTITY_PER_FORM
                     ) + 1
                 )
                 self.fields['quantity'] = serializers.ChoiceField(
-                    source="stock",
-                    choices=self.choices
+                    choices=self.choices, default=None
                 )
             except KeyError:
                 pass
 
     def validate(self, data):
-        quantity = data['stock']
+        try:
+            quantity = data['quantity']
+        except KeyError:
+            raise serializers.ValidationError("Pas de quantiter indiqué.")
 
-        if not self.instance.enable_sale:
+        if not data['product'].enable_sale:
             raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
 
-        if len(self.basket) >= settings.MAX_BASKET_PRODUCT:
+        if len(data['basket']) >= settings.MAX_BASKET_PRODUCT:
             raise serializers.ValidationError(
                 f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
             )
 
-        if bool(self.basket) and self.basket.get(self.instance.slug, None) is not None:
-            if quantity + self.basket[self.instance.slug] > max(self.choices):
+        if bool(self.basket) and data['basket'].get(data['product'].slug, None) is not None:
+            if quantity + data['basket'][data['product'].slug] > max(self.choices):
                 raise serializers.ValidationError(
-                    f"""Votre panier possède déjà {self.basket[self.instance.slug]} unité(s) 
+                    f"""Votre panier possède déjà {data['basket'][data['product'].slug]} unité(s) 
                     de ce produit, en ajoutant {quantity} vous depassez la limite autorisé."""
                 )
 
         return data
 
-    class Meta:
-        model = catalogue_models.Product
-        exclude = ['enable_comment']
-        read_only_fields = ['account_name']
+
+class UpdateBasketSerializer(AddToBasketSerializer):
+    remove = serializers.BooleanField(default=False)
+
+    def validate(self, data):
+        if data['remove']:
+            return data
+
+        return super(UpdateBasketSerializer, self).validate(data)
 
 
 class BasketProductSerializer(ProductSerializer):

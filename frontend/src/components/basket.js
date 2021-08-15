@@ -33,9 +33,9 @@ function Basket() {
     const defaultValue = {}
 
     if (data.products) {
-        data.products.forEach((product, i) => {
-            defaultValue[`product-${i}-quantity`] = product.effective_basket_quantity
-            defaultValue[`product-${i}-remove`] = false
+        data.products.forEach((product) => {
+            defaultValue[`product_${product.slug}_quantity`] = product.effective_basket_quantity
+            defaultValue[`product_${product.slug}_remove`] = false
         })
     }
 
@@ -66,7 +66,7 @@ function Basket() {
                             : <>Pas de reduction.</>}
                         </td>
                         <td>
-                            <SelectField name={`product-${i}-quantity`} labelText={null}>
+                            <SelectField name={`product_${product.slug}_quantity`} labelText={null}>
                                 {
                                     [...Array(Math.min(3, product.stock)).keys()].map(i =>
                                         <option key={i} value={i + 1}>{i + 1}</option>
@@ -75,7 +75,7 @@ function Basket() {
                             </SelectField>
                         </td>
                         <td>{product.price_exact_ht_with_quantity}€</td>
-                        <td><CheckBoxField name={`product-${i}-remove`}/></td>
+                        <td><CheckBoxField name={`product_${product.slug}_remove`}/></td>
                     </tr>)}
 
                 {data.price_exact_ht_with_quantity__sum &&
@@ -139,13 +139,12 @@ function Basket() {
         {65 <= data.price_exact_ttc_with_quantity__sum ?
             <p><strong>La livraison est offerte.</strong></p>
             :
-            <p><strong>Un tarif de livraison sera à prendre en compte.</strong></p>
-        }
+            <p><strong>Un tarif de livraison sera à prendre en compte.</strong></p>}
     </FormWithContext>
         <div id='promo_form'>
             <FormWithContext defaultValue={{}}>
                 <div>
-                    <FormField name="code_promo">Code promo :</FormField>
+                    <FormField name="promo_code">Code promo :</FormField>
                 </div>
                 <div>
                     <SubmitButton>Envoyer</SubmitButton>

@@ -1,4 +1,6 @@
+import re
 from decimal import Decimal
+from operator import methodcaller
 
 from django.conf import settings
 from django.core import signing
@@ -15,24 +17,24 @@ from catalogue.bdd_calculations import (
 from sale.bdd_calculations import get_promo
 
 
-def update_basket(basket, product, type_=None, quantity=0):
+def update_basket(basket, slug, type_=None, quantity=0):
     if type_ == "remove":
-        if basket.get(product.slug, None) is not None:
-            del basket[product.slug]
+        if basket.get(slug, None) is not None:
+            del basket[slug]
         return
 
     if type_ == "set_quantity":
-        if basket.get(product.slug, None) is not None:
-            basket[product.slug] = quantity
+        if basket.get(slug, None) is not None:
+            basket[slug] = quantity
         return
 
     if not bool(basket):
-        basket[product.slug] = quantity
+        basket[slug] = quantity
     else:
-        if basket.get(product.slug, None) is not None:
-            basket[product.slug] += quantity
+        if basket.get(slug, None) is not None:
+            basket[slug] += quantity
         else:
-            basket[product.slug] = quantity
+            basket[slug] = quantity
 
 
 def get_basket(signer, data_to_unsign):
@@ -66,7 +68,11 @@ def product_to_exclude_(products, basket):
         lambda product_filter: product_filter.slug not in product_to_exclude, products
     )
 
-    return products, product_to_exclude
+    basket_enum = {product_slug: n for n, product_slug in enumerate(basket.keys())}
+
+    return sorted(
+        products, key=methodcaller('compute_basket_oder', basket_enum=basket_enum)
+    ), product_to_exclude, basket_enum
 
 
 def get_basket_len(basket):
@@ -167,6 +173,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def partial_update(self, request, *args, **kwargs):
+        self.serializer_class = catalogue_serializers.AddToBasketSerializer
         self.queryset = self.queryset.annotate(
             **price_annotation_format()
         )
@@ -177,11 +184,11 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         basket = get_basket(signer, data_patch[settings.BASKET_SESSION_KEY])
 
         data_patch[settings.BASKET_SESSION_KEY] = basket
-        serializer = self.get_serializer(instance, data=data_patch, partial=True)
+        serializer = self.get_serializer({"product": instance}, data=data_patch, partial=True)
         serializer.is_valid(raise_exception=True)
 
         try:
-            update_basket(basket, instance, quantity=data_patch['quantity'])
+            update_basket(basket, instance.slug, quantity=data_patch['quantity'])
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -202,20 +209,17 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             **post_price_annotation_format()
         )
 
-    @action(detail=False,
-            methods=['GET'],
-            url_path=r'basket/surface/(?P<basket_sign>[-:\w]+)/(?P<promo>[\w]+)')
-    def basket_surface(self, request, *_, **kwargs):
+    def basket_treatment(self, basket_sign, promo_code):
         self.serializer_class = catalogue_serializers.BasketSurfaceSerializer
         signer = Signer()
-        basket = get_basket(signer, kwargs.get('basket_sign', None))
+        basket = get_basket(signer, basket_sign)
 
         if not bool(basket):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
-        products, product_to_exclude = product_to_exclude_(products_queryset, basket)
-        promo_db = get_promo(basket, kwargs.get('promo', None))
+        products, product_to_exclude, _ = product_to_exclude_(products_queryset, basket)
+        promo_db = get_promo(basket, promo_code)
 
         aggregate = products_queryset.exclude(
             slug__in=product_to_exclude
@@ -227,7 +231,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             "products": list(products),
             "promo": promo_db,
             "basket_sign": signer.sign_object(basket),
-            "deduce_tva":  Decimal(
+            "deduce_tva": Decimal(
                 aggregate['price_exact_ht_with_quantity__sum']
             ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
             "deduce_tva_promo": Decimal(
@@ -237,6 +241,52 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         }
         serializer = self.get_serializer(context)
         return Response(serializer.data)
+
+    @action(detail=False,
+            methods=['GET'],
+            url_path=r'basket/surface/(?P<basket_sign>[-:\w]+)/(?P<promo_code>[\w]+)')
+    def basket_surface(self, request, *_, **kwargs):
+        return self.basket_treatment(kwargs.get('basket_sign', None), kwargs.get('promo_code', None))
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path=r'basket/surface')
+    def basket_update(self, request, *_, **kwargs):
+        self.serializer_class = catalogue_serializers.UpdateBasketSerializer
+        signer = Signer()
+        basket = get_basket(signer, request.data.get('basket_sign'))
+
+        if not bool(basket):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
+        products, product_to_exclude, basket_enum = product_to_exclude_(products_queryset, basket)
+
+        list_instance = [{'product': product} for product in products]
+        list_data = tuple({} for _ in range(len(products)))
+
+        for key, value in request.data.items():
+            regex = re.search(r'^[^_]+_([^_]+)_(.+)$', key)
+            slug = regex.group(1)
+            attr = regex.group(2)
+            index = basket_enum[slug]
+            list_data[index].update({attr: value})
+
+        serializer = self.get_serializer(list_instance, data=list_data, partial=True, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            for slug, i in basket_enum.items():
+                update_basket(basket, slug, quantity=list_data[i]['quantity'], type_='set_quantity')
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if len(product_to_exclude) > 0:
+            status_ = status.HTTP_205_RESET_CONTENT
+        else:
+            status_ = status.HTTP_200_OK
+
+        return Response({"basket": signer.sign_object(basket), **get_basket_len(basket)}, status=status_)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = self.queryset.annotate(
