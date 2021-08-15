@@ -208,6 +208,9 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         signer = Signer()
         basket = get_basket(signer, kwargs.get('basket_sign', None))
 
+        if not bool(basket):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
         products, product_to_exclude = product_to_exclude_(products_queryset, basket)
         promo_db = get_promo(basket, kwargs.get('promo', None))

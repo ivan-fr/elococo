@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Loading} from "./loading";
 import axios from "axios";
 import {get_route_with_args, get_url} from "../utils/url";
-import {useLocation, useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import rule from "../public/rule2.bmp"
 import {FormWithContext, SelectField, SubmitButton} from "./form";
 
@@ -10,7 +10,7 @@ function Product() {
     const [response, setResponse] = useState(null)
     const [isError, setIsError] = useState(false)
     const [formError, setFormError] = useState(null)
-    const {search} = useLocation()
+    const history = useHistory()
     let {slug} = useParams();
     const zoom_span = useRef(null)
 
@@ -25,7 +25,7 @@ function Product() {
         const fetchData = async () => {
             try {
                 const path = get_route_with_args('catalogue_api:product-detail', [slug])
-                const url = get_url(path, search)
+                const url = get_url(path)
                 const res = await axios(url.href)
                 setResponse(res.data)
                 setIsError(false)
@@ -35,7 +35,7 @@ function Product() {
         }
 
         fetchData().then(() => null)
-    }, [search, slug])
+    }, [slug])
 
     const handleSubmit = useCallback((data) => {
         const patchData = async () => {
@@ -46,6 +46,7 @@ function Product() {
                 localStorage.setItem('basket_len', response.data.basket_len)
                 localStorage.setItem('basket', response.data.basket)
                 setFormError(null)
+                history.push({search: `?show_surface_basket=${response.data.basket_len}`})
             } catch ({response}) {
                 if (response.status === 400) {
                     setFormError(response.data)
@@ -54,7 +55,7 @@ function Product() {
         }
 
         patchData().then(() => null)
-    }, [slug])
+    }, [slug, history])
 
     if (isError) {
         return <div className="catalog">Erreur lors du chargement.</div>

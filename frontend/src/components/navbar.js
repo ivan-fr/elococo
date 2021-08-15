@@ -1,40 +1,42 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useLocation} from 'react-router-dom'
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 
 function NavBar() {
     const [showBasket, setShowBasket] = useState(false)
-    const basket_sign = useRef(null)
+    const [, setRefresh] = useState(false)
+    const basketSign = useRef(localStorage.getItem('basket'))
+    const {search} = useLocation()
     const data = useRef(null)
 
-    const basket_callback = useCallback(() => {
+    const basket_callback = useCallback((e) => {
         const doAFetch = async () => {
             const path = get_route_with_args('catalogue_api:product-basket-surface',
-                [current_basket, localStorage.getItem('promo')]
+                [localStorage.getItem('basket'), localStorage.getItem('promo')]
             )
             const url = get_url(path, null)
             try {
                 const res = await axios(url.href)
                 data.current = res.data
-                setShowBasket(true)
-                console.log(data.current)
+                localStorage.setItem('basket', data.current.basket_sign)
             } catch ({response}) {
-
+                data.current = {}
             }
+            setShowBasket(s => {
+                if (s) {
+                    setRefresh(r => !r)
+                    return s
+                }
+                return true
+            })
         }
 
-        const current_basket = localStorage.getItem('basket')
-        let doAxios = false
-        if (current_basket !== basket_sign.current) {
-            basket_sign.current = current_basket
-            doAxios = true
+        if ((!data.current && e) || localStorage.getItem('basket') !== basketSign.current) {
+            basketSign.current = localStorage.getItem('basket')
+            doAFetch().then(() => null)
         } else if (data.current) {
             setShowBasket(true)
-        }
-
-        if (doAxios) {
-            doAFetch().then(() => null)
         }
     }, [])
 
@@ -43,9 +45,11 @@ function NavBar() {
     }, [])
 
     useEffect(() => {
-        window.addEventListener('storage', basket_callback)
-        return () => window.removeEventListener('storage', basket_callback)
-    })
+        const urlSearchParams = new URLSearchParams(search)
+        if (urlSearchParams.get("show_surface_basket")) {
+            basket_callback(null)
+        }
+    }, [search, basket_callback])
 
     return <nav className="navbar">
         <ul>
