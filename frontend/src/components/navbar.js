@@ -32,13 +32,14 @@ function NavBar() {
             })
         }
 
-        if ((!data.current && e) || localStorage.getItem('basket') !== basketSign.current) {
+        if (pathname !== "/basket"
+            && ((!data.current && e) || localStorage.getItem('basket') !== basketSign.current)) {
             basketSign.current = localStorage.getItem('basket')
             doAFetch().then(() => null)
         } else if (data.current) {
             setShowBasket(true)
         }
-    }, [])
+    }, [pathname])
 
     const leave_callback = useCallback(() => {
         setShowBasket(false)

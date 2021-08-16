@@ -53,16 +53,18 @@ def get_basket(signer, data_to_unsign):
 def product_to_exclude_(products, basket):
     basket_set = {product_slug for product_slug in basket.keys()}
     product_bdd_set = {product.slug for product in products}
-
+    basket_update = False
     product_to_exclude = basket_set.difference(product_bdd_set)
 
     if len(product_to_exclude) > 0:
         for product_slug in product_to_exclude:
             del basket[product_slug]
+            basket_update = True
 
     for product in products:
         if product.effective_basket_quantity != basket[product.slug]:
             basket[product.slug] = product.effective_basket_quantity
+            basket_update = True
 
     products = filter(
         lambda product_filter: product_filter.slug not in product_to_exclude, products
@@ -72,7 +74,7 @@ def product_to_exclude_(products, basket):
 
     return sorted(
         products, key=methodcaller('compute_basket_oder', basket_enum=basket_enum)
-    ), product_to_exclude, basket_enum
+    ), product_to_exclude, basket_enum, basket_update
 
 
 def get_basket_len(basket):
@@ -218,7 +220,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
-        products, product_to_exclude, _ = product_to_exclude_(products_queryset, basket)
+        products, product_to_exclude, _, _ = product_to_exclude_(products_queryset, basket)
         promo_db = get_promo(basket, promo_code)
 
         aggregate = products_queryset.exclude(
@@ -254,34 +256,38 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
     def basket_update(self, request, *_, **kwargs):
         self.serializer_class = catalogue_serializers.UpdateBasketSerializer
         signer = Signer()
-        basket = get_basket(signer, request.data.get('basket_sign'))
+        basket = get_basket(signer, request.data.get('basket'))
 
         if not bool(basket):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
-        products, product_to_exclude, basket_enum = product_to_exclude_(products_queryset, basket)
+        products, _, basket_enum, basket_update = product_to_exclude_(products_queryset, basket)
 
         list_instance = [{'product': product} for product in products]
-        list_data = tuple({} for _ in range(len(products)))
+        list_data = list({'id': i} for i in range(len(products)))
 
         for key, value in request.data.items():
             regex = re.search(r'^[^_]+_([^_]+)_(.+)$', key)
+
+            if regex is None:
+                continue
+
             slug = regex.group(1)
             attr = regex.group(2)
             index = basket_enum[slug]
             list_data[index].update({attr: value})
 
-        serializer = self.get_serializer(list_instance, data=list_data, partial=True, many=True)
+        serializer = self.get_serializer(list_instance, data=list_data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            for slug, i in basket_enum.items():
-                update_basket(basket, slug, quantity=list_data[i]['quantity'], type_='set_quantity')
-        except KeyError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        for slug, i in basket_enum.items():
+            if serializer.validated_data[i]['remove']:
+                update_basket(basket, slug, quantity=0, type_='remove')
+            else:
+                update_basket(basket, slug, quantity=serializer.validated_data[i]['quantity'], type_='set_quantity')
 
-        if len(product_to_exclude) > 0:
+        if basket_update:
             status_ = status.HTTP_205_RESET_CONTENT
         else:
             status_ = status.HTTP_200_OK

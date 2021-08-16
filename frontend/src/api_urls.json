@@ -7,9 +7,15 @@
             "decorators": ""
         },
         "catalogue_api:product-basket-surface": {
-            "url": "/api/catalogue/basket/surface/<basket_sign>/<promo>/",
+            "url": "/api/catalogue/basket/surface/<basket_sign>/<promo_code>/",
             "module": "catalogue.rest_views.CatalogueViewSet",
             "name": "catalogue_api:product-basket-surface",
+            "decorators": ""
+        },
+        "catalogue_api:product-basket-update": {
+            "url": "/api/catalogue/basket/surface/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-update",
             "decorators": ""
         },
         "catalogue_api:product-list-category": {

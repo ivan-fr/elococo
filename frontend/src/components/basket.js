@@ -1,12 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
 import {Link} from "react-router-dom";
-import {CheckBoxField, FormField, FormWithContext, SelectField, SubmitButton} from "./form";
+import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
 function Basket() {
     const [data, setData] = useState(null)
+    const [formUpdateBasketError, setFormUpdateBasketError] = useState(null)
+    const [doEffect, setDoEffect] = useState(false)
 
     useEffect(() => {
         const doAFetch = async () => {
@@ -24,6 +26,26 @@ function Basket() {
         }
 
         doAFetch().then(() => null)
+    }, [doEffect])
+
+    const updateBasketSubmit = useCallback((data) => {
+        const patchData = async () => {
+            try {
+                const path = get_route_with_args('catalogue_api:product-basket-update', [])
+                const url = get_url(path, null)
+                const response = await axios.post(url.href, {...data, 'basket': localStorage.getItem('basket')})
+                localStorage.setItem('basket_len', response.data.basket_len)
+                localStorage.setItem('basket', response.data.basket)
+                setFormUpdateBasketError(null)
+                setDoEffect(d => !d)
+            } catch ({response}) {
+                if (response.status === 400) {
+                    setFormUpdateBasketError(response.data)
+                }
+            }
+        }
+
+        patchData().then(() => null)
     }, [])
 
     if (data === null) {
@@ -39,7 +61,8 @@ function Basket() {
         })
     }
 
-    return <><FormWithContext id="basket_form" defaultValue={defaultValue}>
+    return <><FormWithContext id="basket_form" defaultValue={defaultValue} onSubmit={updateBasketSubmit}
+                              formError={formUpdateBasketError} many={true}>
         <div className="table-responsive">
             <table className="table table-striped">
                 <thead>
@@ -49,7 +72,7 @@ function Basket() {
                     <th scope="col">Prix unitaire (HT)</th>
                     <th scope="col">Dont réduction (%)</th>
                     <th scope="col">Quantité</th>
-                    <th scope="col">Sous Total (HT)</th>
+                    <th scope="col">Sous Total</th>
                     <th scope="col">Supprimer ?</th>
                 </tr>
                 </thead>
@@ -66,7 +89,7 @@ function Basket() {
                             : <>Pas de reduction.</>}
                         </td>
                         <td>
-                            <SelectField name={`product_${product.slug}_quantity`} labelText={null}>
+                            <SelectField index={i} name={`product_${product.slug}_quantity`} labelText={null}>
                                 {
                                     [...Array(Math.min(3, product.stock)).keys()].map(i =>
                                         <option key={i} value={i + 1}>{i + 1}</option>
@@ -75,7 +98,7 @@ function Basket() {
                             </SelectField>
                         </td>
                         <td>{product.price_exact_ht_with_quantity}€</td>
-                        <td><CheckBoxField name={`product_${product.slug}_remove`}/></td>
+                        <td><CheckBoxField index={i} name={`product_${product.slug}_remove`}/></td>
                     </tr>)}
 
                 {data.price_exact_ht_with_quantity__sum &&
@@ -144,7 +167,7 @@ function Basket() {
         <div id='promo_form'>
             <FormWithContext defaultValue={{}}>
                 <div>
-                    <FormField name="promo_code">Code promo :</FormField>
+                    <InputTextField name="promo_code">Code promo :</InputTextField>
                 </div>
                 <div>
                     <SubmitButton>Envoyer</SubmitButton>

@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import serializers, fields
+from rest_framework import serializers
 
 import catalogue.models as catalogue_models
 import sale.models as sale_models
@@ -106,66 +106,63 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ['account_name']
 
 
-choices = tuple(range(1, settings.BASKET_MAX_QUANTITY_PER_FORM + 1))
+def factor_validate(basket, product, quantity):
+    if not product.enable_sale:
+        raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
+
+    choices = range(
+        1,
+        min(
+            product.stock,
+            settings.BASKET_MAX_QUANTITY_PER_FORM
+        ) + 1
+    )
+
+    if not min(choices) <= quantity <= max(choices):
+        raise serializers.ValidationError(f"La quantité {quantity} n'est pas valide.")
+
+    if len(basket) >= settings.MAX_BASKET_PRODUCT:
+        raise serializers.ValidationError(
+            f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
+        )
+
+    return choices
 
 
 class AddToBasketSerializer(serializers.Serializer):
-    product = ProductSerializer()
+    product = ProductSerializer(read_only=True)
     basket = serializers.DictField(default={})
-    quantity = serializers.ChoiceField(choices=choices, default=None)
-
-    def __init__(self, instance=None, data=fields.empty, **kwargs):
-        super(AddToBasketSerializer, self).__init__(
-            instance=instance, data=data, **kwargs
-        )
-
-        if instance.get('product', None) is not None:
-            try:
-                self.choices = range(
-                    1,
-                    min(
-                        instance['product'].stock,
-                        settings.BASKET_MAX_QUANTITY_PER_FORM
-                    ) + 1
-                )
-                self.fields['quantity'] = serializers.ChoiceField(
-                    choices=self.choices, default=None
-                )
-            except KeyError:
-                pass
+    quantity = serializers.IntegerField()
 
     def validate(self, data):
-        try:
-            quantity = data['quantity']
-        except KeyError:
-            raise serializers.ValidationError("Pas de quantiter indiqué.")
+        choices = factor_validate(data['basket'], self.instance['product'], data['quantity'])
 
-        if not data['product'].enable_sale:
-            raise serializers.ValidationError("Le produit n'est pas disponible à la vente.")
-
-        if len(data['basket']) >= settings.MAX_BASKET_PRODUCT:
-            raise serializers.ValidationError(
-                f"Nombre maximal ({settings.MAX_BASKET_PRODUCT}) de produits atteint dans le panier."
-            )
-
-        if bool(self.basket) and data['basket'].get(data['product'].slug, None) is not None:
-            if quantity + data['basket'][data['product'].slug] > max(self.choices):
+        if bool(data['basket']) and data['basket'].get(self.instance['product'].slug, None) is not None:
+            if data['quantity'] + data['basket'][self.instance['product'].slug] > max(choices):
                 raise serializers.ValidationError(
-                    f"""Votre panier possède déjà {data['basket'][data['product'].slug]} unité(s) 
-                    de ce produit, en ajoutant {quantity} vous depassez la limite autorisé."""
+                    f"""Votre panier possède déjà {data['basket'][self.instance['product'].slug]} unité(s) 
+                    de ce produit, en ajoutant {data['quantity']} vous depassez la limite autorisé."""
                 )
 
         return data
 
 
 class UpdateBasketSerializer(AddToBasketSerializer):
+    id = serializers.IntegerField()
     remove = serializers.BooleanField(default=False)
 
     def validate(self, data):
         if data['remove']:
             return data
 
-        return super(UpdateBasketSerializer, self).validate(data)
+        choices = factor_validate(data['basket'], self.instance[data['id']]['product'], data['quantity'])
+
+        if data['quantity'] > max(choices):
+            raise serializers.ValidationError(
+                f"Vous depassez la limite autorisé avec cette quantité ({data['quantity']}) demandé."
+            )
+
+        return data
 
 
 class BasketProductSerializer(ProductSerializer):
