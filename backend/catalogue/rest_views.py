@@ -217,7 +217,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         basket = get_basket(signer, basket_sign)
 
         if not bool(basket):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
         products, product_to_exclude, _, _ = product_to_exclude_(products_queryset, basket)
@@ -274,8 +274,13 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
                 continue
 
             slug = regex.group(1)
+
+            try:
+                index = basket_enum[slug]
+            except KeyError:
+                continue
+
             attr = regex.group(2)
-            index = basket_enum[slug]
             list_data[index].update({attr: value})
 
         serializer = self.get_serializer(list_instance, data=list_data, many=True)
