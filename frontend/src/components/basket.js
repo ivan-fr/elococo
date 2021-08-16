@@ -70,8 +70,9 @@ function Basket() {
                     }
                 )
                 localStorage.setItem('basket', res.data.basket)
-                if (res.data.promo && res.data.promo.value) {
-                    localStorage.setItem('promo', res.data.promo.value)
+                console.log(res.data)
+                if (res.data.promo && res.data.promo.code) {
+                    localStorage.setItem('promo', res.data.promo.code)
                 }
                 setFormPromoBasketError(null)
                 setDoEffect(d => !d)
