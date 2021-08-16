@@ -197,7 +197,8 @@ class PromoSerializer(serializers.ModelSerializer):
 class BasketSurfaceSerializer(serializers.Serializer):
     products = BasketProductSerializer(many=True)
     promo = PromoSerializer()
-    basket_sign = serializers.CharField()
+    basket = serializers.CharField()
+    basket_len = serializers.IntegerField()
     price_exact_ttc_with_quantity__sum = serializers.DecimalField(7, 2)
     price_exact_ht_with_quantity__sum = serializers.DecimalField(7, 2)
     deduce_tva = serializers.DecimalField(7, 2)

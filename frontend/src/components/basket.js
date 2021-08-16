@@ -8,6 +8,7 @@ import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButto
 function Basket() {
     const [data, setData] = useState(null)
     const [formUpdateBasketError, setFormUpdateBasketError] = useState(null)
+    const [formPromoBasketError, setFormPromoBasketError] = useState(null)
     const [msg, setMsg] = useState("")
     const [doEffect, setDoEffect] = useState(false)
 
@@ -20,7 +21,11 @@ function Basket() {
             try {
                 const res = await axios(url.href)
                 setData(res.data)
-                localStorage.setItem('basket', res.data.basket_sign)
+                localStorage.setItem('basket', res.data.basket)
+                localStorage.setItem('basket_len', res.data.basket_len)
+                if (!res.data.promo) {
+                    localStorage.removeItem('promo')
+                }
             } catch ({response}) {
                 setData({})
             }
@@ -53,6 +58,36 @@ function Basket() {
         patchData().then(() => null)
     }, [])
 
+    const promoBasketSubmit = useCallback((data) => {
+        const doAPost = async () => {
+            const path = get_route_with_args('catalogue_api:product-basket-promo', [])
+            const url = get_url(path, null)
+            try {
+                const res = await axios.post(
+                    url.href, {
+                        'basket': localStorage.getItem('basket'),
+                        'promo': data.promo
+                    }
+                )
+                localStorage.setItem('basket', res.data.basket)
+                if (res.data.promo && res.data.promo.value) {
+                    localStorage.setItem('promo', res.data.promo.value)
+                }
+                setFormPromoBasketError(null)
+                setDoEffect(d => !d)
+            } catch ({response}) {
+                localStorage.removeItem('promo')
+                if (response.status === 404) {
+                    setFormPromoBasketError(
+                        {'promo': ["Ce code n'existe pas ou n'est pas compatible avec votre panier."]}
+                    )
+                }
+            }
+        }
+
+        doAPost().then(() => null)
+    }, [])
+
     const defaultValues = useMemo(() => {
         const df = {}
         if (data && data.products) {
@@ -68,12 +103,12 @@ function Basket() {
         return <Loading/>
     }
 
-    if (Object.keys(data).length === 0 ) {
+    if (Object.keys(data).length === 0) {
         return <p>Votre panier est vide.</p>
     }
 
     return <>
-    {msg && msg !== "" && <p>{msg}</p>}
+        {msg && msg !== "" && <p>{msg}</p>}
         <FormWithContext id="basket_form" defaultValue={defaultValues} onSubmit={updateBasketSubmit}
                          formError={formUpdateBasketError} many={true}>
             <div className="table-responsive">
@@ -178,9 +213,9 @@ function Basket() {
                 <p><strong>Un tarif de livraison sera à prendre en compte.</strong></p>}
         </FormWithContext>
         <div id='promo_form'>
-            <FormWithContext defaultValue={{}}>
+            <FormWithContext defaultValue={{}} onSubmit={promoBasketSubmit} formError={formPromoBasketError}>
                 <div>
-                    <InputTextField name="promo_code">Code promo :</InputTextField>
+                    <InputTextField name="promo">Code promo :</InputTextField>
                 </div>
                 <div>
                     <SubmitButton>Envoyer</SubmitButton>

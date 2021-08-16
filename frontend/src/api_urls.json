@@ -6,6 +6,12 @@
             "name": "catalogue_api:product-list",
             "decorators": ""
         },
+        "catalogue_api:product-basket-promo": {
+            "url": "/api/catalogue/basket/surface/promo/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-promo",
+            "decorators": ""
+        },
         "catalogue_api:product-basket-surface": {
             "url": "/api/catalogue/basket/surface/<basket_sign>/<promo_code>/",
             "module": "catalogue.rest_views.CatalogueViewSet",

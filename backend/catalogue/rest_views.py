@@ -208,17 +208,23 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
             **post_price_annotation_format()
         )
 
-    def basket_treatment(self, basket_sign, promo_code):
+    @action(detail=False,
+            methods=['GET'],
+            url_path=r'basket/surface/(?P<basket>[-:\w]+)/(?P<promo>[\w]+)')
+    def basket_surface(self, request, *_, **kwargs):
+        basket = kwargs.get('basket', None)
+        promo = kwargs.get('promo', None)
+
         self.serializer_class = catalogue_serializers.BasketSurfaceSerializer
         signer = Signer()
-        basket = get_basket(signer, basket_sign)
+        basket = get_basket(signer, basket)
 
         if not bool(basket):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
         products, product_to_exclude, _, _ = product_to_exclude_(products_queryset, basket)
-        promo_db = get_promo(basket, promo_code)
+        promo_db = get_promo(basket, promo)
 
         aggregate = products_queryset.exclude(
             slug__in=product_to_exclude
@@ -229,23 +235,44 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         context = {
             "products": list(products),
             "promo": promo_db,
-            "basket_sign": signer.sign_object(basket),
+            "basket": signer.sign_object(basket),
             "deduce_tva": Decimal(
                 aggregate['price_exact_ht_with_quantity__sum']
             ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
             "deduce_tva_promo": Decimal(
                 aggregate.get('price_exact_ht_with_quantity_promo__sum', Decimal(0))
             ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
-            **aggregate
+            **aggregate,
+            **get_basket_len(basket)
         }
         serializer = self.get_serializer(context)
         return Response(serializer.data)
 
     @action(detail=False,
-            methods=['GET'],
-            url_path=r'basket/surface/(?P<basket_sign>[-:\w]+)/(?P<promo_code>[\w]+)')
-    def basket_surface(self, request, *_, **kwargs):
-        return self.basket_treatment(kwargs.get('basket_sign', None), kwargs.get('promo_code', None))
+            methods=['POST'],
+            url_path=r'basket/surface/promo')
+    def basket_promo(self, request, *_, **kwargs):
+        self.serializer_class = catalogue_serializers.PromoSerializer
+
+        basket = request.data.get('basket', None)
+        promo = request.data.get('promo', None)
+
+        signer = Signer()
+        basket = get_basket(signer, basket)
+
+        if not bool(basket):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
+        products, product_to_exclude, _, _ = product_to_exclude_(products_queryset, basket)
+        promo_db = get_promo(basket, promo)
+
+        if promo_db is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(promo_db)
+
+        return Response({"basket": signer.sign_object(basket), "promo": serializer.data, **get_basket_len(basket)})
 
     @action(detail=False,
             methods=['POST'],

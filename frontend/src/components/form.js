@@ -121,7 +121,7 @@ export function SubmitButton({children, ifChange = false}) {
 
     useEffect(() => {
         if (isMount.current) {
-            setHide(h => {
+            setHide(() => {
                 return context.submit && ifChange;
             })
         }

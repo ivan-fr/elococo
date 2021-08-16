@@ -19,7 +19,8 @@ function NavBar() {
             try {
                 const res = await axios(url.href)
                 data.current = res.data
-                localStorage.setItem('basket', data.current.basket_sign)
+                localStorage.setItem('basket', res.data.basket)
+                localStorage.setItem('basket_len', res.data.basket_len)
             } catch ({response}) {
                 data.current = {}
             }
