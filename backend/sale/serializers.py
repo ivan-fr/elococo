@@ -37,6 +37,9 @@ class OrderedSerializer(serializers.ModelSerializer):
     order_address = AddressSerializer(many=True, default=None)
 
     def update(self, instance, validated_data):
+        if instance.payment_status:
+            return instance
+
         if validated_data.get('email', None) is not None:
             instance.email = validated_data['email']
 
