@@ -75,7 +75,6 @@ function Basket() {
                     localStorage.setItem('promo', res.data.promo.code)
                 }
                 setFormPromoBasketError(null)
-                setDoEffect(d => !d)
             } catch ({response}) {
                 localStorage.removeItem('promo')
                 if (response.status === 404) {
@@ -84,6 +83,7 @@ function Basket() {
                     )
                 }
             }
+            setDoEffect(d => !d)
         }
 
         doAPost().then(() => null)

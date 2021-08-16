@@ -7,6 +7,7 @@ function NavBar() {
     const [showBasket, setShowBasket] = useState(false)
     const [, setRefresh] = useState(false)
     const basketSign = useRef(localStorage.getItem('basket'))
+    const promo = useRef(localStorage.getItem('promo'))
     const {pathname, search} = useLocation()
     const data = useRef(null)
 
@@ -34,7 +35,8 @@ function NavBar() {
         }
 
         if (pathname !== "/basket"
-            && ((!data.current && e) || localStorage.getItem('basket') !== basketSign.current)) {
+            && ((!data.current && e) || localStorage.getItem('basket') !== basketSign.current
+                || localStorage.getItem('promo') !== promo.current)) {
             basketSign.current = localStorage.getItem('basket')
             doAFetch().then(() => null)
         } else if (data.current) {
