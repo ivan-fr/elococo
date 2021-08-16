@@ -38,17 +38,23 @@ export function FormWithContext({id, defaultValue, formError, onSubmit, many = f
     const [defaultValues_, setDefaultValues_] = useState(defaultValue)
     const handleChange = useCallback((name, value) => {
         setDefaultValues_(defaults => {
+            if (defaults.submit) {
+                defaults.submit = false
+            }
+
             return {...defaults, [name]: value}
         })
     }, [])
-    const valueProvider = useMemo(() => {
-        return {...defaultValues_, handleChange, formError, many}
-    }, [many, defaultValues_, handleChange, formError])
 
     const handleSubmit = useCallback((e) => {
         e.preventDefault()
         onSubmit(defaultValues_)
-    }, [onSubmit, defaultValues_])
+        handleChange("submit", true)
+    }, [onSubmit, handleChange, defaultValues_])
+
+    const valueProvider = useMemo(() => {
+        return {"submit": false, ...defaultValues_, handleChange, formError, many}
+    }, [many, defaultValues_, handleChange, formError])
 
     return <formContext.Provider value={valueProvider}>
         <form id={id} onSubmit={handleSubmit} method='POST'>
@@ -108,17 +114,19 @@ export function CheckBoxField({name, index = 0, children}) {
     </>
 }
 
-export function SubmitButton({children, ifChange}) {
+export function SubmitButton({children, ifChange = false}) {
     const context = useContext(formContext)
     const isMount = useRef(false)
     const [hide, setHide] = useState(ifChange)
 
     useEffect(() => {
         if (isMount.current) {
-            setHide(h => !h)
+            setHide(h => {
+                return context.submit && ifChange;
+            })
         }
         isMount.current = true
-    }, [context])
+    }, [context, ifChange])
 
     if (hide) {
         return <></>

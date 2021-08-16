@@ -25,16 +25,16 @@ def update_basket(basket, slug, type_=None, quantity=0):
 
     if type_ == "set_quantity":
         if basket.get(slug, None) is not None:
-            basket[slug] = quantity
+            basket[slug] = int(quantity)
         return
 
     if not bool(basket):
-        basket[slug] = quantity
+        basket[slug] = int(quantity)
     else:
         if basket.get(slug, None) is not None:
-            basket[slug] += quantity
+            basket[slug] += int(quantity)
         else:
-            basket[slug] = quantity
+            basket[slug] = int(quantity)
 
 
 def get_basket(signer, data_to_unsign):
@@ -189,10 +189,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer({"product": instance}, data=data_patch, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        try:
-            update_basket(basket, instance.slug, quantity=data_patch['quantity'])
-        except KeyError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        update_basket(basket, instance.slug, quantity=serializer.validated_data['quantity'])
 
         return Response({"basket": signer.sign_object(basket), **get_basket_len(basket)})
 
