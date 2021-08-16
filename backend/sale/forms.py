@@ -1,4 +1,3 @@
-from sale import get_amount
 import secrets
 import string
 from decimal import Decimal
@@ -6,7 +5,7 @@ from decimal import Decimal
 from django import forms
 from django.conf import settings
 
-from elococo.settings import BACK_TWO_PLACES
+from sale import get_amount
 from sale.models import Address, Ordered, Promo, DELIVERY_SPEED
 
 
@@ -54,16 +53,16 @@ class DeliveryMode(forms.ModelForm):
     def save(self, commit=True):
         order = super().save(commit=False)
 
-        amount = get_amount(order, with_promo=False) * BACK_TWO_PLACES
-        amount = amount.quantize(BACK_TWO_PLACES)
+        amount = get_amount(order, with_promo=False) * settings.BACK_TWO_PLACES
+        amount = amount.quantize(settings.BACK_TWO_PLACES)
 
         if settings.DELIVERY_FREE_GT <= amount:
             return order
 
         if order.delivery_mode == DELIVERY_SPEED:
-            order.delivery_value = int(settings.DELIVERY_SPEED.quantize(BACK_TWO_PLACES) * Decimal(100.))
+            order.delivery_value = int(settings.DELIVERY_SPEED.quantize(settings.BACK_TWO_PLACES) * Decimal(100.))
         else:
-            order.delivery_value = int(settings.DELIVERY_ORDINARY.quantize(BACK_TWO_PLACES) * Decimal(100.))
+            order.delivery_value = int(settings.DELIVERY_ORDINARY.quantize(settings.BACK_TWO_PLACES) * Decimal(100.))
 
         order.save()
         return order
