@@ -300,6 +300,17 @@ body
       .order
         @include grid(2)
 
+        .order_data
+          @include grid(2)
+          grid-auto-rows: max-content
+
+          & > :is(h1, h2, h3, h4, h5, h6)
+            @include span(2)
+            width: 100%
+
+          .order_form.size_2
+            @include span(2)
+
         .order_form
           background: radial-gradient(circle, rgba(255, 255, 255, 1) 89%, rgba(255, 238, 229, 1) 100%)
 

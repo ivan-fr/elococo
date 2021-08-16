@@ -66,7 +66,7 @@ function NavBar() {
                 <Link to="/">Retrouver une commande</Link>
             </li>
             <li>
-                <Link to="/">Completer ma commande (1/3)</Link>
+                <Link to="/order">Completer ma commande</Link>
             </li>
             {pathname !== "/basket" && <li id="navbar-basket">
                 <a href={"/"} onClick={(e) => e.preventDefault()}

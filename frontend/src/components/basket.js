@@ -5,6 +5,90 @@ import {Loading} from "./loading";
 import {Link} from "react-router-dom";
 import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
+
+export function BasketRecap({order, products}) {
+    return <div className="table-responsive">
+        <table className="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nom du produit</th>
+                <th scope="col">Prix unitaire (HT)</th>
+                <th scope="col">Dont réduction (%)</th>
+                <th scope="col">Quantité</th>
+                <th scope="col">Sous Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {products && products.map((product, i) =>
+                <tr key={i}>
+                    <th scope="row">{i + 1}</th>
+                    <td>
+                        <Link to={`/catalogue/${product.slug}`}>{product.name}</Link>
+                    </td>
+                    <td>{product.price_exact_ht}€</td>
+                    <td>{product.effective_reduction > 0 ?
+                        <>-{product.effective_reduction}%</>
+                        : <>Pas de reduction.</>}
+                    </td>
+                    <td>{product.quantity}</td>
+                    <td>{parseFloat(product.price_exact_ht_with_quantity).toFixed(2)}€</td>
+                </tr>)}
+
+            {order.price_exact_ht_with_quantity_sum &&
+            <tr>
+                <td><strong>Total (HT)</strong></td>
+                <td colSpan="4"/>
+                <td>{parseFloat(order.price_exact_ht_with_quantity_sum).toFixed(2)}€</td>
+            </tr>}
+
+            {order.promo && order.promo.value ? <>
+                    <tr>
+                        <td><strong>Promo</strong></td>
+                        <td colSpan="4"/>
+                        {order.promo.type === "pe" ?
+                            <td>-{order.promo.value}%</td>
+                            :
+                            <td>-{order.promo.value}€</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td><strong>Nouveau Total (HT)</strong></td>
+                        <td colSpan="4"/>
+                        <td>{parseFloat(order.price_exact_ht_with_quantity_promo_sum).toFixed(2)}€</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TVA 20.00%</strong></td>
+                        <td colSpan="4"/>
+                        <td>{parseFloat(order.deduce_tva_promo).toFixed(2)}€</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total (TTC)</strong></td>
+                        <td colSpan="4"/>
+                        <td>
+                            <strong>{parseFloat(order.price_exact_ttc_with_quantity_promo_sum).toFixed(2)}€</strong>
+                        </td>
+                    </tr>
+                </>
+                : <>
+                    <tr>
+                        <td><strong>TVA 20.00%</strong></td>
+                        <td colSpan="4"/>
+                        <td>{parseFloat(order.deduce_tva).toFixed(2)}€</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOTAL (TTC)</strong></td>
+                        <td colSpan="4"/>
+                        <td><strong>{parseFloat(order.price_exact_ttc_with_quantity_sum).toFixed(2)}€</strong></td>
+                    </tr>
+                </>}
+            </tbody>
+        </table>
+    </div>
+
+}
+
+
 function Basket() {
     const [data, setData] = useState(null)
     const [formUpdateBasketError, setFormUpdateBasketError] = useState(null)

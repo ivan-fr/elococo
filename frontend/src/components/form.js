@@ -34,11 +34,11 @@ export function FieldError({name, index = 0}) {
 }
 
 
-export function FormWithContext({id, defaultValue, onSubmit, formError = null, many = false, children}) {
+export function FormWithContext({id, className, defaultValue, onSubmit, formError = null, many = false, children}) {
     const [defaultValues_, setDefaultValues_] = useState(defaultValue)
     const handleChange = useCallback((name, value) => {
         setDefaultValues_(defaults => {
-            if (defaults.submit) {
+            if (defaults && defaults.submit) {
                 defaults.submit = false
             }
 
@@ -57,7 +57,7 @@ export function FormWithContext({id, defaultValue, onSubmit, formError = null, m
     }, [many, defaultValues_, handleChange, formError])
 
     return <formContext.Provider value={valueProvider}>
-        <form id={id} onSubmit={handleSubmit} method='POST'>
+        <form id={id} className={className} onSubmit={handleSubmit} method='POST'>
             <ErrorNonFieldError many={many}/>
             {children}
         </form>

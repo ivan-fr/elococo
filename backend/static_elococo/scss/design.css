@@ -672,6 +672,20 @@ body main.gridded > .main .order {
   grid-auto-rows: auto;
   box-sizing: border-box;
 }
+body main.gridded > .main .order .order_data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+  box-sizing: border-box;
+  grid-auto-rows: max-content;
+}
+body main.gridded > .main .order .order_data > :is(h1, h2, h3, h4, h5, h6) {
+  grid-column: span 2;
+  width: 100%;
+}
+body main.gridded > .main .order .order_data .order_form.size_2 {
+  grid-column: span 2;
+}
 body main.gridded > .main .order .order_form {
   background: radial-gradient(circle, white 89%, #ffeee5 100%);
 }
