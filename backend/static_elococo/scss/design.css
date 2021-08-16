@@ -687,13 +687,11 @@ body main.gridded > .main .order .order_data .order_form.size_2 {
   grid-column: span 2;
 }
 body main.gridded > .main .order .order_form {
+  padding: 0.75em;
   background: radial-gradient(circle, white 89%, #ffeee5 100%);
 }
 body main.gridded > .main .order .order_form h2 {
   text-align: center;
-}
-body main.gridded > .main .order .order_form form {
-  padding: 0.75em;
 }
 body main.gridded > .main .order .order_form .form_fill_3 {
   width: 80%;
