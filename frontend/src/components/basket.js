@@ -27,6 +27,7 @@ function Basket() {
                     localStorage.removeItem('promo')
                 }
             } catch ({response}) {
+                localStorage.removeItem('promo')
                 setData({})
             }
         }
