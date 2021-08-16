@@ -1,3 +1,4 @@
+import re
 import secrets
 import string
 from decimal import Decimal
@@ -135,4 +136,21 @@ class SaleOrderViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, views
     serializer_class = OrderedSerializer
 
     def partial_update(self, request, *args, **kwargs):
+        data = request.data.copy()
+        address = [{}, {}]
+
+        for key, value in data.items():
+            regex = re.search(r'^[^_]+_([^_]+)_(.+)$', key)
+
+            if regex is None:
+                continue
+
+            index = regex.group(1)
+            attr = regex.group(2)
+            address[int(index)].update({attr: value})
+            data.pop(key)
+
+        data["order_address"] = address
+        request.data = data
+
         return super(SaleOrderViewSet, self).partial_update(request, *args, **kwargs)

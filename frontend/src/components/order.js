@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
@@ -103,6 +103,26 @@ function Order() {
         fetchData().then(() => null)
     }, [])
 
+    const orderSubmit = useCallback((data) => {
+        const doAPost = async () => {
+            const path = get_route_with_args('sale_api:ordered-detail',
+                [localStorage.getItem('order')])
+            const url = get_url(path, null)
+            try {
+                const res = await axios.patch(
+                    url.href, data
+                )
+                setData(res.data)
+            } catch ({response}) {
+                localStorage.removeItem('promo')
+                if (response.status === 404) {
+                }
+            }
+        }
+
+        doAPost().then(() => null)
+    }, [])
+
     if (data === null) {
         return <Loading/>
     }
@@ -122,10 +142,10 @@ function Order() {
         </section>
         <section>
             <h2>Formulaire d'informations générales</h2>
-            <FormWithContext className={"order_data"}>
+            <FormWithContext className={"order_data"} onSubmit={orderSubmit()}>
                 <div className="order_form">
-                    <InputTextField>Email :</InputTextField>
-                    <InputTextField>Téléphone :</InputTextField>
+                    <InputTextField name={"email"}>Email :</InputTextField>
+                    <InputTextField name={"phone"}>Téléphone :</InputTextField>
                 </div>
                 <div className="order_form">
                     <SelectField labelText={"Mode de livraison"}>
@@ -139,28 +159,28 @@ function Order() {
                         <section id="delivery_address" className={"expand"}>
                             <h3>Adresse de livraison :</h3>
                             <div>
-                                <InputTextField name={"first_name"}>Prénom :</InputTextField>
+                                <InputTextField index={0} name={`address_0_first_name`}>Prénom :</InputTextField>
                             </div>
                             <div>
-                                <InputTextField name={"last_name"}>Nom :</InputTextField>
+                                <InputTextField index={0} name={"address_0_last_name"}>Nom :</InputTextField>
                             </div>
-                            <InputTextField name={"address"}>Adresse ligne 1 :</InputTextField>
-                            <InputTextField name={"address2"}>Adresse ligne 2 :</InputTextField>
-                            <InputTextField name={"postal_code"}>Code postal :</InputTextField>
-                            <InputTextField name={"city"}>Ville :</InputTextField>
+                            <InputTextField index={0} name={"address_0_address"}>Adresse ligne 1 :</InputTextField>
+                            <InputTextField index={0} name={"address_0_address2"}>Adresse ligne 2 :</InputTextField>
+                            <InputTextField index={0} name={"address_0_postal_code"}>Code postal :</InputTextField>
+                            <InputTextField index={0} name={"address_0_city"}>Ville :</InputTextField>
                         </section>
                         <section id="facturation_address">
                             <h3>Adresse de facturation</h3>
                             <div>
-                                <InputTextField name={"first_name"}>Prénom :</InputTextField>
+                                <InputTextField index={1} name={"address_1_first_name"}>Prénom :</InputTextField>
                             </div>
                             <div>
-                                <InputTextField name={"last_name"}>Nom :</InputTextField>
+                                <InputTextField index={1} name={"address_1_last_name"}>Nom :</InputTextField>
                             </div>
-                            <InputTextField name={"address"}>Adresse ligne 1 :</InputTextField>
-                            <InputTextField name={"address2"}>Adresse ligne 2 :</InputTextField>
-                            <InputTextField name={"postal_code"}>Code postal :</InputTextField>
-                            <InputTextField name={"city"}>Ville :</InputTextField>
+                            <InputTextField index={1} name={"address_1_address"}>Adresse ligne 1 :</InputTextField>
+                            <InputTextField index={1} name={"address_1_address2"}>Adresse ligne 2 :</InputTextField>
+                            <InputTextField index={1} name={"address_1_postal_code"}>Code postal :</InputTextField>
+                            <InputTextField index={1} name={"address_1_city"}>Ville :</InputTextField>
                         </section>
                         <div role="group" className="btn-group">
                             <SubmitButton>Mettre à jour</SubmitButton>

@@ -18,10 +18,10 @@ export function ErrorNonFieldError() {
 }
 
 
-export function FieldError({name, index = 0}) {
+export function FieldError({name, index = null}) {
     const context = useContext(formContext)
 
-    if (context.many) {
+    if (index) {
         const match = name.match(new RegExp('^[^_]+_[^_]+_(.+)$'))[1]
         return <>{context.formError && context.formError[index] && context.formError[index][match] && <ul>
             {context.formError[index][match].map((textError, i) => <li key={i}>{textError}</li>)}
@@ -64,7 +64,7 @@ export function FormWithContext({id, className, defaultValue, onSubmit, formErro
     </formContext.Provider>
 }
 
-export function InputTextField({name, index = 0, children}) {
+export function InputTextField({name, index = null, children}) {
     const context = useContext(formContext)
     const handleChange = useCallback(function (e) {
         context.handleChange(e.currentTarget.name, e.currentTarget.value)
@@ -79,7 +79,7 @@ export function InputTextField({name, index = 0, children}) {
     </>
 }
 
-export function SelectField({name, labelText, index = 0, children}) {
+export function SelectField({name, labelText, index = null, children}) {
     const context = useContext(formContext)
     const handleChange = useCallback(function (e) {
         context.handleChange(e.currentTarget.name, e.currentTarget.value)
@@ -98,7 +98,7 @@ export function SelectField({name, labelText, index = 0, children}) {
     </>
 }
 
-export function CheckBoxField({name, index = 0, children}) {
+export function CheckBoxField({name, index = null, children}) {
     const context = useContext(formContext)
     const handleChange = useCallback(function (e) {
         context.handleChange(e.currentTarget.name, e.currentTarget.checked)
