@@ -71,7 +71,6 @@ function Basket() {
                     }
                 )
                 localStorage.setItem('basket', res.data.basket)
-                console.log(res.data)
                 if (res.data.promo && res.data.promo.code) {
                     localStorage.setItem('promo', res.data.promo.code)
                 }
@@ -85,6 +84,38 @@ function Basket() {
                 }
             }
             setDoEffect(d => !d)
+        }
+
+        doAPost().then(() => null)
+    }, [])
+
+    const bookSubmit = useCallback((data) => {
+        const doAPost = async () => {
+            const path = get_route_with_args('sale_api:product-list', [])
+            const url = get_url(path, null)
+            try {
+                const res = await axios.post(
+                    url.href, {
+                        'basket': localStorage.getItem('basket'),
+                        'promo': data.promo
+                    }
+                )
+                localStorage.setItem('order', res.data.order)
+            } catch ({response}) {
+                if (response.status === 401) {
+                    localStorage.setItem('basket_len', response.data.basket_len)
+                    localStorage.setItem('basket', response.data.basket)
+                    if (response.data.promo && response.data.promo.code) {
+                        localStorage.setItem('promo', response.data.promo.code)
+                    } else {
+                        localStorage.removeItem('promo')
+                    }
+                    setMsg("Des mise à jour sur le panier ont dû être éffectué pour correspondre au catalogue.")
+                } else {
+                    alert('Panier invalide, veuillez recharger la page.')
+                }
+                setDoEffect(d => !d)
+            }
         }
 
         doAPost().then(() => null)
@@ -222,6 +253,11 @@ function Basket() {
                 <div>
                     <SubmitButton>Envoyer</SubmitButton>
                 </div>
+            </FormWithContext>
+        </div>
+        <div id='book_form'>
+            <FormWithContext defaultValue={{}} onSubmit={bookSubmit}>
+                <SubmitButton>Commander</SubmitButton>
             </FormWithContext>
         </div>
     </>

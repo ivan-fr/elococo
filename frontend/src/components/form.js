@@ -34,7 +34,7 @@ export function FieldError({name, index = 0}) {
 }
 
 
-export function FormWithContext({id, defaultValue, formError, onSubmit, many = false, children}) {
+export function FormWithContext({id, defaultValue, onSubmit, formError = null, many = false, children}) {
     const [defaultValues_, setDefaultValues_] = useState(defaultValue)
     const handleChange = useCallback((name, value) => {
         setDefaultValues_(defaults => {

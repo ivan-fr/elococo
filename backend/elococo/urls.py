@@ -21,8 +21,10 @@ from django.views.generic import TemplateView
 
 import catalogue.views
 from catalogue.urls import router as catalogue_router
+from sale.urls import router as sale_router
 
-def trigger_error(request):
+
+def trigger_error(_):
     division_by_zero = 1 / 0
 
 
@@ -33,6 +35,7 @@ urlpatterns = [
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
+    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api")),
     path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),
 ]
 

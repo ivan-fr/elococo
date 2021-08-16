@@ -19,7 +19,7 @@ PROMO_CHOICES = [
 
 
 def phone_regex():
-    return RegexValidator(regex="^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
+    return RegexValidator(regex=r"^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$",
                           message="Le numéro ne respecte pas le bon format.")
 
 

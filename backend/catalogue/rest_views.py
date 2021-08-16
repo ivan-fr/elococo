@@ -50,6 +50,10 @@ def get_basket(signer, data_to_unsign):
         return {}
 
 
+def get_basket_dict(signer, basket, promo=None):
+    return {"basket": signer.sign_object(basket), "promo": promo, **get_basket_len(basket)}
+
+
 def product_to_exclude_(products, basket):
     basket_set = {product_slug for product_slug in basket.keys()}
     product_bdd_set = {product.slug for product in products}
@@ -191,7 +195,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
 
         update_basket(basket, instance.slug, quantity=serializer.validated_data['quantity'])
 
-        return Response({"basket": signer.sign_object(basket), **get_basket_len(basket)})
+        return Response(get_basket_dict(signer, basket, None))
 
     @action(detail=False,
             methods=['GET'],
@@ -200,7 +204,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         return self.list_catalogue(request, **kwargs)
 
     def get_basket_queryset(self, basket):
-        return super().get_queryset().filter(
+        return self.get_queryset().filter(
             slug__in=tuple(basket.keys())
         ).annotate(
             **price_annotation_format(basket)
@@ -234,8 +238,6 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
 
         context = {
             "products": list(products),
-            "promo": promo_db,
-            "basket": signer.sign_object(basket),
             "deduce_tva": Decimal(
                 aggregate['price_exact_ht_with_quantity__sum']
             ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
@@ -243,7 +245,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
                 aggregate.get('price_exact_ht_with_quantity_promo__sum', Decimal(0))
             ) * settings.TVA_PERCENT * settings.BACK_TWO_PLACES,
             **aggregate,
-            **get_basket_len(basket)
+            **get_basket_dict(signer, basket, promo_db)
         }
         serializer = self.get_serializer(context)
         return Response(serializer.data)
@@ -272,7 +274,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
 
         serializer = self.get_serializer(promo_db)
 
-        return Response({"basket": signer.sign_object(basket), "promo": serializer.data, **get_basket_len(basket)})
+        return Response(get_basket_dict(signer, basket, serializer.data))
 
     @action(detail=False,
             methods=['POST'],
@@ -321,7 +323,7 @@ class CatalogueViewSet(mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
         else:
             status_ = status.HTTP_200_OK
 
-        return Response({"basket": signer.sign_object(basket), **get_basket_len(basket)}, status=status_)
+        return Response(get_basket_dict(signer, basket, None), status=status_)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = self.queryset.annotate(
