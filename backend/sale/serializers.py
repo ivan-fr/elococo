@@ -1,3 +1,4 @@
+import copy
 from decimal import Decimal
 
 from django.conf import settings
@@ -5,7 +6,6 @@ from rest_framework import serializers
 
 import sale.models as sale_models
 from sale import get_amount
-from rest_framework.exceptions import ValidationError
 
 
 class PromoSerializer(serializers.ModelSerializer):
@@ -106,8 +106,6 @@ class OrderedSerializer(serializers.ModelSerializer):
         if validated_data.get('order_address', None) is not None:
             if len(validated_data['order_address']) <= 2:
                 address_ = list(instance.order_address.all())
-                addressSerializer = AddressSerializer(data=validated_data['order_address'], many=True)
-                addressSerializer.is_valid(raise_exception=True)
 
                 for i, address in enumerate(validated_data['order_address']):
                     try:
@@ -121,9 +119,16 @@ class OrderedSerializer(serializers.ModelSerializer):
         return instance
 
     def validate_address(self, attrs):
+        attrs_copy = copy.deepcopy(attrs)
+
         if len(attrs) <= 2:
+            for address in attrs:
+                address['order'] = self.instance.pk
+
             addressSerializer = AddressSerializer(data=attrs, many=True)
             addressSerializer.is_valid(raise_exception=True)
+
+        return attrs_copy
 
     class Meta:
         model = sale_models.Ordered

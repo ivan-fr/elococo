@@ -150,6 +150,9 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             address[int(index)].update({attr: value})
             del data[key]
 
+        if not bool(address[1]):
+            address = address[:1]
+
         data["address"] = address
 
         partial = True

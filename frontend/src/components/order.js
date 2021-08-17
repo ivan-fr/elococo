@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
@@ -33,11 +33,11 @@ function OrderInformation({ordered}) {
         </p>
             {ordered.ordered_is_enable ? <>
                 <p>
-                    Cette réservation est <strong>active</strong>
-                    jusqu'au <strong>{new Date(ordered.effective_end_time_payment).toLocaleDateString('fr-fr', {
-                    minute: "2-digit",
-                    hour: "2-digit"
-                })}</strong>.
+                    Cette réservation est <strong>active</strong> jusqu'au <strong>
+                    {new Date(ordered.effective_end_time_payment).toLocaleDateString('fr-fr', {
+                        minute: "2-digit",
+                        hour: "2-digit"
+                    })}</strong>.
                 </p>
                 <p>
                     Si vous ne procédez pas au paiement de cette commande avant l'échéance,<br/>
@@ -127,6 +127,24 @@ function Order() {
         doAPost().then(() => null)
     }, [])
 
+    const defaultValues = useMemo(() => {
+        const dv = {}
+        if (data && Object.keys(data).length > 0) {
+            dv.email = data.email
+            dv.phone = data.phone
+            dv.delivery_mode = data.delivery_mode
+            data.address.forEach((order_address, i) => {
+                dv[`address_${i}_first_name`] = order_address.first_name
+                dv[`address_${i}_last_name`] = order_address.last_name
+                dv[`address_${i}_address`] = order_address.address
+                dv[`address_${i}_address2`] = order_address.address2
+                dv[`address_${i}_postal_code`] = order_address.postal_code
+                dv[`address_${i}_city`] = order_address.city
+            })
+        }
+        return dv
+    }, [data])
+
     if (data === null) {
         return <Loading/>
     }
@@ -146,13 +164,13 @@ function Order() {
         </section>
         <section>
             <h2>Formulaire d'informations générales</h2>
-            <FormWithContext className={"order_data"} onSubmit={orderSubmit} formError={formError}>
+            <FormWithContext className={"order_data"} defaultValue={defaultValues} onSubmit={orderSubmit} formError={formError}>
                 <div className="order_form">
                     <InputTextField name={"email"}>Email :</InputTextField>
                     <InputTextField name={"phone"}>Téléphone :</InputTextField>
                 </div>
                 <div className="order_form">
-                    <SelectField labelText={"Mode de livraison"}>
+                    <SelectField name={"delivery_mode"} labelText={"Mode de livraison"}>
                         {data.DELIVERY_MODE_CHOICES && data.DELIVERY_MODE_CHOICES.map((choice, i) =>
                             <option key={i} value={choice[0]}>{choice[1]}</option>
                         )}
