@@ -77,6 +77,12 @@ class OrderedSerializer(serializers.ModelSerializer):
         ret["delivery_value"] = Decimal(ret["delivery_value"]) * settings.BACK_TWO_PLACES \
             if ret["delivery_value"] else None
         ret["AMOUNT_FINAL"] = Decimal(get_amount(instance, with_delivery=True)) * settings.BACK_TWO_PLACES
+
+        amount = get_amount(instance, with_promo=False) * settings.BACK_TWO_PLACES
+        ret["CAN_PAY"] = instance.email and instance.phone and (
+                settings.DELIVERY_FREE_GT <= amount or instance.delivery_value is not None
+        ) and len(instance.order_address.all())
+
         return ret
 
     def update(self, instance, validated_data):
@@ -91,7 +97,7 @@ class OrderedSerializer(serializers.ModelSerializer):
 
         if validated_data.get('delivery_mode', None) is not None:
             amount = get_amount(instance, with_promo=False) * settings.BACK_TWO_PLACES
-            t = settings.DELIVERY_FREE_GT
+
             if settings.DELIVERY_FREE_GT > amount:
                 instance.delivery_mode = validated_data['delivery_mode']
 

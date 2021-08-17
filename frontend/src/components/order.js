@@ -3,7 +3,7 @@ import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
 import {BasketRecap} from "./basket";
-import {Link} from "react-router-dom";
+import {Link, useHistory, useLocation} from "react-router-dom";
 import {FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
 
@@ -63,10 +63,11 @@ function OrderInformation({ordered}) {
                 </p>
             </>}
         </>}
-        <section>
+        {ordered.ordered_is_enable && <section>
+            <h2>Mes informations...</h2>
             {ordered.address.map((order_address, i) => <div key={i}>
-                    {i === 0 ? <strong>Adresse de livraison</strong> :
-                        <strong>Adresse de facturation</strong>}
+                    {i === 0 ? <p><strong>Adresse de livraison</strong></p> :
+                        <p><strong>Adresse de facturation</strong></p>}
                     <p><strong>{order_address.last_name} {order_address.first_name}</strong></p>
                     {order_address.address}<br/>
                     {order_address.address2 && <>
@@ -79,8 +80,79 @@ function OrderInformation({ordered}) {
             )}
             {ordered.phone && <p><strong>Tél:</strong> {ordered.phone}</p>}
             {ordered.email && <p><strong>Email:</strong> {ordered.email}</p>}
-        </section>
+        </section>}
     </>
+}
+
+
+export function Checkout() {
+    const [data, setData] = useState(null)
+    const {search} = useLocation()
+    const history = useHistory()
+    const query = useMemo(() => new URLSearchParams(search), [search]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const path = get_route_with_args('sale_api:ordered-detail',
+                    [localStorage.getItem('order')])
+                const url = get_url(path, null)
+                const res = await axios(url.href)
+                setData(res.data)
+            } catch (error) {
+                setData({})
+            }
+        }
+
+        fetchData().then(() => null)
+    }, [])
+
+    const checkoutSubmit = useCallback((data) => {
+        const doAPost = async () => {
+            const path = get_route_with_args('sale_api:ordered-payment',
+                [localStorage.getItem('order')])
+            const url = get_url(path, null)
+            try {
+                const res = await axios.patch(
+                    url.href, {}
+                )
+                if (res.data.checkout_url) {
+                    history.push(res.data.checkout_url)
+                }
+            } catch ({response}) {
+            }
+        }
+
+        doAPost().then(() => null)
+    }, [history])
+
+    return <section className="order">
+        <h2>Commande #{data.order_number}</h2>
+        <section>
+            <h2>Récapitulatif de cette commande</h2>
+            <BasketRecap order={data} products={data.from_ordered}/>
+        </section>
+        <section>
+            <OrderInformation ordered={data}/>
+        </section>
+        <section className="order_form">
+            {query.get("success") ? <>
+                <h2>En cours de traitement !</h2>
+                <p>Le paiement est en cours de traitement, nous avons bien reçu votre requête.</p>
+                <p>
+                    Patientez quelques instants..(10secs) Vous allez être redirigé.
+                </p>
+                {setTimeout(() => {
+                    history.push("/checkout")
+                }, 10000)}
+            </> : <>
+                <h2>Formulaire de paiement</h2>
+                <FormWithContext className="form_fill_3" onSubmit={checkoutSubmit()}>
+                    <SubmitButton>Payer {parseFloat(data.AMOUNT_FINAL).toFixed(2)} EUR</SubmitButton>
+                </FormWithContext>
+            </>}
+        </section>
+    </section>
 }
 
 
@@ -88,6 +160,7 @@ function Order() {
     const [data, setData] = useState(null)
     const [formError, setFormError] = useState(null)
     const delivery_address = useRef()
+    const history = useHistory()
     const i = useRef(0)
 
     useEffect(() => {
@@ -172,7 +245,7 @@ function Order() {
         <section>
             <OrderInformation ordered={data}/>
         </section>
-        <section>
+        {data.ordered_is_enable && <section>
             <h2>Formulaire d'informations générales</h2>
             <FormWithContext className={"order_data"} defaultValue={defaultValues} onSubmit={orderSubmit}
                              formError={formError}>
@@ -223,12 +296,15 @@ function Order() {
                                 e.currentTarget.innerText = ["Facturation identique à la livraison", "Facturation diffère de la livraison"][i.current];
                             }} type="button">Facturation identique à la livraison
                             </button>
+                            {data.CAN_PAY &&
+                            <button onClick={() => history.push("/checkout")} type="button">
+                                Passer au paiement >>
+                            </button>}
                         </div>
                     </div>
                 </div>
             </FormWithContext>
-        </section>
-
+        </section>}
     </section>
 }
 

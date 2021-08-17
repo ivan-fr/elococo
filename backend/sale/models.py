@@ -96,8 +96,9 @@ class Ordered(models.Model):
     price_exact_ht_with_quantity_sum_promo = models.PositiveIntegerField(null=True)
 
     def save(self, *args, **kwargs):
-        self.createdAt = now()
-        self.endOfLife = self.createdAt + datetime.timedelta(minutes=settings.TIME_ORDERED_LIFE_MINUTES)
+        if self.createdAt is None:
+            self.createdAt = now()
+            self.endOfLife = self.createdAt + datetime.timedelta(minutes=settings.TIME_ORDERED_LIFE_MINUTES)
         super().save(*args, **kwargs)
 
 

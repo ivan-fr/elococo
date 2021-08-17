@@ -3,11 +3,13 @@ import secrets
 import string
 from decimal import Decimal
 
+import stripe
 from django.conf import settings
 from django.core.signing import Signer
 from django.db import IntegrityError
 from django.db import transaction
 from rest_framework import viewsets, status, mixins
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 import catalogue.models as catalogue_models
@@ -15,6 +17,7 @@ import sale.models as sale_models
 from catalogue.bdd_calculations import price_annotation_format, post_price_annotation_format, \
     total_price_from_all_product
 from catalogue.rest_views import get_basket, product_to_exclude_, get_basket_dict
+from sale import get_amount
 from sale.bdd_calculations import get_promo, default_ordered_annotation_format
 from sale.serializers import OrderedSerializer, PromoSerializer
 
@@ -135,6 +138,64 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     )
     serializer_class = OrderedSerializer
 
+    @action(detail=True,
+            methods=['POST'],
+            url_path=r'=payment')
+    def payment(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        amount = get_amount(instance, with_delivery=True)
+
+        for ordered_product in instance.from_ordered.all():
+            product = ordered_product.to_product
+            images = []
+
+            try:
+                image_url = product.productimage_set.all()[0].image.url
+                images.append(self.request.build_absolute_uri(image_url))
+            except IndexError:
+                continue
+
+            images = images[:8]
+
+        try:
+            if instance.payment_status or not instance.ordered_is_enable:
+                raise Exception()
+
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': 'eur',
+                            'unit_amount_decimal': get_amount(instance, with_delivery=True).quantize(TWO_PLACES),
+                            'product_data': {
+                                'name': f'Order #{instance.pk}',
+                                'images': images
+                            },
+                        },
+                        'quantity': 1,
+                    },
+                ],
+                payment_intent_data={
+                    "capture_method": "manual",
+                    "metadata": {
+                        "pk_order": instance.pk
+                    }
+                },
+                metadata={
+                    "pk_order": instance.pk
+                },
+                customer_email=instance.email,
+                mode='payment',
+                success_url=settings.URL_CHECKOUT,
+                cancel_url=settings.URL_CHECKOUT,
+            )
+
+            return Response({"checkout_url": checkout_session.url})
+        except Exception as e:
+            return Response({"checkout_url": None})
+
     def partial_update(self, request, *args, **kwargs):
         data = request.data.copy()
         address = [{}, {}]
@@ -155,9 +216,8 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
         data["address"] = address
 
-        partial = True
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer = self.get_serializer(instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

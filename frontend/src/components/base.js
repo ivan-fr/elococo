@@ -10,7 +10,7 @@ import {
 import Catalogue from './catalogue';
 import Product from "./product";
 import Basket from "./basket";
-import Order from "./order";
+import Order, {Checkout} from "./order";
 
 function Base() {
     return <BrowserRouter>
@@ -26,6 +26,7 @@ function Base() {
                         <Route exact path="/" component={Catalogue} />
                         <Route path="/basket" component={Basket} />
                         <Route path="/order" component={Order} />
+                        <Route path="/checkout" component={Checkout} />
                         <Route path="/catalogue/:slug" component={Product} />
                         <Route path="/category/:slug" component={Catalogue} />
                     </Switch>

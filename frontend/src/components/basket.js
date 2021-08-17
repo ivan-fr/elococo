@@ -7,7 +7,6 @@ import {Loading} from "./loading";
 
 
 export function BasketRecap({order, products}) {
-    console.log(order.delivery_value)
     return <div className="table-responsive">
         <table className="table table-striped">
             <thead>
@@ -25,7 +24,7 @@ export function BasketRecap({order, products}) {
                 <tr key={i}>
                     <th scope="row">{i + 1}</th>
                     <td>
-                        <Link to={`/catalogue/${product.slug}`}>{product.name}</Link>
+                        {product.product_name}
                     </td>
                     <td>{product.price_exact_ht}€</td>
                     <td>{product.effective_reduction > 0 ?
@@ -91,7 +90,7 @@ export function BasketRecap({order, products}) {
                         <td><strong>GRATUIT</strong></td>
                     </tr>
                     <tr>
-                        <td><strong>Total (livraison)</strong></td>
+                        <td><strong>Total (TTC avec livraison)</strong></td>
                         <td colSpan="4"/>
                         <td><strong>{parseFloat(order.AMOUNT_FINAL).toFixed(2)}€</strong></td>
                     </tr>
@@ -107,7 +106,7 @@ export function BasketRecap({order, products}) {
                         }
                     </tr>
                     <tr>
-                        <td><strong>Total (livraison)</strong></td>
+                        <td><strong>Total (TTC avec livraison)</strong></td>
                         <td colSpan="4"/>
                         {order.delivery_value === null ?
                         <td><strong>à définir</strong></td>
@@ -219,6 +218,8 @@ function Basket() {
                     }
                 )
                 localStorage.setItem('order', res.data.order)
+                localStorage.removeItem('basket')
+                localStorage.removeItem('basket_len')
             } catch ({response}) {
                 if (response.status === 401) {
                     localStorage.setItem('basket_len', response.data.basket_len)
