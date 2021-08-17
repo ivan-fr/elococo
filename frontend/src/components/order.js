@@ -77,8 +77,8 @@ function OrderInformation({ordered}) {
                     France<br/>
                 </div>
             )}
-            <p>Tél: {ordered.phone}</p>
-            <p>Email: {ordered.email}</p>
+            {ordered.phone && <p><strong>Tél:</strong> {ordered.phone}</p>}
+            {ordered.email && <p><strong>Email:</strong> {ordered.email}</p>}
         </section>
     </>
 }

@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {Link} from "react-router-dom";
+import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
-import {Link} from "react-router-dom";
-import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
 
 export function BasketRecap({order, products}) {
+    console.log(order.delivery_value)
     return <div className="table-responsive">
         <table className="table table-striped">
             <thead>
@@ -80,6 +81,39 @@ export function BasketRecap({order, products}) {
                         <td><strong>TOTAL (TTC)</strong></td>
                         <td colSpan="4"/>
                         <td><strong>{parseFloat(order.price_exact_ttc_with_quantity_sum).toFixed(2)}€</strong></td>
+                    </tr>
+                </>}
+
+            {65. <= parseFloat(order.price_exact_ttc_with_quantity_sum) ? <>
+                    <tr>
+                        <td><strong>Livraison</strong></td>
+                        <td colSpan="4"/>
+                        <td><strong>GRATUIT</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total (livraison)</strong></td>
+                        <td colSpan="4"/>
+                        <td><strong>{parseFloat(order.AMOUNT_FINAL).toFixed(2)}€</strong></td>
+                    </tr>
+                </>
+                : <>
+                    <tr>
+                        <td><strong>Livraison</strong></td>
+                        <td colSpan="4"/>
+                        {order.delivery_value === null ?
+                            <td><strong>à définir</strong></td>
+                            :
+                            <td><strong>{order.delivery_value}€</strong></td>
+                        }
+                    </tr>
+                    <tr>
+                        <td><strong>Total (livraison)</strong></td>
+                        <td colSpan="4"/>
+                        {order.delivery_value === null ?
+                        <td><strong>à définir</strong></td>
+                        :
+                        <td><strong>{parseFloat(order.AMOUNT_FINAL).toFixed(2)}€</strong></td>
+                        }
                     </tr>
                 </>}
             </tbody>

@@ -74,6 +74,9 @@ class OrderedSerializer(serializers.ModelSerializer):
 
         ret["deduce_tva_promo"] = deduce_tva_promo
         ret["DELIVERY_MODE_CHOICES"] = sale_models.DELIVERY_MODE_CHOICES
+        ret["delivery_value"] = Decimal(ret["delivery_value"]) * settings.BACK_TWO_PLACES \
+            if ret["delivery_value"] else None
+        ret["AMOUNT_FINAL"] = Decimal(get_amount(instance, with_delivery=True)) * settings.BACK_TWO_PLACES
         return ret
 
     def update(self, instance, validated_data):
@@ -88,9 +91,8 @@ class OrderedSerializer(serializers.ModelSerializer):
 
         if validated_data.get('delivery_mode', None) is not None:
             amount = get_amount(instance, with_promo=False) * settings.BACK_TWO_PLACES
-            amount = amount.quantize(settings.BACK_TWO_PLACES)
-
-            if settings.DELIVERY_FREE_GT <= amount:
+            t = settings.DELIVERY_FREE_GT
+            if settings.DELIVERY_FREE_GT > amount:
                 instance.delivery_mode = validated_data['delivery_mode']
 
                 if instance.delivery_mode == sale_models.DELIVERY_SPEED:
