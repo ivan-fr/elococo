@@ -1118,6 +1118,7 @@ body .navbar > ul:last-child #navbar-basket nav.active {
 }
 body .navbar > ul:last-child > li {
   grid-column: span 2;
+  text-align: center;
 }
 @media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child > li {
