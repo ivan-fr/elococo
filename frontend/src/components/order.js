@@ -7,7 +7,7 @@ import {Link, useHistory, useLocation} from "react-router-dom";
 import {FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
 
-function OrderInformation({ordered}) {
+function OrderInformation({ordered, info = true}) {
     return <><h2>Informations à propos de cette commande</h2>
         <p>
             Cette réservation a été crée le <strong>{new Date(ordered.createdAt).toLocaleDateString('fr-fr', {
@@ -63,8 +63,10 @@ function OrderInformation({ordered}) {
                 </p>
             </>}
         </>}
-        {ordered.ordered_is_enable && <section>
+        {ordered.ordered_is_enable && info && <section>
             <h2>Mes informations...</h2>
+            {ordered.phone && <p><strong>Tél:</strong> {ordered.phone}</p>}
+            {ordered.email && <p><strong>Email:</strong> {ordered.email}</p>}
             {ordered.address.map((order_address, i) => <div key={i}>
                     {i === 0 ? <p><strong>Adresse de livraison</strong></p> :
                         <p><strong>Adresse de facturation</strong></p>}
@@ -78,8 +80,6 @@ function OrderInformation({ordered}) {
                     France<br/>
                 </div>
             )}
-            {ordered.phone && <p><strong>Tél:</strong> {ordered.phone}</p>}
-            {ordered.email && <p><strong>Email:</strong> {ordered.email}</p>}
         </section>}
     </>
 }
@@ -107,24 +107,40 @@ export function Checkout() {
         fetchData().then(() => null)
     }, [])
 
+    useEffect(() => {
+        if (query.get("success")) {
+            setTimeout(() => {
+                history.push("/checkout")
+            }, 10000)
+        }
+    }, [query, history])
+
     const checkoutSubmit = useCallback((data) => {
         const doAPost = async () => {
             const path = get_route_with_args('sale_api:ordered-payment',
                 [localStorage.getItem('order')])
             const url = get_url(path, null)
             try {
-                const res = await axios.patch(
+                const res = await axios.post(
                     url.href, {}
                 )
                 if (res.data.checkout_url) {
-                    history.push(res.data.checkout_url)
+                    window.location.assign(res.data.checkout_url)
                 }
             } catch ({response}) {
             }
         }
 
         doAPost().then(() => null)
-    }, [history])
+    }, [])
+
+    if (data === null) {
+        return <Loading/>
+    }
+
+    if (Object.keys(data).length === 0) {
+        return <p>Cette commande n'existe pas.</p>
+    }
 
     return <section className="order">
         <h2>Commande #{data.order_number}</h2>
@@ -133,7 +149,7 @@ export function Checkout() {
             <BasketRecap order={data} products={data.from_ordered}/>
         </section>
         <section>
-            <OrderInformation ordered={data}/>
+            <OrderInformation ordered={data} info={false}/>
         </section>
         <section className="order_form">
             {query.get("success") ? <>
@@ -142,12 +158,25 @@ export function Checkout() {
                 <p>
                     Patientez quelques instants..(10secs) Vous allez être redirigé.
                 </p>
-                {setTimeout(() => {
-                    history.push("/checkout")
-                }, 10000)}
             </> : <>
+                <h2>Mes informations...</h2>
+                {data.phone && <p><strong>Tél:</strong> {data.phone}</p>}
+                {data.email && <p><strong>Email:</strong> {data.email}</p>}
+                {data.address.map((order_address, i) => <div key={i}>
+                        {i === 0 ? <p><strong>Adresse de livraison</strong></p> :
+                            <p><strong>Adresse de facturation</strong></p>}
+                        <p><strong>{order_address.last_name} {order_address.first_name}</strong></p>
+                        {order_address.address}<br/>
+                        {order_address.address2 && <>
+                            {order_address.address2}<br/>
+                        </>}
+
+                        {order_address.postal_code}, {order_address.city}<br/>
+                        France<br/>
+                    </div>
+                )}
                 <h2>Formulaire de paiement</h2>
-                <FormWithContext className="form_fill_3" onSubmit={checkoutSubmit()}>
+                <FormWithContext className="form_fill_3" onSubmit={checkoutSubmit}>
                     <SubmitButton>Payer {parseFloat(data.AMOUNT_FINAL).toFixed(2)} EUR</SubmitButton>
                 </FormWithContext>
             </>}

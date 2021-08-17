@@ -140,15 +140,14 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     @action(detail=True,
             methods=['POST'],
-            url_path=r'=payment')
+            url_path=r'payment')
     def payment(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        amount = get_amount(instance, with_delivery=True)
+        images = []
 
         for ordered_product in instance.from_ordered.all():
             product = ordered_product.to_product
-            images = []
 
             try:
                 image_url = product.productimage_set.all()[0].image.url
@@ -156,7 +155,7 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             except IndexError:
                 continue
 
-            images = images[:8]
+        images = images[:8]
 
         try:
             if instance.payment_status or not instance.ordered_is_enable:
@@ -168,7 +167,8 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                     {
                         'price_data': {
                             'currency': 'eur',
-                            'unit_amount_decimal': get_amount(instance, with_delivery=True).quantize(TWO_PLACES),
+                            'unit_amount_decimal': get_amount(instance, with_delivery=True).quantize(
+                                settings.BACK_TWO_PLACES),
                             'product_data': {
                                 'name': f'Order #{instance.pk}',
                                 'images': images
@@ -188,8 +188,8 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                 },
                 customer_email=instance.email,
                 mode='payment',
-                success_url=settings.URL_CHECKOUT,
-                cancel_url=settings.URL_CHECKOUT,
+                success_url=f"{settings.URL_CHECKOUT}?success=true",
+                cancel_url=f"{settings.URL_CHECKOUT}?cancel=true",
             )
 
             return Response({"checkout_url": checkout_session.url})

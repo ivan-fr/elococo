@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import {CheckBoxField, FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
@@ -127,6 +127,7 @@ function Basket() {
     const [formUpdateBasketError, setFormUpdateBasketError] = useState(null)
     const [formPromoBasketError, setFormPromoBasketError] = useState(null)
     const [msg, setMsg] = useState("")
+    const history = useHistory()
     const [doEffect, setDoEffect] = useState(false)
 
     useEffect(() => {
@@ -220,6 +221,7 @@ function Basket() {
                 localStorage.setItem('order', res.data.order)
                 localStorage.removeItem('basket')
                 localStorage.removeItem('basket_len')
+                history.push('/order')
             } catch ({response}) {
                 if (response.status === 401) {
                     localStorage.setItem('basket_len', response.data.basket_len)
@@ -238,7 +240,7 @@ function Basket() {
         }
 
         doAPost().then(() => null)
-    }, [])
+    }, [history])
 
     const defaultValues = useMemo(() => {
         const df = {}

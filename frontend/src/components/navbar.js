@@ -62,12 +62,9 @@ function NavBar() {
             </li>
         </ul>
         <ul onMouseLeave={leave_callback}>
-            <li>
-                <Link to="/">Retrouver une commande</Link>
-            </li>
-            <li>
-                <Link to="/order">Completer ma commande</Link>
-            </li>
+            {localStorage.getItem('order') && <li>
+                <Link to="/order">Ma commande</Link>
+            </li>}
             {pathname !== "/basket" && <li id="navbar-basket">
                 <a href={"/"} onClick={(e) => e.preventDefault()}
                    onMouseEnter={basket_callback}>Panier

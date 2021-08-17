@@ -111,7 +111,7 @@ class OrderedSerializer(serializers.ModelSerializer):
                     )
 
         if validated_data.get('order_address', None) is not None:
-            if len(validated_data['order_address']) <= 2:
+            if 1 <= len(validated_data['order_address']) <= 2 and bool(validated_data['order_address'][0]):
                 address_ = list(instance.order_address.all())
 
                 if len(validated_data['order_address']) == 1 and len(address_) == 2:
@@ -129,7 +129,7 @@ class OrderedSerializer(serializers.ModelSerializer):
         return instance
 
     def validate_address(self, attrs):
-        if len(attrs) <= 2:
+        if 1 <= len(attrs) <= 2 and bool(attrs[0]):
             for address in attrs:
                 address['order'] = self.instance.pk
 

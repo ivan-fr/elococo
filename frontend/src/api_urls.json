@@ -49,7 +49,7 @@
             "decorators": ""
         },
         "sale_api:ordered-payment": {
-            "url": "/api/sale/order/<pk>/=payment/",
+            "url": "/api/sale/order/<pk>/payment/",
             "module": "sale.rest_views.SaleOrderViewSet",
             "name": "sale_api:ordered-payment",
             "decorators": ""
