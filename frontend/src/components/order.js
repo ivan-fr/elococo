@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
@@ -64,7 +64,7 @@ function OrderInformation({ordered}) {
             </>}
         </>}
         <section>
-            {ordered.order_address.map((order_address, i) => <div key={i}>
+            {ordered.address.map((order_address, i) => <div key={i}>
                     {i === 0 ? <strong>Adresse de livraison</strong> :
                         <strong>Adresse de facturation</strong>}
                     <p><strong>{order_address.last_name} {order_address.first_name}</strong></p>
@@ -86,6 +86,9 @@ function OrderInformation({ordered}) {
 
 function Order() {
     const [data, setData] = useState(null)
+    const [formError, setFormError] = useState(null)
+    const delivery_address = useRef()
+    const i = useRef(0)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -114,8 +117,9 @@ function Order() {
                 )
                 setData(res.data)
             } catch ({response}) {
-                localStorage.removeItem('promo')
-                if (response.status === 404) {
+                if (response.status === 400) {
+                    console.log(response.data)
+                    setFormError(response.data)
                 }
             }
         }
@@ -142,7 +146,7 @@ function Order() {
         </section>
         <section>
             <h2>Formulaire d'informations générales</h2>
-            <FormWithContext className={"order_data"} onSubmit={orderSubmit()}>
+            <FormWithContext className={"order_data"} onSubmit={orderSubmit} formError={formError}>
                 <div className="order_form">
                     <InputTextField name={"email"}>Email :</InputTextField>
                     <InputTextField name={"phone"}>Téléphone :</InputTextField>
@@ -156,7 +160,7 @@ function Order() {
                 </div>
                 <div className="order_form size_2">
                     <div className="form_fill_2">
-                        <section id="delivery_address" className={"expand"}>
+                        <section id="delivery_address" ref={delivery_address}>
                             <h3>Adresse de livraison :</h3>
                             <div>
                                 <InputTextField index={0} name={`address_0_first_name`}>Prénom :</InputTextField>
@@ -184,6 +188,12 @@ function Order() {
                         </section>
                         <div role="group" className="btn-group">
                             <SubmitButton>Mettre à jour</SubmitButton>
+                            <button onClick={(e) => {
+                                delivery_address.current.classList.toggle("expand")
+                                i.current = (i.current + 1) % 2;
+                                e.currentTarget.innerText = ["Facturation identique à la livraison", "Facturation diffère de la livraison"][i.current];
+                            }} type="button">Facturation identique à la livraison
+                            </button>
                         </div>
                     </div>
                 </div>

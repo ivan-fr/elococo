@@ -97,7 +97,8 @@ class ProductSerializer(serializers.ModelSerializer):
     price_base_ttc = serializers.DecimalField(7, 2)
     effective_reduction = serializers.IntegerField(min_value=0, max_value=100)
     effective_basket_quantity = serializers.IntegerField(
-        min_value=0, max_value=settings.BASKET_MAX_QUANTITY_PER_FORM
+        min_value=0,
+        max_value=settings.BASKET_MAX_QUANTITY_PER_FORM
     )
 
     class Meta:

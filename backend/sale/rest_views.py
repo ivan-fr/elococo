@@ -126,7 +126,7 @@ class SaleBasketViewSet(viewsets.GenericViewSet):
         return Response({'order': ordered.pk}, status=status.HTTP_201_CREATED)
 
 
-class SaleOrderViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = sale_models.Ordered.objects.annotate(
         **default_ordered_annotation_format()
     ).prefetch_related(
@@ -139,7 +139,7 @@ class SaleOrderViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, views
         data = request.data.copy()
         address = [{}, {}]
 
-        for key, value in data.items():
+        for key, value in request.data.items():
             regex = re.search(r'^[^_]+_([^_]+)_(.+)$', key)
 
             if regex is None:
@@ -148,9 +148,17 @@ class SaleOrderViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, views
             index = regex.group(1)
             attr = regex.group(2)
             address[int(index)].update({attr: value})
-            data.pop(key)
+            del data[key]
 
-        data["order_address"] = address
-        request.data = data
+        data["address"] = address
 
-        return super(SaleOrderViewSet, self).partial_update(request, *args, **kwargs)
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)

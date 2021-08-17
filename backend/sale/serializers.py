@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 import sale.models as sale_models
 from sale import get_amount
+from rest_framework.exceptions import ValidationError
 
 
 class PromoSerializer(serializers.ModelSerializer):
@@ -34,7 +35,7 @@ class AddressSerializer(serializers.ModelSerializer):
 class OrderedSerializer(serializers.ModelSerializer):
     from_ordered = OrderedProductSerializer(many=True)
     promo = PromoSerializer(default=None)
-    order_address = AddressSerializer(many=True, default=None)
+    address = AddressSerializer(source="order_address", many=True, default=None)
     ordered_is_enable = serializers.BooleanField()
     effective_end_time_payment = serializers.DateTimeField()
     ordered_is_ready_to_delete = serializers.BooleanField()
@@ -104,18 +105,25 @@ class OrderedSerializer(serializers.ModelSerializer):
 
         if validated_data.get('order_address', None) is not None:
             if len(validated_data['order_address']) <= 2:
-                order_address = list(instance.order_address.all())
+                address_ = list(instance.order_address.all())
+                addressSerializer = AddressSerializer(data=validated_data['order_address'], many=True)
+                addressSerializer.is_valid(raise_exception=True)
 
                 for i, address in enumerate(validated_data['order_address']):
                     try:
-                        p = {'pk': order_address[i].id}
-                    except KeyError:
-                        p = {}
+                        p = {'pk': address_[i].id}
+                    except IndexError:
+                        p = {'pk': None}
 
                     sale_models.Address.objects.update_or_create(defaults=address, **p)
 
         instance.save()
         return instance
+
+    def validate_address(self, attrs):
+        if len(attrs) <= 2:
+            addressSerializer = AddressSerializer(data=attrs, many=True)
+            addressSerializer.is_valid(raise_exception=True)
 
     class Meta:
         model = sale_models.Ordered

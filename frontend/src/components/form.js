@@ -21,10 +21,23 @@ export function ErrorNonFieldError() {
 export function FieldError({name, index = null}) {
     const context = useContext(formContext)
 
-    if (index) {
-        const match = name.match(new RegExp('^[^_]+_[^_]+_(.+)$'))[1]
-        return <>{context.formError && context.formError[index] && context.formError[index][match] && <ul>
-            {context.formError[index][match].map((textError, i) => <li key={i}>{textError}</li>)}
+    if (index !== null) {
+        const match = name.match(new RegExp('^([^_]+)_[^_]+_(.+)$'))
+
+        let list;
+        if (context.many) {
+            list = context.formError
+                && context.formError[match[2]]
+                && context.formError[index][match[2]]
+        } else {
+            list = context.formError
+                && context.formError[match[1]]
+                && context.formError[match[1]][index]
+                && context.formError[match[1]][index][match[2]]
+        }
+
+        return <>{list && <ul>
+            {list.map((textError, i) => <li key={i}>{textError}</li>)}
         </ul>}</>
     }
 
@@ -58,7 +71,7 @@ export function FormWithContext({id, className, defaultValue, onSubmit, formErro
 
     return <formContext.Provider value={valueProvider}>
         <form id={id} className={className} onSubmit={handleSubmit} method='POST'>
-            <ErrorNonFieldError many={many}/>
+            <ErrorNonFieldError/>
             {children}
         </form>
     </formContext.Provider>
