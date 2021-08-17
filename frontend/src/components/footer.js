@@ -19,7 +19,7 @@ function Footer() {
         <section>
             <h3>Nos engagements</h3>
             <ul>
-                <li>Livraison offerte dès €</li>
+                <li>Livraison offerte dès 65.00 €</li>
                 <li>Paiement 100% sécurisé</li>
                 <li>Articles en stock</li>
             </ul>
