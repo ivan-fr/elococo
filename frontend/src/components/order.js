@@ -107,18 +107,28 @@ function Order() {
     }, [])
 
     const orderSubmit = useCallback((data) => {
+        const data_copy = {...data}
+        if (i.current === 1) {
+
+            for (const name in data) {
+                if (name.match(new RegExp('^([^_]+)_1_(.+)$'))) {
+                    delete data_copy[name]
+                }
+            }
+        }
+
         const doAPost = async () => {
             const path = get_route_with_args('sale_api:ordered-detail',
                 [localStorage.getItem('order')])
             const url = get_url(path, null)
             try {
                 const res = await axios.patch(
-                    url.href, data
+                    url.href, data_copy
                 )
                 setData(res.data)
+                setFormError(null)
             } catch ({response}) {
                 if (response.status === 400) {
-                    console.log(response.data)
                     setFormError(response.data)
                 }
             }
@@ -164,7 +174,8 @@ function Order() {
         </section>
         <section>
             <h2>Formulaire d'informations générales</h2>
-            <FormWithContext className={"order_data"} defaultValue={defaultValues} onSubmit={orderSubmit} formError={formError}>
+            <FormWithContext className={"order_data"} defaultValue={defaultValues} onSubmit={orderSubmit}
+                             formError={formError}>
                 <div className="order_form">
                     <InputTextField name={"email"}>Email :</InputTextField>
                     <InputTextField name={"phone"}>Téléphone :</InputTextField>

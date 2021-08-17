@@ -1,4 +1,3 @@
-import copy
 from decimal import Decimal
 
 from django.conf import settings
@@ -107,6 +106,9 @@ class OrderedSerializer(serializers.ModelSerializer):
             if len(validated_data['order_address']) <= 2:
                 address_ = list(instance.order_address.all())
 
+                if len(validated_data['order_address']) == 1 and len(address_) == 2:
+                    address_[1].delete()
+
                 for i, address in enumerate(validated_data['order_address']):
                     try:
                         p = {'pk': address_[i].id}
@@ -119,8 +121,6 @@ class OrderedSerializer(serializers.ModelSerializer):
         return instance
 
     def validate_address(self, attrs):
-        attrs_copy = copy.deepcopy(attrs)
-
         if len(attrs) <= 2:
             for address in attrs:
                 address['order'] = self.instance.pk
@@ -128,7 +128,10 @@ class OrderedSerializer(serializers.ModelSerializer):
             addressSerializer = AddressSerializer(data=attrs, many=True)
             addressSerializer.is_valid(raise_exception=True)
 
-        return attrs_copy
+            for address in attrs:
+                address['order'] = self.instance
+
+        return attrs
 
     class Meta:
         model = sale_models.Ordered
