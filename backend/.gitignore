@@ -1,7 +1,7 @@
 *.db
 ../.vscode/
 .idea/
-elococo/
+elococo/secrets.json
 migrations/
 uploads/
 # Byte-compiled / optimized / DLL files

@@ -25,7 +25,7 @@ except FileNotFoundError:
     secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json.example'))
 
 DEBUG = False
-USE_SQLITE = False
+USE_SQLITE = True
 
 if not DEBUG:
     import sentry_sdk
