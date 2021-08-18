@@ -37,7 +37,7 @@ def get_ordered_queryset():
 
 
 def setUpTestData(cls):
-    for i in range(1, random.randint(2, 30)):
+    for i in range(30):
         cls.setup_products.append(
             Product.objects.create(
                 name=i,
@@ -50,9 +50,16 @@ def setUpTestData(cls):
         )
 
 
-def setUp(self):
-    for i, product in enumerate(self.setup_products, start=1):
-        if i > settings.MAX_BASKET_PRODUCT:
+def setUp(self, second_part=False):
+    i = 0
+
+    if second_part:
+        p = self.setup_products[16:]
+    else:
+        p = self.setup_products[:16]
+
+    for product in p:
+        if i >= settings.MAX_BASKET_PRODUCT:
             break
 
         response = self.client.post(
@@ -63,6 +70,7 @@ def setUp(self):
         )
 
         self.assertEqual(response.status_code, 302)
+        i += 1
 
 
 def booking_basket(self):
@@ -300,11 +308,11 @@ class LiveSaleTests(LiveServerTestCase):
         self.setup_products = []
         setUpTestData(self)
         self.assertGreater(len(self.setup_products), 0)
-        setUp(self)
 
         return setup
 
     def test_post_ordered_detail_success(self):
+        setUp(self)
         booking_basket(self)
         choose_delivery(self, False)
         fill(self, False)
@@ -326,6 +334,7 @@ class LiveSaleTests(LiveServerTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_post_ordered_detail_fail(self):
+        setUp(self, second_part=True)
         booking_basket(self)
         choose_delivery(self, False)
         fill(self, False)
@@ -336,9 +345,12 @@ class LiveSaleTests(LiveServerTestCase):
         ordered.payment_status = True
         ordered.save()
 
-        for product in Product.objects.all():
+        products = set()
+        for ordered_product in ordered.from_ordered.all():
+            product = ordered_product.to_product
             product.stock = 0
-            product.save()
+            products.add(product)
+        Product.objects.bulk_update(list(products), ("stock",))
 
         run_stripe_triggers(self, ordered)
 
