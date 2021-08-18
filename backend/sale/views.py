@@ -108,14 +108,15 @@ def capture_order(session):
         ).prefetch_related(
             "from_ordered", "from_ordered__to_product"
         ).get()
+
+        if order.payment_status:
+            raise ValueError()
     except Ordered.DoesNotExist:
-        cancel = True
-        order = None
+        return HttpResponse(status=403)
+    except ValueError:
+        return HttpResponse(status=200)
 
     try:
-        if order is None:
-            raise ValueError()
-
         products = set()
 
         for ordered_product in order.from_ordered.all():
