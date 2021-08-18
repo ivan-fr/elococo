@@ -241,10 +241,12 @@ def run_stripe_triggers(self, ordered):
     self.assertIsNotNone(stripe_private_key)
 
     process = subprocess.Popen(
-        [settings.BASE_DIR / 'stripe', 'listen', '--api-key', stripe_private_key, '--forward-to', '%s%s' % (
-            self.live_server_url,
-            reverse("sale:webhook")
-        )],
+        [settings.BASE_DIR / 'stripe', 'listen', '--api-key', stripe_private_key,
+         '--events', 'payment_intent.amount_capturable_updated,charge.captured,payment_intent.canceled', '--forward-to',
+         '%s%s' % (
+             self.live_server_url,
+             reverse("sale:webhook")
+         )],
         stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
     q1 = Queue()
@@ -264,7 +266,7 @@ def run_stripe_triggers(self, ordered):
             continue
 
         if line.startswith("Ready"):
-            settings.STRIPE_WEBHOOK = re.search(
+            os.environ['STRIPE_WEBHOOK_TEST'] = re.search(
                 r'^.*(whsec_[\w]+).*$', line).group(1)
             break
 
@@ -320,6 +322,10 @@ class LiveSaleTests(LiveServerTestCase):
 
         ordered_queryset = get_ordered_queryset()
         ordered = ordered_queryset.order_by("createdAt").last()
+
+        for ordered_product in ordered.from_ordered.all():
+            product = ordered_product.to_product
+            self.assertGreater(product.stock, ordered_product.quantity)
 
         run_stripe_triggers(self, ordered)
 

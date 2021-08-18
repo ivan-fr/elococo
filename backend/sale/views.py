@@ -1,3 +1,4 @@
+import os
 import secrets
 import string
 import uuid
@@ -20,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import UpdateView, BaseFormView, FormMixin, View
+from stripe.error import InvalidRequestError
 
 from catalogue.bdd_calculations import (
     price_annotation_format, total_price_from_all_product, stock_sold, post_price_annotation_format
@@ -45,9 +47,14 @@ def webhook_view(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
 
+    if os.getenv('STRIPE_WEBHOOK_TEST') is not None:
+        webhook = os.getenv('STRIPE_WEBHOOK_TEST')
+    else:
+        webhook = settings.STRIPE_WEBHOOK
+
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK
+            payload, sig_header, webhook
         )
     except stripe.error.SignatureVerificationError as e:
         return HttpResponse(status=400)
@@ -62,7 +69,7 @@ def webhook_view(request):
         session = event['data']['object']
         return cancel_order(session)
 
-    return HttpResponse(status=200)
+    return HttpResponse(status=404)
 
 
 def cancel_order(session):
@@ -92,6 +99,8 @@ def capture_order(session):
         ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
     except ValueError:
         ordered_uuid = None
+    except KeyError:
+        ordered_uuid = None
 
     try:
         order = Ordered.objects.filter(
@@ -99,31 +108,40 @@ def capture_order(session):
         ).prefetch_related(
             "from_ordered", "from_ordered__to_product"
         ).get()
+    except Ordered.DoesNotExist:
+        cancel = True
+        order = None
+
+    try:
+        if order is None:
+            raise ValueError()
+
+        products = set()
+
+        for ordered_product in order.from_ordered.all():
+            product = ordered_product.to_product
+            product.stock -= ordered_product.quantity
+            if product.stock < 0:
+                raise ValueError()
+            products.add(product)
 
         try:
-            products = set()
-            for ordered_product in order.from_ordered.all():
-                product = ordered_product.to_product
-                product.stock -= ordered_product.quantity
-                if product.stock < 0:
-                    raise ValueError()
-                products.add(product)
-            try:
-                with transaction.atomic():
-                    Product.objects.bulk_update(list(products), ("stock",))
-                    order.payment_status = True
-                    order.invoice_date = now()
-                    order.save()
-            except IntegrityError:
-                cancel = True
-        except ValueError:
+            with transaction.atomic():
+                Product.objects.bulk_update(list(products), ("stock",))
+                order.payment_status = True
+                order.invoice_date = now()
+                order.save()
+        except IntegrityError:
             cancel = True
-    except Ordered.DoesNotExist:
+    except ValueError:
         cancel = True
 
     if cancel:
-        stripe.PaymentIntent.cancel(session["id"])
-        return HttpResponse(status=400)
+        try:
+            stripe.PaymentIntent.cancel(session["id"])
+        except InvalidRequestError:
+            pass
+        return HttpResponse(status=403)
 
     stripe.PaymentIntent.capture(session["id"])
     return HttpResponse(status=200)
