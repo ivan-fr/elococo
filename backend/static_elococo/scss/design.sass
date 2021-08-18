@@ -242,6 +242,9 @@ body
 
               li
                 width: 100%
+                
+                @media #{$small-down}
+                  @include span(3)
 
                 a
                   @include py-(2)
@@ -627,7 +630,10 @@ body
             height: 0.5em
             background: #4c4c4c
             width: 25px
-            margin-right: 85px
+            margin-right: 150px
+
+            @media #{$x-large-down}
+              margin-right: 85px
 
       & > li.is-active > a
         background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
@@ -683,6 +689,7 @@ body
 
           @media #{$x-large-down}
             @include span(6)
+            text-align: unset
 
           & > a
             color: black

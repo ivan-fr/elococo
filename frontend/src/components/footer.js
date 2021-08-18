@@ -26,7 +26,7 @@ function Footer() {
         </section>
         <section>
             <h3>À Propos</h3>
-            <p>Développé par BESEVIC Ivan.</p>
+            <p>Développé par <a target="_blank" rel="noreferrer" href="https://elococo-classics.herokuapp.com/ivan/cv">BESEVIC Ivan</a>.</p>
             <p> Tous droits réservés. {new Date().getFullYear()}.</p>
             <p>Ceci est un site de démonstration.</p>
             <figure>

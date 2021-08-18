@@ -74,16 +74,23 @@ def product_pre_delete(**kwargs):
     name = 'product-{0}'.format(slugify(kwargs.get('instance').name))
     path = settings.MEDIA_ROOT / name
     if os.path.exists(path):
-        shutil.rmtree(path)
+        try:
+            shutil.rmtree(path)
+        except Exception:
+            pass
 
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to=product_image_path)
+    url_host = models.URLField(null=True, blank=True)
 
 
 @receiver(pre_delete, sender=ProductImage)
 def product_pre_delete(**kwargs):
+    if kwargs.get('instance').url_host is not None:
+        return
+
     image = kwargs.get('instance').image
     path = settings.MEDIA_ROOT / image.name
     if os.path.exists(path):

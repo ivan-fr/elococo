@@ -345,8 +345,11 @@ class OrderedDetail(FormMixin, DetailView):
             product = ordered_product.to_product
 
             try:
-                image_url = product.productimage_set.all()[0].image.url
-                images.append(self.request.build_absolute_uri(image_url))
+                if product.productimage_set.all()[0].url_host is not None:
+                    images.append(product.productimage_set.all()[0].url_host)
+                else:
+                    image_url = product.productimage_set.all()[0].image.url
+                    images.append(self.request.build_absolute_uri(image_url))
             except IndexError:
                 continue
 

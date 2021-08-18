@@ -3,7 +3,7 @@ import {get_route_with_args, get_url} from "../utils/url";
 import axios from "axios";
 import {Loading} from "./loading";
 import {BasketRecap} from "./basket";
-import {Link, useHistory, useLocation} from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 import {FormWithContext, InputTextField, SelectField, SubmitButton} from "./form";
 
 
@@ -22,8 +22,9 @@ function OrderInformation({ordered, info = true}) {
                 </strong>
             </p>
             <p>
-                Vous pouvez retrouver un <strong>duplicata de votre facture <Link
-                to="/">ICI</Link></strong>.
+                Vous pouvez retrouver un <strong>duplicata de votre facture <a 
+                href={`https://elococo-classics.herokuapp.com/orders/invoice/${ordered.order_number}/${ordered.secrets}`}
+                     target="_blank" rel="noreferrer">ICI</a></strong>.
             </p>
         </> : <><p>
             Notre site e-commerce prend en considération un stock disponible.<br/>
@@ -175,10 +176,12 @@ export function Checkout() {
                         France<br/>
                     </div>
                 )}
+                {!data.payment_status && <>
                 <h2>Formulaire de paiement</h2>
                 <FormWithContext className="form_fill_3" onSubmit={checkoutSubmit}>
                     <SubmitButton>Payer {parseFloat(data.AMOUNT_FINAL).toFixed(2)} EUR</SubmitButton>
                 </FormWithContext>
+                </>}
             </>}
         </section>
     </section>

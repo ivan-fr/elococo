@@ -114,18 +114,20 @@
 
         function callback_onload_products_filter(event, url) {
             boutique.innerHTML = '<div class="spinner-border" role="status"></div>'
-            return setTimeout(function () {
-                document.getElementById("current_url_products").setAttribute("data-url", url);
-                if (event !== null) {
-                    event.target.addEventListener("click", get_products_filter);
-                    let ul_filters = event.target.parentElement.parentElement;
-                    ul_filters.querySelector("li.is-active").classList.remove("is-active");
-                    event.target.parentElement.classList.add("is-active");
-                }
-                let products = httpRequest_filter.response;
-                boutique.innerHTML = products.html;
-                filter_request = false;
-            }, 500)
+            return () => {
+                setTimeout(function () {
+                    document.getElementById("current_url_products").setAttribute("data-url", url);
+                    if (event !== null) {
+                        event.target.addEventListener("click", get_products_filter);
+                        let ul_filters = event.target.parentElement.parentElement;
+                        ul_filters.querySelector("li.is-active").classList.remove("is-active");
+                        event.target.parentElement.classList.add("is-active");
+                    }
+                    let products = httpRequest_filter.response;
+                    boutique.innerHTML = products.html;
+                    filter_request = false;
+                }, 500)
+            }
         }
 
         function get_products_filter(event) {

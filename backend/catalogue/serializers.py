@@ -80,9 +80,19 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        ret = super(ProductImageSerializer, self).to_representation(instance)
+
+        if ret.get("url_host", None) is not None:
+            ret['image'] = ret["url_host"]
+
+        return ret
+
+    
     class Meta:
         model = catalogue_models.ProductImage
-        fields = ['image']
+        fields = ['image', 'url_host']
 
 
 class ProductSerializer(serializers.ModelSerializer):

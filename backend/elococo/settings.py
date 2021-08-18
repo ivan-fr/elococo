@@ -24,7 +24,8 @@ try:
 except FileNotFoundError:
     secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json.example'))
 
-DEBUG = True
+DEBUG = False
+USE_SQLITE = False
 
 if not DEBUG:
     import sentry_sdk
@@ -79,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'sale.middlewares.BookingMiddleware'
 ]
 
@@ -95,7 +97,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'elococo.template_base_processor.template_base_processor'
+                'elococo.template_base_processor.template_base_processor',
             ],
         },
     },
@@ -108,7 +110,7 @@ WSGI_APPLICATION = 'elococo.wsgi.application'
 
 DATABASES = {}
 
-if DEBUG:
+if USE_SQLITE:
     DATABASES.update({'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         # This is where you put the name of the db file.
@@ -203,7 +205,7 @@ if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOWED_ORIGINS = [
-        'http://0.0.0.0:3000',
+        'https://elococo-react.herokuapp.com',
         'http://3.18.12.63',
         'http://3.130.192.231',
         'http://13.235.14.237',
@@ -256,4 +258,4 @@ DELIVERY_ORDINARY = Decimal(5.99)
 DELIVERY_SPEED = Decimal(7.99)
 DELIVERY_FREE_GT = Decimal(65.)
 
-URL_CHECKOUT = "http://localhost:3000/checkout"
+URL_CHECKOUT = "https://elococo-react.herokuapp.com/checkout"

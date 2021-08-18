@@ -15,8 +15,13 @@
         <div class="images">
             {% for product_image in images %}
                 <figure class="hover_figure">
-                    <img src="{{ product_image.image.url }}"
-                         alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                    {% if product_image.url_host is not None %}
+                        <img src="{{ product_image.url_host }}"
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>      
+                    {% else %}
+                        <img src="{{ product_image.image.url }}"
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>                                        
+                    {% endif %}
                     <figcaption>
                         Image du produit n°{{ forloop.counter }}
                     </figcaption>

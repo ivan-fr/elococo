@@ -55,7 +55,7 @@ export function BasketRecap({order, products}) {
                     <tr>
                         <td><strong>Nouveau Total (HT)</strong></td>
                         <td colSpan="4"/>
-                        <td>{parseFloat(order.price_exact_ht_with_quantity_promo_sum).toFixed(2)}€</td>
+                        <td>{parseFloat(order.price_exact_ht_with_quantity_sum_promo).toFixed(2)}€</td>
                     </tr>
                     <tr>
                         <td><strong>TVA 20.00%</strong></td>
@@ -66,7 +66,7 @@ export function BasketRecap({order, products}) {
                         <td><strong>Total (TTC)</strong></td>
                         <td colSpan="4"/>
                         <td>
-                            <strong>{parseFloat(order.price_exact_ttc_with_quantity_promo_sum).toFixed(2)}€</strong>
+                            <strong>{parseFloat(order.price_exact_ttc_with_quantity_sum_promo).toFixed(2)}€</strong>
                         </td>
                     </tr>
                 </>
@@ -215,11 +215,12 @@ function Basket() {
                 const res = await axios.post(
                     url.href, {
                         'basket': localStorage.getItem('basket'),
-                        'promo': data.promo
+                        'promo': localStorage.getItem('promo')
                     }
                 )
                 localStorage.setItem('order', res.data.order)
                 localStorage.removeItem('basket')
+                localStorage.removeItem('promo')
                 localStorage.removeItem('basket_len')
                 history.push('/order')
             } catch ({response}) {

@@ -6,8 +6,13 @@
 
                 <figure class="hover_figure">
                     <a href="{% url 'catalogue_product_detail' product.slug %}">
+                    {% if product_image.url_host is not None %}
+                        <img src="{{ product_image.url_host }}"
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>      
+                    {% else %}
                         <img src="{{ product_image.image.url }}"
-                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>                                        
+                    {% endif %}
 
                     {% if product.effective_reduction > 0 %}
                         <div class="info_reduction">

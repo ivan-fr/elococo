@@ -50,14 +50,16 @@
     function callback_onload_surface_basket(event) {
         navbar_basket.appendChild(sub_nav);
         sub_nav.innerHTML = '<div><div class="spinner-border" role="status"></div></div>'
-        return setTimeout(function () {
-            if (event !== null) {
-                event.target.parentElement.classList.add("is-active");
-            }
-            let basket_surface = httpRequest_basket_surface.response;
-            sub_nav.innerHTML = basket_surface.html;
-            filter_request = false;
-        }, 500)
+        return () => {
+            setTimeout(function () {
+                if (event !== null) {
+                    event.target.parentElement.classList.add("is-active");
+                }
+                let basket_surface = httpRequest_basket_surface.response;
+                sub_nav.innerHTML = basket_surface.html;
+                filter_request = false;
+            }, 500)
+        }
     }
 
     function get_surface_basket(event) {

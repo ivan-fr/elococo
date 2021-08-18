@@ -47,8 +47,10 @@ class SaleBasketViewSet(viewsets.GenericViewSet):
         if not bool(basket):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        products_queryset = self.filter_queryset(self.get_basket_queryset(basket))
-        products, _, _, basket_update = product_to_exclude_(products_queryset, basket)
+        products_queryset = self.filter_queryset(
+            self.get_basket_queryset(basket))
+        products, _, _, basket_update = product_to_exclude_(
+            products_queryset, basket)
         promo_db = get_promo(basket, promo)
 
         if basket_update:
@@ -62,9 +64,9 @@ class SaleBasketViewSet(viewsets.GenericViewSet):
         try:
             with transaction.atomic():
                 dict_ = {}
-                if promo is not None:
+                if promo_db is not None:
                     dict_.update({
-                        "promo": promo, "promo_value": promo.value, "promo_type": promo.type,
+                        "promo": promo_db, "promo_value": promo_db.value, "promo_type": promo_db.type,
                         "price_exact_ttc_with_quantity_sum_promo": int(
                             aggregate["price_exact_ttc_with_quantity_promo__sum"] *
                             Decimal(100.)
@@ -123,7 +125,7 @@ class SaleBasketViewSet(viewsets.GenericViewSet):
             sale_models.OrderedProduct.objects.bulk_create(ordered_product)
         except ValueError:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        except IntegrityError():
+        except IntegrityError:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         return Response({'order': ordered.pk}, status=status.HTTP_201_CREATED)
@@ -150,8 +152,11 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             product = ordered_product.to_product
 
             try:
-                image_url = product.productimage_set.all()[0].image.url
-                images.append(self.request.build_absolute_uri(image_url))
+                if product.productimage_set.all()[0].url_host is not None:
+                    images.append(product.productimage_set.all()[0].url_host)
+                else:
+                    image_url = product.productimage_set.all()[0].image.url
+                    images.append(request.build_absolute_uri(image_url))
             except IndexError:
                 continue
 

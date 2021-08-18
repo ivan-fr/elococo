@@ -601,6 +601,11 @@ body main.gridded > .main > .catalog > div.filters > nav.order_filters ul {
 body main.gridded > .main > .catalog > div.filters > nav.order_filters ul li {
   width: 100%;
 }
+@media only screen and (max-width: 576px) {
+  body main.gridded > .main > .catalog > div.filters > nav.order_filters ul li {
+    grid-column: span 3;
+  }
+}
 body main.gridded > .main > .catalog > div.filters > nav.order_filters ul li a {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
@@ -1056,7 +1061,12 @@ body .navbar > ul #navbar-basket nav::before {
   height: 0.5em;
   background: #4c4c4c;
   width: 25px;
-  margin-right: 85px;
+  margin-right: 150px;
+}
+@media only screen and (max-width: 1200px) {
+  body .navbar > ul #navbar-basket nav::before {
+    margin-right: 85px;
+  }
 }
 body .navbar > ul > li.is-active > a {
   background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
@@ -1123,6 +1133,7 @@ body .navbar > ul:last-child > li {
 @media only screen and (max-width: 1200px) {
   body .navbar > ul:last-child > li {
     grid-column: span 6;
+    text-align: unset;
   }
 }
 body .navbar > ul:last-child > li > a {
