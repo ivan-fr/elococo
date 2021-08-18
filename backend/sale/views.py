@@ -83,7 +83,7 @@ def cancel_order(session):
             pk=ordered_uuid,
         ).prefetch_related("order_address").get()
     except Ordered.DoesNotExist:
-        return HttpResponse(status=400)
+        return HttpResponse(status=403)
 
     with transaction.atomic():
         order.payment_status = False
@@ -159,7 +159,7 @@ def fulfill_order(request, session):
             pk=ordered_uuid,
         ).prefetch_related("order_address").get()
     except Ordered.DoesNotExist:
-        return HttpResponse(status=400)
+        return HttpResponse(status=403)
 
     context_dict = {
         "ordered": order,
