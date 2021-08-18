@@ -348,8 +348,6 @@ class LiveSaleTests(LiveServerTestCase):
 
         ordered_queryset = get_ordered_queryset()
         ordered = ordered_queryset.order_by("createdAt").last()
-        ordered.payment_status = True
-        ordered.save()
 
         products = set()
         for ordered_product in ordered.from_ordered.all():

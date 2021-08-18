@@ -77,17 +77,17 @@ def cancel_order(session):
         ordered_uuid = uuid.UUID(session["metadata"]["pk_order"])
     except ValueError:
         ordered_uuid = None
-
     try:
         order = Ordered.objects.filter(
             pk=ordered_uuid,
         ).prefetch_related("order_address").get()
+
+        if order.payment_status:
+            raise ValueError()
     except Ordered.DoesNotExist:
         return HttpResponse(status=403)
-
-    with transaction.atomic():
-        order.payment_status = False
-        order.save()
+    except ValueError:
+        return HttpResponse(status=403)
 
     return HttpResponse(status=200)
 
@@ -114,7 +114,7 @@ def capture_order(session):
     except Ordered.DoesNotExist:
         return HttpResponse(status=403)
     except ValueError:
-        return HttpResponse(status=200)
+        return HttpResponse(status=403)
 
     try:
         products = set()
@@ -142,7 +142,7 @@ def capture_order(session):
             stripe.PaymentIntent.cancel(session["id"])
         except InvalidRequestError:
             pass
-        return HttpResponse(status=403)
+        return HttpResponse(status=400)
 
     stripe.PaymentIntent.capture(session["id"])
     return HttpResponse(status=200)
@@ -158,7 +158,12 @@ def fulfill_order(request, session):
         order = Ordered.objects.filter(
             pk=ordered_uuid,
         ).prefetch_related("order_address").get()
+
+        if not order.payment_status:
+            raise ValueError()
     except Ordered.DoesNotExist:
+        return HttpResponse(status=403)
+    except ValueError:
         return HttpResponse(status=403)
 
     context_dict = {
