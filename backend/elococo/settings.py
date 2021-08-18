@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import stripe
-import psycopg2
 import json
 from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
 from pathlib import Path
+
+import psycopg2
+import stripe
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,8 +25,9 @@ try:
 except FileNotFoundError:
     secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json.example'))
 
-DEBUG = False
+DEBUG = True
 USE_SQLITE = True
+WhiteNoise = False
 
 if not DEBUG:
     import sentry_sdk
@@ -44,7 +46,6 @@ if not DEBUG:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -80,9 +81,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'sale.middlewares.BookingMiddleware'
 ]
+
+if WhiteNoise:
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'elococo.urls'
 
@@ -128,7 +131,7 @@ else:
     },
         'OPTIONS': {
             'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
-    }
+        }
     })
 
 # Password validation
