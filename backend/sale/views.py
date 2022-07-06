@@ -41,6 +41,10 @@ PAYMENT_ERROR_ORDER_NOT_ENABLED = 1
 TWO_PLACES = Decimal(10) ** -2
 
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 @require_POST
 @csrf_exempt
 def webhook_view(request):
@@ -746,7 +750,7 @@ class BookingBasketView(BaseFormView):
         })
 
     def get(self, request, *args, **kwargs):
-        if not self.request.is_ajax():
+        if not is_ajax(self.request):
             raise Http404()
 
         return JsonResponse({

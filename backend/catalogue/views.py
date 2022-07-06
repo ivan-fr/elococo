@@ -20,6 +20,10 @@ from elococo.generic import FormSetMixin
 from sale.bdd_calculations import get_promo
 
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 def update_basket_session(session, form, set_quantity=False):
     product = getattr(form, settings.PRODUCT_INSTANCE_KEY)
 
@@ -305,7 +309,7 @@ class IndexView(ListView):
         )
         category_slug = self.kwargs.get('slug_category', None)
 
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             if category_slug is not None:
                 selected_category = Category.objects.filter(slug=category_slug).get()
                 self.extra_context.update(

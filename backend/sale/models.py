@@ -7,7 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator, MinLeng
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from catalogue.models import Product
 from elococo.settings import BACK_TWO_PLACES
