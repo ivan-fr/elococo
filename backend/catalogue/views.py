@@ -74,7 +74,7 @@ class PromoBasketView(FormView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
-        if not request.is_ajax():
+        if not is_ajax(request):
             return HttpResponseForbidden()
         return super(PromoBasketView, self).post(request, *args, **kwargs)
 
@@ -389,7 +389,7 @@ class IndexView(ListView):
                 })
         context = self.get_context_data()
 
-        if request.is_ajax():
+        if is_ajax(request):
             return JsonResponse({"html": render_to_string("catalogue/products_list.html", context, request)})
 
         return self.render_to_response(context)
