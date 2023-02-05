@@ -23,7 +23,7 @@ function OrderInformation({ordered, info = true}) {
             </p>
             <p>
                 Vous pouvez retrouver un <strong>duplicata de votre facture <a 
-                href={`https://elococo-classics.herokuapp.com/orders/invoice/${ordered.order_number}/${ordered.secrets}`}
+                href={`http://127.0.0.1:8000/orders/invoice/${ordered.order_number}/${ordered.secrets}`}
                      target="_blank" rel="noreferrer">ICI</a></strong>.
             </p>
         </> : <><p>
