@@ -199,6 +199,7 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
             return Response({"checkout_url": checkout_session.url})
         except Exception as e:
+            print(e)
             return Response({"checkout_url": None})
 
     def partial_update(self, request, *args, **kwargs):
