@@ -164,7 +164,7 @@ class SaleOrderViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
         try:
             if instance.payment_status or not instance.ordered_is_enable:
-                raise Exception()
+                raise Exception("order already payed or the order is now disabled")
 
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
