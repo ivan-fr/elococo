@@ -14,7 +14,6 @@ from decimal import Decimal
 # SECURITY WARNING: don't run with debug turned on in production!
 from pathlib import Path
 
-import psycopg2
 import stripe
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -122,17 +121,13 @@ if USE_SQLITE:
     }})
 else:
     DATABASES.update({'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': secrets["db"]["name"],
         'USER': secrets["db"]["user"],
         'PASSWORD': secrets["db"]["pwd"],
         'HOST': secrets["db"]["host"],
         'PORT': secrets["db"]["port"],
-    },
-        'OPTIONS': {
-            'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
-        }
-    })
+    }})
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
