@@ -1,0 +1,61 @@
+{
+    "route": {
+        "catalogue_api:product-list": {
+            "url": "/api/catalogue/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-list",
+            "decorators": ""
+        },
+        "catalogue_api:product-basket-promo": {
+            "url": "/api/catalogue/basket/surface/promo/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-promo",
+            "decorators": ""
+        },
+        "catalogue_api:product-basket-surface": {
+            "url": "/api/catalogue/basket/surface/<basket>/<promo>/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-surface",
+            "decorators": ""
+        },
+        "catalogue_api:product-basket-update": {
+            "url": "/api/catalogue/basket/surface/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-basket-update",
+            "decorators": ""
+        },
+        "catalogue_api:product-list-category": {
+            "url": "/api/catalogue/categories/<slug_category>/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-list-category",
+            "decorators": ""
+        },
+        "catalogue_api:product-detail": {
+            "url": "/api/catalogue/<pk>/",
+            "module": "catalogue.rest_views.CatalogueViewSet",
+            "name": "catalogue_api:product-detail",
+            "decorators": ""
+        },
+        "sale_api:product-list": {
+            "url": "/api/sale/basket/",
+            "module": "sale.rest_views.SaleBasketViewSet",
+            "name": "sale_api:product-list",
+            "decorators": ""
+        },
+        "sale_api:ordered-detail": {
+            "url": "/api/sale/order/<pk>/",
+            "module": "sale.rest_views.SaleOrderViewSet",
+            "name": "sale_api:ordered-detail",
+            "decorators": ""
+        },
+        "sale_api:ordered-payment": {
+            "url": "/api/sale/order/<pk>/payment/",
+            "module": "sale.rest_views.SaleOrderViewSet",
+            "name": "sale_api:ordered-payment",
+            "decorators": ""
+        }
+    },
+    "origin": [
+        "http://127.0.0.1:8000"
+    ]
+}
