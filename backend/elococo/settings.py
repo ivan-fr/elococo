@@ -24,7 +24,7 @@ try:
 except FileNotFoundError:
     secrets = json.load(open(BASE_DIR / 'elococo' / 'secrets.json.example'))
 
-DEBUG = False
+DEBUG = True
 USE_SQLITE = True
 WhiteNoise = False
 
