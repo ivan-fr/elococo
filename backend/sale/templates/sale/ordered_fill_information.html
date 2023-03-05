@@ -13,7 +13,7 @@
         {% if ordered.ordered_is_enable %}
             <section class="order_form">
                 <h2>Formulaire d'informations générales</h2>
-                <form action="{% url 'sale:fill' ordered.pk %}" method="post" class="form_fill_1">
+                <form action="{% url 'sale:fill' ordered.pk %}" method="post" novalidate="novalidate" class="form_fill_1">
                     {% csrf_token %}
                     <div>
                         {{ form.email.errors }}
