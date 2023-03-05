@@ -105,7 +105,7 @@ class AddressForm(forms.ModelForm):
 
     class Meta:
         model = Address
-        exclude = ("id",)
+        fields = ("first_name",)
 
 
 class OrderedForm(forms.Form):

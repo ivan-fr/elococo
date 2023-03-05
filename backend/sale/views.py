@@ -310,10 +310,7 @@ class OrderedDetail(FormMixin, DetailView):
     form_class = CheckoutForm
 
     def get_object(self, queryset=None):
-        obj = get_object(self, queryset)
-        if obj.order_address.first().last_name is None:
-            raise Http404()
-        return obj
+        return get_object(self, queryset)
 
     def get(self, request, *args, **kwargs):
         if request.session.get(settings.BOOKING_SESSION_KEY, None) is None:
@@ -441,8 +438,8 @@ class FillAddressInformationOrdered(ModelFormSetView):
     )
     factory_kwargs = {
         'extra': 1,
-        'absolute_max': 1,
-        'max_num': 1, 'validate_max': True,
+        'absolute_max': 2,
+        'max_num': 2, 'validate_max': True,
         'min_num': 1, 'validate_min': True,
         'can_order': False,
         'can_delete': False
