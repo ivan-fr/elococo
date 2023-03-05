@@ -614,7 +614,7 @@ class BookingBasketView(BaseFormView):
         amount = get_amount(self.ordered, with_promo=False) * BACK_TWO_PLACES
         amount = amount.quantize(TWO_PLACES)
 
-        if settings.DELIVERY_FREE_GT < amount:
+        if settings.DELIVERY_FREE_GT <= amount:
             return reverse("sale:fill", kwargs={"pk": self.ordered.pk})
 
         return reverse("sale:delivery", kwargs={"pk": self.ordered.pk})

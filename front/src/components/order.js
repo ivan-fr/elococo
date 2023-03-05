@@ -44,9 +44,6 @@ function OrderInformation({ordered, info = true}) {
                     Si vous ne procédez pas au paiement de cette commande avant l'échéance,<br/>
                     la réservation sera annulée et vous pourrez constituer une autre résérvation.
                 </p>
-                <p>
-                    <strong>Tous nos produits sont envoyés avec un suivi.</strong><br/>
-                </p>
             </> : <>
                 <p>
                     Cette réservation est <strong>inactive</strong>.<br/>
