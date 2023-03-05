@@ -35,8 +35,7 @@ urlpatterns = [
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
-    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api")),
-    path('ivan/cv', TemplateView.as_view(template_name="elococo/ivan_cv.html"), name="ivan_cv"),
+    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api"))
 ]
 
 if settings.DEBUG:
