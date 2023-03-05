@@ -441,8 +441,8 @@ class FillAddressInformationOrdered(ModelFormSetView):
     )
     factory_kwargs = {
         'extra': 1,
-        'absolute_max': 2,
-        'max_num': 2, 'validate_max': True,
+        'absolute_max': 1,
+        'max_num': 1, 'validate_max': True,
         'min_num': 1, 'validate_min': True,
         'can_order': False,
         'can_delete': False
