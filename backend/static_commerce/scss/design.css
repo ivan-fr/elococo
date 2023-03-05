@@ -346,12 +346,21 @@ body {
   margin: 0;
   color: black;
 }
-body #main_logo {
+body .main_logo_footer {
+  margin: 0 auto;
+  height: auto;
+  width: 10rem;
+}
+body .main_logo_footer figcaption {
+  display: flex;
+  justify-content: center;
+}
+body .main_logo {
   margin: 0.75em auto;
   height: auto;
   width: 10rem;
 }
-body #main_logo figcaption {
+body .main_logo figcaption {
   display: flex;
   justify-content: center;
 }
