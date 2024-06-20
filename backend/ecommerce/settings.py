@@ -26,7 +26,7 @@ except FileNotFoundError:
 
 DEBUG = True
 USE_SQLITE = False
-WhiteNoise = False
+WHITE_NOISE = False
 
 
 # Quick-start development settings - unsuitable for production
@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'sale.middlewares.BookingMiddleware'
 ]
 
-if WhiteNoise:
+if WHITE_NOISE:
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'ecommerce.urls'
