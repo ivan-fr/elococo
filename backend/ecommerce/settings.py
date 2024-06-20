@@ -28,7 +28,6 @@ DEBUG = True
 USE_SQLITE = False
 WHITE_NOISE = False
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -143,11 +142,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_ROOT = BASE_DIR / "var/www/static/"
-STATIC_URL = '/static/'
-STATICFILES_DIRS = []
-
-for directory in secrets["STATICFILES_DIRS"]:
-    STATICFILES_DIRS.append(BASE_DIR / directory)
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static_ecommerce",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
