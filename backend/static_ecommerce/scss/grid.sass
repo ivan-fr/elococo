@@ -1,0 +1,74 @@
+@import "responsive"
+
+
+@mixin grid($columns)
+  display: grid
+  grid-template-columns: repeat($columns, 1fr)
+  grid-auto-rows: auto
+  box-sizing: border-box
+
+@mixin grid-centered-column($columns)
+  grid-column-start: 2
+  grid-column-end: $columns
+
+
+@mixin start($column)
+  grid-column-start: $column
+
+@mixin end($column)
+  grid-column-end: $column + 1
+
+@mixin span($columns)
+  grid-column: span $columns
+
+@mixin span-e($columns)
+  grid-column-end: span ($columns)
+
+@mixin m($i)
+  margin: ($i * 0.25em)
+
+@mixin mt($i)
+  margin-top: ($i * 0.25em) !important
+
+@mixin mb-($i)
+  margin-bottom: ($i * 0.25em)
+
+@mixin mr-($i)
+  margin-right: ($i * 0.25em)
+
+@mixin ml-($i)
+  margin-left: ($i * 0.25em)
+
+@mixin mx-($i)
+  margin-left: ($i * 0.25em)
+  margin-right: ($i * 0.25em)
+
+@mixin my-($i)
+  margin-top: ($i * 0.25em)
+  margin-bottom: ($i * 0.25em)
+
+@mixin p-($i)
+  padding: ($i * 0.25em)
+
+@mixin pt-($i)
+  padding-top: ($i * 0.25em)
+
+@mixin pb-($i)
+  padding-bottom: ($i * 0.25em)
+
+@mixin pr-($i)
+  padding-right: ($i * 0.25em)
+
+@mixin pl-($i)
+  padding-left: ($i * 0.25em)
+
+@mixin px-($i)
+  padding-left: ($i * 0.25em)
+  padding-right: ($i * 0.25em)
+
+@mixin py-($i)
+  padding-top: ($i * 0.25em)
+  padding-bottom: ($i * 0.25em)
+
+@mixin gap-($i)
+  grid-gap: ($i * 0.5em)
