@@ -25,7 +25,7 @@ except FileNotFoundError:
     secrets = json.load(open(BASE_DIR / 'ecommerce' / 'secrets.json.example'))
 
 DEBUG = True
-USE_SQLITE = True
+USE_SQLITE = False
 WhiteNoise = False
 
 

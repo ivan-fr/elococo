@@ -10,6 +10,7 @@ pillow = "*"
 requests = "*"
 stripe = "*"
 psycopg = {extras = ["binary"], version = "*"}
+whitenoise = "*"
 
 [dev-packages]
 
