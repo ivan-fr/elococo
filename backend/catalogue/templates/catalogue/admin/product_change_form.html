@@ -2,21 +2,58 @@
 {% load static %}
 
 {% block extrastyle %}
-    {{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet"/>
+{{ block.super }}
 {% endblock %}
 
 {% block admin_change_form_document_ready %}
-    {{ block.super }}
-    <!-- Include the Quill library -->
-    <script src="https://cdn.tiny.cloud/1/bookpd0vbeavu0n3tygdsmyoxy5elt4wi97n1k2v72o86us1/tinymce/5/tinymce.min.js"
-            referrerpolicy="origin"></script>
-    <!-- Initialize Quill editor -->
-    <script type="application/javascript">
-        tinymce.init({
-            selector: '#id_description',
-            plugins: 'advlist autolink lists link charmap preview hr anchor pagebreak autoresize',
-            toolbar_mode: 'floating',
-            language: 'fr_FR',
+{{ block.super }}
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<!-- Initialize Quill editor -->
+<script type="application/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get the textarea element by its id
+        let textarea = document.getElementById('id_description');
+
+        // Create a new div element
+        let newDiv = document.createElement('div');
+
+        // Insert the new div after the textarea
+        textarea.parentNode.insertBefore(newDiv, textarea.nextSibling);
+
+        let innerDiv = document.createElement("div")
+        innerDiv.setAttribute("id", "div_id_description")
+        newDiv.append(innerDiv)
+
+        const quill = new Quill('#div_id_description', {
+            modules: {
+                toolbar: [
+                    [{header: [4,5, false]}],
+                    ['bold', 'italic', 'underline'],
+                    ['code-block'],
+                ],
+            },
+            placeholder: 'Compose an description...',
+            theme: 'snow', // or 'bubble'
         });
-    </script>
+
+                // Function to update the HTML content display
+        function updateHTMLContent() {
+            let htmlContent = quill.root.innerHTML;
+            document.getElementById('id_description').innerText = htmlContent.replace(/<p><br><\/p>/g, '').replace(/<p>/g, '').replace(/<\/p>/g, '<br>');
+        }
+
+        // Listen for text changes in the editor
+        quill.on('text-change', function() {
+            updateHTMLContent();
+        });
+
+        // Initial update of the HTML content
+        updateHTMLContent();
+
+        textarea.style.display = 'none';
+        newDiv.style.marginBottom = "3rem"
+    });
+</script>
 {% endblock %}
