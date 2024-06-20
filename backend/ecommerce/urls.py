@@ -1,4 +1,4 @@
-"""elococo URL Configuration
+"""ecommerce URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -33,7 +33,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
     path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api"))
 ]

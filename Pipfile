@@ -5,25 +5,11 @@ name = "pypi"
 
 [packages]
 django = "*"
-cryptography = "*"
-django-cors-headers = "*"
-django-oauth-toolkit = "*"
 django-treebeard = "*"
-djangorestframework = "*"
-idna = "*"
-jwcrypto = "*"
 pillow = "*"
-psycopg2 = "*"
-pyyaml = "*"
 requests = "*"
-selenium = "*"
-sentry-sdk = "*"
 stripe = "*"
-toml = "*"
-urllib3 = "*"
-wrapt = "*"
-gunicorn = "*"
-whitenoise = "*"
+psycopg = {extras = ["binary"], version = "*"}
 
 [dev-packages]
 
