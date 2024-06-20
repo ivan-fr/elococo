@@ -104,7 +104,7 @@ class Ordered(models.Model):
 
 class Address(models.Model):
     order = models.ForeignKey(Ordered, on_delete=models.CASCADE, related_name="order_address")
-    first_name = models.CharField(_("nom en jeu de mon personnage"), max_length=255)
+    first_name = models.CharField(_("prénom"), max_length=255)
     last_name = models.CharField(_("nom de famille"), max_length=255, null=True, blank=True)
     address = models.CharField(_("ligne adresse 1"), max_length=255, null=True, blank=True)
     address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True, blank=True)

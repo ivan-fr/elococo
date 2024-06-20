@@ -2,6 +2,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
+from catalogue import models
 from catalogue.bdd_calculations import price_annotation_format, stock_sold
 from catalogue.models import Product, ProductImage, Category
 
@@ -58,6 +59,14 @@ class ProductAdmin(admin.ModelAdmin):
             **price_annotation_format()
         )
         return queryset
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['reduction'].help_text = "Positive integer designating the percentage reduction."
+        form.base_fields['price'].help_text = "Positive integer designating the price multiply by 100."
+        form.base_fields['stock'].help_text = "Positive integer designating the product stock."
+        form.base_fields['TTC_price'].help_text = "IF check the price is equal to price with taxes."
+        return form
 
     class Meta:
         model = Product

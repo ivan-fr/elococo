@@ -1,4 +1,4 @@
-{% extends 'elococo/base.html' %}
+{% extends 'ecommerce/base.html' %}
 {% load static %}
 
 {% block base_container %}
@@ -20,11 +20,11 @@
                     {% csrf_token %}
                     {{ formset.management_form }}
                     {% for form in formset %}
-                        {% for hidden in form.hidden_fields %}
+                          {% for hidden in form.hidden_fields %}
                             {{ hidden }}
                         {% endfor %}
                         {% if forloop.counter0 == 0 %}
-                            <section id="delivery_address" class="expand">
+                            <section id="delivery_address">
                             <h3>Adresse de livraison</h3>
                         {% else %}
                             <section id="facturation_address">
@@ -35,10 +35,39 @@
                         <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} : </label>
                         {{ form.first_name }}
                     </div>
+                    <div>
+                        {{ form.last_name.errors }}
+                        <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }} : </label>
+                        {{ form.last_name }}
+                    </div>
+                    <div>
+                        {{ form.address.errors }}
+                        <label for="{{ form.address.id_for_label }}">{{ form.address.label }} : </label>
+                        {{ form.address }}
+                    </div>
+                    <div>
+                        {{ form.address2.errors }}
+                        <label for="{{ form.email.id_for_label }}">{{ form.address2.label }} : </label>
+                        {{ form.address2 }}
+                    </div>
+                    <div>
+                        {{ form.postal_code.errors }}
+                        <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }} : </label>
+                        {{ form.postal_code }}
+                    </div>
+                    <div>
+                        {{ form.city.errors }}
+                        <label for="{{ form.city.id_for_label }}">{{ form.city.label }} : </label>
+                        {{ form.city }}
+                    </div>
                     </section>
 
                     {% endfor %}
                     <div role="group" class="btn-group">
+                        <button type="button" id="fill_next_config">Facturation identique à
+                            la
+                            livraison
+                        </button>
                         <button type="submit">Envoyer mes coordonnées</button>
                     </div>
                 </form>

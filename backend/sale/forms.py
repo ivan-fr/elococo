@@ -105,7 +105,7 @@ class AddressForm(forms.ModelForm):
 
     class Meta:
         model = Address
-        fields = ("first_name",)
+        fields = ("first_name", "last_name", "address", "address2", "postal_code", "city")
 
 
 class OrderedForm(forms.Form):
