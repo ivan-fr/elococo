@@ -190,12 +190,15 @@ class BasketView(FormSetMixin, ListView):
     success_url = reverse_lazy("catalogue_basket")
     form_class = UpdateBasketForm
     formset_class = ProductFormSet
-    factory_kwargs = {'extra': 0,
-                      'absolute_max': settings.MAX_BASKET_PRODUCT,
-                      'max_num': settings.MAX_BASKET_PRODUCT, 'validate_max': True,
-                      'min_num': 1, 'validate_min': True,
-                      'can_order': False,
-                      'can_delete': False}
+    factory_kwargs = {
+        'extra': 0,
+        'absolute_max': settings.MAX_BASKET_PRODUCT,
+        'max_num': settings.MAX_BASKET_PRODUCT,
+        'validate_max': True,
+        'min_num': 1, 'validate_min': True,
+        'can_order': False,
+        'can_delete': False
+    }
 
     def get_queryset(self):
         basket = self.request.session.get(settings.BASKET_SESSION_KEY, {})
