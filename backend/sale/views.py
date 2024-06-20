@@ -27,8 +27,8 @@ from catalogue.bdd_calculations import (
     price_annotation_format, total_price_from_all_product, stock_sold, post_price_annotation_format
 )
 from catalogue.models import Product
-from elococo.generic import ModelFormSetView
-from elococo.settings import BACK_TWO_PLACES
+from ecommerce.generic import ModelFormSetView
+from ecommerce.settings import BACK_TWO_PLACES
 from sale import get_amount
 from sale.bdd_calculations import default_ordered_annotation_format, get_promo
 from sale.forms import (

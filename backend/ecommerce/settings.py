@@ -200,7 +200,7 @@ MAX_BASKET_PRODUCT = 8
 PRODUCT_INSTANCE_KEY = "product_instance"
 
 TVA_PERCENT = Decimal(20.)
-BACK_TWO_PLACES = Decimal(10) ** -2
+BACK_TWO_PLACES = Decimal(10) ** (-2)
 TVA = Decimal(120) * BACK_TWO_PLACES
 
 CSRF_COOKIE_SECURE = True
