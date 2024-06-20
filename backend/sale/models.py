@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from catalogue.models import Product
-from elococo.settings import BACK_TWO_PLACES
+from ecommerce.settings import BACK_TWO_PLACES
 
 PROMO_CHOICES = [
     ("cu", 'Currency'),

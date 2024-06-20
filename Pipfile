@@ -11,6 +11,7 @@ requests = "*"
 stripe = "*"
 psycopg = {extras = ["binary"], version = "*"}
 whitenoise = "*"
+djangorestframework = "*"
 
 [dev-packages]
 
