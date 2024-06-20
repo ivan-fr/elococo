@@ -16,7 +16,7 @@ from catalogue.bdd_calculations import (
 )
 from catalogue.forms import AddToBasketForm, UpdateBasketForm, ProductFormSet, PromoForm
 from catalogue.models import Product, Category
-from elococo.generic import FormSetMixin
+from ecommerce.generic import FormSetMixin
 from sale.bdd_calculations import get_promo
 
 
