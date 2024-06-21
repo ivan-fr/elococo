@@ -6,35 +6,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Invoice</title>
-    <link rel="stylesheet" href="{% static "css/invoice.css" %}">
+    <link rel="stylesheet" href="{% static " css
+    /invoice.css" %}">
 </head>
 <body>
 
+<a>
+    <p>
+
+    </p>
+</a>
+
 {% if email %}
-    {% include "sale/email_invoice.html" %}
+{% include "sale/email_invoice.html" %}
 {% endif %}
 
 <section>
     <h1>FACTURE</h1>
     {% for order_adress in ordered.order_address.all %}
-        {% if forloop.counter0 == 0 %}
-            <h2>
-                <strong>Adresse de livraison</strong>
-            </h2>
-        {% else %}
-            h2>
-            <strong>Adresse de facturation</strong>
-            </h2>
+    {% if forloop.counter0 == 0 %}
+    <h2>
+        <strong>Adresse de livraison</strong>
+    </h2>
+    {% else %}
+    h2>
+    <strong>Adresse de facturation</strong>
+    </h2>
+    {% endif %}
+    <p>
+        <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+        {{ order_adress.address }}<br>
+        {% if order_adress.address2 %}
+        {{ order_adress.address2 }}<br>
         {% endif %}
-        <p>
-            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
-            {{ order_adress.address }}<br>
-            {% if order_adress.address2 %}
-                {{ order_adress.address2 }}<br>
-            {% endif %}
-            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
-            France<br>
-        </p>
+        {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+        France<br>
+    </p>
     {% endfor %}
 
     <p><strong>Tél</strong>: {{ ordered.phone }}</p>
@@ -61,9 +68,9 @@
     <tr>
         <td><strong>À payer EUR</strong></td>
         {% if ordered.promo_value is not None %}
-            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
         {% else %}
-            <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
         {% endif %}
     </tr>
     </tfoot>
@@ -82,28 +89,29 @@
     </thead>
     <tbody>
     {% for orderedproduct in ordered.from_ordered.all %}
-        <tr>
-            <th scope="row">{{ forloop.counter }}</th>
-            <td>
-                {% if orderedproduct.to_product %}
-                    <a href="{% url "catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
-                {% else %}
-                    {{ orderedproduct.product_name }}
-                {% endif %}
-            </td>
-            <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
-            <td>
-                {% if orderedproduct.effective_reduction > 0 %}
-                    -{{ orderedproduct.effective_reduction }}%
-                {% else %}
-                    Pas de reduction.
-                {% endif %}
-            </td>
-            <td>
-                {{ orderedproduct.quantity }} unité(s)
-            </td>
-            <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
-        </tr>
+    <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>
+            {% if orderedproduct.to_product %}
+            <a href="{% url " catalogue_product_detail" orderedproduct.to_product.slug %}">{{
+            orderedproduct.product_name }}</a>
+            {% else %}
+            {{ orderedproduct.product_name }}
+            {% endif %}
+        </td>
+        <td>{{ orderedproduct.price_exact_ht|to_currency }}€</td>
+        <td>
+            {% if orderedproduct.effective_reduction > 0 %}
+            -{{ orderedproduct.effective_reduction }}%
+            {% else %}
+            Pas de reduction.
+            {% endif %}
+        </td>
+        <td>
+            {{ orderedproduct.quantity }} unité(s)
+        </td>
+        <td>{{ orderedproduct.price_exact_ht_with_quantity|to_currency }}€</td>
+    </tr>
     {% endfor %}
     </tbody>
     <tfoot>
@@ -114,77 +122,77 @@
     </tr>
 
     {% if ordered.promo_value is not None %}
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>Code promo</strong></td>
-            {% if ordered.promo_type == "pe" %}
-                <td>-{{ ordered.promo_value }}%</td>
-            {% else %}
-                <td>-{{ ordered.promo_value }}€</td>
-            {% endif %}
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>Total (HT)</strong></td>
-            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|to_currency }}€</td>
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-            <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|deduce_tva|to_currency }}€</td>
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>Total (TTC)</strong></td>
-            <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
-        </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>Code promo</strong></td>
+        {% if ordered.promo_type == "pe" %}
+        <td>-{{ ordered.promo_value }}%</td>
+        {% else %}
+        <td>-{{ ordered.promo_value }}€</td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>Total (HT)</strong></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|to_currency }}€</td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum_promo|deduce_tva|to_currency }}€</td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>Total (TTC)</strong></td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</td>
+    </tr>
     {% else %}
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
-            <td>{{ ordered.price_exact_ht_with_quantity_sum|deduce_tva|to_currency }}€</td>
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>TOTAL (TTC)</strong></td>
-            <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
-        </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TVA {{ tva|floatformat:2 }}%</strong></td>
+        <td>{{ ordered.price_exact_ht_with_quantity_sum|deduce_tva|to_currency }}€</td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TOTAL (TTC)</strong></td>
+        <td>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</td>
+    </tr>
     {% endif %}
 
     {% if ordered.delivery_value is None %}
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>Livraison</strong></td>
-            <td><strong>GRATUIT</strong></td>
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>TOTAL (Livraison)</strong></td>
-            {% if ordered.promo_value is not None %}
-                <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</strong></td>
-            {% else %}
-                <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
-            {% endif %}
-        </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>Livraison</strong></td>
+        <td><strong>GRATUIT</strong></td>
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TOTAL (Livraison)</strong></td>
+        {% if ordered.promo_value is not None %}
+        <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum_promo|to_currency }}€</strong></td>
+        {% else %}
+        <td><strong>{{ ordered.price_exact_ttc_with_quantity_sum|to_currency }}€</strong></td>
+        {% endif %}
+    </tr>
     {% else %}
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>Livraison</strong></td>
-            {% if ordered.delivery_value is None %}
-                <td><strong>à définir</strong></td>
-            {% else %}
-                <td><strong>{{ ordered.delivery_value|to_currency }}€</strong></td>
-            {% endif %}
-        </tr>
-        <tr>
-            <td colspan="4"></td>
-            <td><strong>TOTAL (Livraison)</strong></td>
-            {% if ordered.delivery_value is None %}
-                <td><strong>à définir</strong></td>
-            {% else %}
-                <td><strong>{% amount_with_delivery ordered %}€</strong></td>
-            {% endif %}
-        </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>Livraison</strong></td>
+        {% if ordered.delivery_value is None %}
+        <td><strong>à définir</strong></td>
+        {% else %}
+        <td><strong>{{ ordered.delivery_value|to_currency }}€</strong></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td colspan="4"></td>
+        <td><strong>TOTAL (Livraison)</strong></td>
+        {% if ordered.delivery_value is None %}
+        <td><strong>à définir</strong></td>
+        {% else %}
+        <td><strong>{% amount_with_delivery ordered %}€</strong></td>
+        {% endif %}
+    </tr>
     {% endif %}
     </tfoot>
 </table>
