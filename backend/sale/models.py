@@ -105,11 +105,11 @@ class Ordered(models.Model):
 class Address(models.Model):
     order = models.ForeignKey(Ordered, on_delete=models.CASCADE, related_name="order_address")
     first_name = models.CharField(_("prénom"), max_length=255)
-    last_name = models.CharField(_("nom de famille"), max_length=255, null=True, blank=True)
-    address = models.CharField(_("ligne adresse 1"), max_length=255, null=True, blank=True)
+    last_name = models.CharField(_("nom de famille"), max_length=255)
+    address = models.CharField(_("ligne adresse 1"), max_length=255)
     address2 = models.CharField(_("ligne adresse 2"), max_length=255, null=True, blank=True)
-    postal_code = models.PositiveIntegerField(_("code postal"), null=True, blank=True)
-    city = models.CharField(_("ville"), max_length=255, null=True, blank=True)
+    postal_code = models.PositiveIntegerField(_("code postal"))
+    city = models.CharField(_("ville"), max_length=255)
 
 
 class OrderedProduct(models.Model):
