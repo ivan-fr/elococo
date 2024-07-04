@@ -1,43 +1,46 @@
 {% load static %}
-<nav class="navbar">
-    <ul>
-        {% if not index_nav %}
-            <li class="is-active">
-                {% else %}
-            <li>
-        {% endif %}
-        <a href="{% url 'catalogue_index' %}">
-            Boutique
-        </a>
-        </li>
-    </ul>
-    <ul>
-        <li>
-            <a href="{% url 'sale:retrieve' %}">Retrouver une commande</a>
-        </li>
-        {% if url_my_ordered %}
-            <li>
-                {% if url_my_ordered_detail %}
-                    <a href="{{ url_my_ordered_detail }}"><i
-                    ></i> Paiement de ma commande (3/3)
-                    </a>
-                {% elif url_my_ordered_fill_next %}
-                    <a href="{{ url_my_ordered_fill_next }}"><i
-                    ></i> Completer ma commande (2/3)
-                    </a>
-                {% else %}
-                    <a href="{{ url_my_ordered }}"><i
-                    ></i> Completer ma commande (1/3)
-                    </a>
-                {% endif %}
+
+<div class="wrapper-navbar">
+    <nav class="navbar">
+        <ul>
+            {% if not index_nav %}
+                <li class="is-active">
+                    {% else %}
+                <li>
+            {% endif %}
+            <a href="{% url 'catalogue_index' %}">
+                Boutique
+            </a>
             </li>
-        {% endif %}
-        {% if not index_nav %}
-            <li id="navbar-basket">
-                <a data-url-surface="{% url "catalogue_basket_surface" %}" href="{% url "catalogue_basket" %}">
-                    Panier <span>{{ basket_len }}</span>
-                </a>
+        </ul>
+        <ul>
+            {% if not index_nav %}
+                <li id="navbar-basket">
+                    <a data-url-surface="{% url "catalogue_basket_surface" %}" href="{% url "catalogue_basket" %}">
+                        Panier <span>{{ basket_len }}</span>
+                    </a>
+                </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'sale:retrieve' %}">Retrouver une commande</a>
             </li>
-        {% endif %}
-    </ul>
-</nav>
+            {% if url_my_ordered %}
+                <li>
+                    {% if url_my_ordered_detail %}
+                        <a href="{{ url_my_ordered_detail }}"><i
+                        ></i> Paiement de ma commande (3/3)
+                        </a>
+                    {% elif url_my_ordered_fill_next %}
+                        <a href="{{ url_my_ordered_fill_next }}"><i
+                        ></i> Completer ma commande (2/3)
+                        </a>
+                    {% else %}
+                        <a href="{{ url_my_ordered }}"><i
+                        ></i> Completer ma commande (1/3)
+                        </a>
+                    {% endif %}
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>

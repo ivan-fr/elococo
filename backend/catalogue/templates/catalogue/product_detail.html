@@ -17,10 +17,10 @@
                 <figure class="hover_figure">
                     {% if product_image.url_host is not None %}
                         <img src="{{ product_image.url_host }}"
-                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>      
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                     {% else %}
                         <img src="{{ product_image.image.url }}"
-                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>                                        
+                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
                     {% endif %}
                     <figcaption>
                         Image du produit n°{{ forloop.counter }}
@@ -33,6 +33,15 @@
             <section class="sale_infos">
                 <h3>Informations de vente</h3>
                 <div>
+                    <p>
+                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
+                        {% elif product.stock <= 5 %} Il ne reste plus que
+                            <strong>{{ product.stock }} unité(s)</strong> de
+                            ce produit en stock.
+                        {% else %}
+                            <strong>Ce produit est en stock.</strong>
+                        {% endif %}
+                    </p>
                     <p>Son prix à l'unité est de <strong>{{ product.price_exact_ttc|floatformat:2 }}€ TTC</strong>.
                     </p>
                     {% if product.effective_reduction > 0 %}
@@ -44,15 +53,6 @@
                         </p>
                         <p>Son prix de base était de {{ product.price_base_ttc|floatformat:2 }}€ TTC.</p>
                     {% endif %}
-                    <p>
-                        {% if product.stock <= 0 %} Ce produit n'a plus de stock, essayez un autre jours.
-                        {% elif product.stock <= 5 %} Il ne reste plus que
-                            <strong>{{ product.stock }} unité(s)</strong> de
-                            ce produit en stock !
-                        {% else %}
-                            <strong>Ce produit est en stock !</strong>
-                        {% endif %}
-                    </p>
                 </div>
                 <h3>Ajouter dans mon panier</h3>
                 <form id="addBasketForm" action="{% url 'catalogue_product_detail' product.slug %}"
@@ -78,11 +78,6 @@
         <div class="description">
             {{ product.description|safe }}
         </div>
-
-        <figure>
-            <img src="{% static "images/rule1.bmp" %}" alt="licence">
-            <figcaption>Images Licence</figcaption>
-        </figure>
     </article>
 {% endblock %}
 

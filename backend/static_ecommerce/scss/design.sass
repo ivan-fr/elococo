@@ -147,10 +147,11 @@ body
   footer
     @include py-(3)
     @include grid(4)
-    justify-items: center
+    @include gap-(1)
 
     @media #{$large-down}
       grid-template-columns: repeat(2, 1fr)
+      padding-left: 1.5em
 
     @media #{$medium-down}
       grid-template-columns: repeat(1, 1fr)
@@ -161,6 +162,10 @@ body
 
       & img
         height: 150px
+
+    & > .engagements
+      & ul
+        padding-inline-start: 10px
 
     & > section
       .payments_mode
@@ -385,12 +390,15 @@ body
         align-items: start
         @include gap-(2)
 
+        @media #{$medium-down}
+            @include gap-(0)
+            row-gap: 1em
+
         & > h3
           display: none
 
         h3:first-child + section
-          @include span-e(8)
-          @include start(1)
+          @include span(8)
 
           @media #{$medium-down}
             @include span(24)
@@ -399,7 +407,7 @@ body
             display: none
 
         .images
-          @include span(8)
+          @include span(10)
           @include grid(2)
 
           @media #{$medium-down}
@@ -426,8 +434,7 @@ body
               border-top: none
 
         .sale_infos
-          @include span-e(20)
-          @include start(17)
+          @include span(6)
 
           @media #{$medium-down}
             @include span(24)
@@ -569,16 +576,18 @@ body
       & > :not(:is(h1, h2, h3, h4, h5, h6)):first-of-type
         @include mt(0)
 
-  .navbar
-    @include grid(4)
-    @include gap-(2)
+  .wrapper-navbar
     @include py-(2)
     @include mb-(7)
+    padding-left: 1em
     position: relative
     z-index: 1
     color: white
-
     background: #ffcf95
+
+  .navbar
+    @include grid(4)
+    @include gap-(2)
 
     a
       text-decoration: none
@@ -647,7 +656,7 @@ body
             height: 0.5em
             background: #4c4c4c
             width: 25px
-            margin-right: 150px
+            margin-left: 80px
 
             @media #{$x-large-down}
               margin-right: 85px
@@ -658,10 +667,6 @@ body
       &:first-child
         @include start(1)
         @include end(2)
-
-        @media #{$x-large-down}
-          justify-items: center
-          @include span(4)
 
         &::before
           content: ""
@@ -688,7 +693,6 @@ body
 
       &:last-child
         @include span(2)
-        direction: rtl
 
         #navbar-basket
           nav.active
@@ -699,6 +703,12 @@ body
 
         @media #{$x-large-down}
           @include span(4)
+
+          & li:nth-child(1)
+            grid-row: 2
+
+          & li:nth-child(2)
+            grid-row: 1
 
         & > li
           @include span(2)
