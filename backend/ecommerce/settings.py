@@ -39,14 +39,17 @@ ALLOWED_HOSTS = secrets['allowed_hosts']
 # Application definition
 
 INSTALLED_APPS = [
-    'sale.apps.SaleConfig',
-    'catalogue.apps.CatalogueConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sale.apps.SaleConfig',
+    'catalogue.apps.CatalogueConfig',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'treebeard',
     'rest_framework',
 ]
@@ -82,6 +85,13 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend'
 ]
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
