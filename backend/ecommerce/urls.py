@@ -33,7 +33,8 @@ urlpatterns = [
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
-    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api"))
+    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api")),
+    path('accounts/', include('allauth.urls'))
 ]
 
 if settings.DEBUG:

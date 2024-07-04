@@ -63,8 +63,23 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'sale.middlewares.BookingMiddleware'
+    'sale.middlewares.BookingMiddleware',
+    "allauth.account.middleware.AccountMiddleware"
 ]
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'APP': {
+            'client_id': '1025405437510-ddgje1bpc16m3lqnhg2rh0ugh4kunb88.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
 
 if WHITE_NOISE:
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
