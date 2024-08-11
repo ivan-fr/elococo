@@ -47,10 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sale.apps.SaleConfig',
     'catalogue.apps.CatalogueConfig',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'treebeard',
     'rest_framework',
 ]
@@ -64,22 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'sale.middlewares.BookingMiddleware',
-    "allauth.account.middleware.AccountMiddleware"
 ]
-
-# Provider specific settings
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        # For each OAuth based provider, either add a ``SocialApp``
-        # (``socialaccount`` app) containing the required client
-        # credentials, or list them here:
-        'APP': {
-            'client_id': '1025405437510-ddgje1bpc16m3lqnhg2rh0ugh4kunb88.apps.googleusercontent.com',
-            'secret': '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',
-            'key': ''
-        }
-    }
-}
 
 if WHITE_NOISE:
     MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
@@ -223,8 +204,8 @@ BASKET_MAX_QUANTITY_PER_FORM = 3
 MAX_BASKET_PRODUCT = 8
 PRODUCT_INSTANCE_KEY = "product_instance"
 
-TVA_PERCENT = Decimal(20.)
 BACK_TWO_PLACES = Decimal(10) ** (-2)
+TVA_PERCENT = Decimal(20.)
 TVA = Decimal(120) * BACK_TWO_PLACES
 
 CSRF_COOKIE_SECURE = True

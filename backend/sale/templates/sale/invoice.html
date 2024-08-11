@@ -6,8 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Invoice</title>
-    <link rel="stylesheet" href="{% static " css
-    /invoice.css" %}">
+    <link rel="stylesheet" href="{% static "css/invoice.css" %}">
 </head>
 <body>
 
@@ -93,8 +92,7 @@
         <th scope="row">{{ forloop.counter }}</th>
         <td>
             {% if orderedproduct.to_product %}
-            <a href="{% url " catalogue_product_detail" orderedproduct.to_product.slug %}">{{
-            orderedproduct.product_name }}</a>
+            <a href="{% url " catalogue_product_detail" orderedproduct.to_product.slug %}">{{ orderedproduct.product_name }}</a>
             {% else %}
             {{ orderedproduct.product_name }}
             {% endif %}
