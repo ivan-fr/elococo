@@ -4,12 +4,13 @@ import time
 from treebeard.mp_tree import MP_Node
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.text import slugify
+
+from accounts.models import CustomUser
 
 
 def product_image_path(instance, filename: str):
@@ -98,7 +99,7 @@ def product_pre_delete(**kwargs):
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     text = models.TextField(blank=False, null=False)
     date = models.DateField(auto_now_add=True)

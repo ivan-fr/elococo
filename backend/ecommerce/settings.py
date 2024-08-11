@@ -47,8 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sale.apps.SaleConfig',
     'catalogue.apps.CatalogueConfig',
+    "accounts.apps.AccountsConfig",
     'treebeard',
-    'rest_framework',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,8 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend'
 ]
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
