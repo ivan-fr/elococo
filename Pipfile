@@ -12,7 +12,6 @@ stripe = "*"
 psycopg = {extras = ["binary"], version = "*"}
 whitenoise = "*"
 djangorestframework = "*"
-django-allauth = {extras = ["socialaccount"], version = "*"}
 
 [dev-packages]
 
