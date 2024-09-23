@@ -15,21 +15,17 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import path, include
 
 import catalogue.views
 from catalogue.urls import router as catalogue_router
+from ecommerce.admin_site import admin_site
 from sale.urls import router as sale_router
-
-
-def trigger_error(_):
-    division_by_zero = 1 / 0
 
 
 urlpatterns = [
     path('', catalogue.views.IndexView.as_view(), name='catalogue_index'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin_site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
     path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
@@ -39,5 +35,3 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
-else:
-    urlpatterns += [path('sentry-debug/', trigger_error)]
