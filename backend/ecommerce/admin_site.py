@@ -1,5 +1,6 @@
 from django.contrib.admin import AdminSite
 
+
 class MyAdminSite(AdminSite):
     site_header = "Ecommerce Admin"
     site_title = "Ecommerce Portail"

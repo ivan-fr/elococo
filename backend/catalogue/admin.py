@@ -2,15 +2,17 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from catalogue import models
 from catalogue.bdd_calculations import price_annotation_format, stock_sold
 from catalogue.models import Product, ProductImage, Category
+from ecommerce.admin_site import admin_site
 
 
-@admin.register(Category)
 class CategoryAdmin(TreeAdmin):
     form = movenodeform_factory(Category)
     exclude = ('slug', 'path', 'depth', 'numchild')
+
+
+admin_site.register(Category, CategoryAdmin)
 
 
 class ProductImageAdmin(admin.StackedInline):
@@ -40,7 +42,6 @@ def stock_sold_list(obj):
     return obj.stock_sold
 
 
-@admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'dateUpdate', 'stock', stock_sold_list, reductions, price_exact_ht,
                     price_exact_ttc, categories, 'enable_sale')
@@ -70,3 +71,6 @@ class ProductAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Product
+
+
+admin_site.register(Product, ProductAdmin)

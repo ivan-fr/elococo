@@ -1,6 +1,7 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin, GroupAdmin
+from django.contrib.auth.models import Group
 
+from ecommerce.admin_site import admin_site
 from .models import CustomUser
 
 
@@ -22,4 +23,5 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 
-admin.site.register(CustomUser, UserAdmin)
+admin_site.register(CustomUser, UserAdmin)
+admin_site.register(Group, GroupAdmin)

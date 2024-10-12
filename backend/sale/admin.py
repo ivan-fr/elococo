@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 
+from ecommerce.admin_site import admin_site
 from sale.forms import PromoForm
 from sale.models import Ordered, Promo
 
@@ -13,7 +14,6 @@ def price_exact_ht(obj):
     return "{:.2f} euros".format(obj.price_exact_ht_with_quantity_sum * settings.BACK_TWO_PLACES)
 
 
-@admin.register(Ordered)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('order_number', "createdAt", "endOfLife", "payment_status", 'email', 'phone', price_exact_ht,
                     price_exact_ttc, "delivery_mode")
@@ -36,6 +36,11 @@ class OrderAdmin(admin.ModelAdmin):
         model = Ordered
 
 
-@admin.register(Promo)
-class MyAdmin(admin.ModelAdmin):
+admin_site.register(Ordered, OrderAdmin)
+
+
+class PromoAdmin(admin.ModelAdmin):
     form = PromoForm
+
+
+admin_site.register(Promo, PromoAdmin)
