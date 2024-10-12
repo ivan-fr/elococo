@@ -398,12 +398,15 @@ body
           display: none
 
         .container
+          @include span(16)
+
           @include grid(24)
           align-items: start
           @include gap-(2)
 
           @media #{$medium-down}
             @include gap-(0)
+            @include span(24)
             row-gap: 1em
 
           .description
@@ -416,7 +419,7 @@ body
               @include span(24)
 
           .images
-            @include span(10)
+            @include span(16)
             @include grid(2)
 
             @media #{$medium-down}
@@ -443,7 +446,7 @@ body
                 border-top: none
 
         .sale_infos
-          @include span(6)
+          @include span(8)
 
           @media #{$medium-down}
             @include span(24)
