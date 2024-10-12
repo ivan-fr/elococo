@@ -2,58 +2,63 @@
 {% load static %}
 
 {% block extrastyle %}
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet"/>
-{{ block.super }}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet"/>
+    {{ block.super }}
+    <style>
+        #div_id_description * {
+            all: unset;
+        }
+    </style>
 {% endblock %}
 
 {% block admin_change_form_document_ready %}
-{{ block.super }}
-<!-- Include the Quill library -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-<!-- Initialize Quill editor -->
-<script type="application/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-        // Get the textarea element by its id
-        let textarea = document.getElementById('id_description');
+    {{ block.super }}
+    <!-- Include the Quill library -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <!-- Initialize Quill editor -->
+    <script type="application/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the textarea element by its id
+            let textarea = document.getElementById('id_description');
 
-        // Create a new div element
-        let newDiv = document.createElement('div');
+            // Create a new div element
+            let newDiv = document.createElement('div');
 
-        // Insert the new div after the textarea
-        textarea.parentNode.insertBefore(newDiv, textarea.nextSibling);
+            // Insert the new div after the textarea
+            textarea.parentNode.insertBefore(newDiv, textarea.nextSibling);
 
-        let innerDiv = document.createElement("div")
-        innerDiv.setAttribute("id", "div_id_description")
-        newDiv.append(innerDiv)
+            let innerDiv = document.createElement("div")
+            innerDiv.setAttribute("id", "div_id_description")
+            newDiv.append(innerDiv)
 
-        const quill = new Quill('#div_id_description', {
-            modules: {
-                toolbar: [
-                    [{header: [2,3, false]}],
-                    ['bold', 'italic', 'underline'],
-                ],
-            },
-            placeholder: 'Écrire une description...',
-            theme: 'snow', // or 'bubble'
-        });
+            const quill = new Quill('#div_id_description', {
+                modules: {
+                    toolbar: [
+                        [{header: [2, 3, false]}],
+                        ['bold', 'italic', 'underline'],
+                    ],
+                },
+                placeholder: 'Écrire une description...',
+                theme: 'snow', // or 'bubble'
+            });
 
-                // Function to update the HTML content display
-        function updateHTMLContent() {
-            let htmlContent = quill.root.innerHTML;
-            document.getElementById('id_description').innerText = htmlContent.replace(/<p><br><\/p>/g, '').replace(/<p>/g, '').replace(/<\/p>/g, '<br>');
-        }
+            // Function to update the HTML content display
+            function updateHTMLContent() {
+                let htmlContent = quill.root.innerHTML;
+                document.getElementById('id_description').innerText = htmlContent.replace(/<p><br><\/p>/g, '').replace(/<p>/g, '').replace(/<\/p>/g, '<br>');
+            }
 
-        // Listen for text changes in the editor
-        quill.on('text-change', function() {
+            // Listen for text changes in the editor
+            quill.on('text-change', function () {
+                updateHTMLContent();
+            });
+
+            // Initial update of the HTML content
             updateHTMLContent();
+
+            textarea.style.display = 'none';
+            newDiv.style.marginBottom = "3rem"
+            newDiv.style.width = "100%"
         });
-
-        // Initial update of the HTML content
-        updateHTMLContent();
-
-        textarea.style.display = 'none';
-        newDiv.style.marginBottom = "3rem"
-        newDiv.style.width = "100%"
-    });
-</script>
+    </script>
 {% endblock %}
