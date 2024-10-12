@@ -6,29 +6,33 @@
     <article id="detail">
         <h3>Details</h3>
 
-        <section>
-            <h2>Zoom</h2>
+        <div class="container">
+            <section class="zoom">
             <span class="image_zoom" role="status">
             </span>
-        </section>
+            </section>
 
-        <div class="images">
-            {% for product_image in images %}
-                <figure class="hover_figure">
-                    {% if product_image.url_host is not None %}
-                        <img src="{{ product_image.url_host }}"
-                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                    {% else %}
-                        <img src="{{ product_image.image.url }}"
-                             alt="product_{{ forloop.counter }}_{{ product.name }}"/>
-                    {% endif %}
-                    <figcaption>
-                        Image du produit n°{{ forloop.counter }}
-                    </figcaption>
-                </figure>
-            {% endfor %}
+            <div class="images">
+                {% for product_image in images %}
+                    <figure class="hover_figure">
+                        {% if product_image.url_host is not None %}
+                            <img src="{{ product_image.url_host }}"
+                                 alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                        {% else %}
+                            <img src="{{ product_image.image.url }}"
+                                 alt="product_{{ forloop.counter }}_{{ product.name }}"/>
+                        {% endif %}
+                        <figcaption>
+                            Image du produit n°{{ forloop.counter }}
+                        </figcaption>
+                    </figure>
+                {% endfor %}
+            </div>
+
+            <div class="description">
+                {{ product.description|safe }}
+            </div>
         </div>
-
         {% if product.enable_sale %}
             <section class="sale_infos">
                 <h3>Informations de vente</h3>
@@ -74,10 +78,6 @@
                 </form>
             </section>
         {% endif %}
-
-        <div class="description">
-            {{ product.description|safe }}
-        </div>
     </article>
 {% endblock %}
 

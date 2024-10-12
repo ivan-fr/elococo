@@ -397,41 +397,50 @@ body
         & > h3
           display: none
 
-        h3:first-child + section
-          @include span(8)
+        .container
+          @include grid(24)
+          align-items: start
+          @include gap-(2)
 
           @media #{$medium-down}
+            @include gap-(0)
+            row-gap: 1em
+
+          .description
             @include span(24)
 
-          h2
-            display: none
+          .zoom
+            @include span(8)
 
-        .images
-          @include span(10)
-          @include grid(2)
+            @media #{$medium-down}
+              @include span(24)
 
-          @media #{$medium-down}
-            @include span(24)
+          .images
+            @include span(10)
+            @include grid(2)
 
-          figure
-            cursor: pointer
-            @include radius(0)
+            @media #{$medium-down}
+              @include span(24)
 
-          & > figure:nth-child(2n-1)
-            &:not(:first-child)
-              border-top: none
+            figure
+              cursor: pointer
+              @include radius(0)
 
-              & + figure
+            & > figure:nth-child(2n-1)
+              &:not(:first-child)
                 border-top: none
 
-            & + figure
-              border-left: none
+                & + figure
+                  border-top: none
 
-          & > figure:nth-of-type(2n+1):last-child:not(:first-child)
-            @include span(2)
+              & + figure
+                border-left: none
 
-            img
-              border-top: none
+            & > figure:nth-of-type(2n+1):last-child:not(:first-child)
+              @include span(2)
+
+              img
+                border-top: none
 
         .sale_infos
           @include span(6)
