@@ -18,7 +18,9 @@ class BookingMiddleware:
                 **default_ordered_annotation_format()
             ).filter(pk=ordered_uuid)
 
-            if not query.exists() or not query.get().ordered_is_enable():
+            order = query.get()
+
+            if not order.ordered_is_enable:
                 del request.session[settings.BOOKING_SESSION_KEY]
                 if request.session.get(settings.BOOKING_SESSION_FILL_KEY, None) is not None:
                     del request.session[settings.BOOKING_SESSION_FILL_KEY]
