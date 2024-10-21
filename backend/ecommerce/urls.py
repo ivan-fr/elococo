@@ -20,7 +20,6 @@ from django.urls import path, include
 import catalogue.views
 from catalogue.urls import router as catalogue_router
 from ecommerce.admin_site import admin_site
-from sale.urls import router as sale_router
 
 
 urlpatterns = [
@@ -28,8 +27,6 @@ urlpatterns = [
     path('admin/', admin_site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
-    path('api/', include((catalogue_router.urls, 'catalogue_api'), namespace="catalogue_api")),
-    path('api/', include((sale_router.urls, 'sale_api'), namespace="sale_api")),
 ]
 
 if settings.DEBUG:
