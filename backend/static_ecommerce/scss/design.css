@@ -550,7 +550,7 @@ body footer > section .payments_mode > figure {
 body .wrapper {
   display: grid;
   grid-auto-rows: auto;
-  background-color: #fffbf9;
+  background-color: white;
   padding-bottom: 1.75em;
   position: relative;
 }
