@@ -1,74 +1,83 @@
 {% extends 'ecommerce/base.html' %}
 
 {% block head_js %}
-{% if  ordered.ordered_is_enable and not ordered.payment_status %}
-<script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
-<script src="https://js.stripe.com/v3/"></script>
-{% endif %}
+    {% if  ordered.ordered_is_enable and not ordered.payment_status %}
+        <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+        <script src="https://js.stripe.com/v3/"></script>
+    {% endif %}
 {% endblock %}
 
 {% block base_container %}
-<section class="order">
-    <h2>Commande #{{ ordered.order_number }}</h2>
-    <section>
-        <h3>Récapitulatif de cette commande</h3>
-        {% include "sale/ordered_recap.html" with ordered=ordered %}
-    </section>
+    <section class="order">
+        <h2>Commande #{{ ordered.order_number }}</h2>
+        <section>
+            <h3>Récapitulatif de cette commande</h3>
+            {% include "sale/ordered_recap.html" with ordered=ordered %}
+        </section>
 
-    <section>
-        {% include "sale/ordered_informations.html" with ordered=ordered %}
+        <section>
+            {% include "sale/ordered_informations.html" with ordered=ordered %}
+        </section>
+        {% if public_api_key %}
+            <section class="order_form">
+                <h2>Formulaire de paiement</h2>
+                <div class="form_fill_3">
+                    <button type="button" id="checkout-button">Payer {{ amount }} EUR</button>
+                </div>
+                <div class="mx-auto mt-4 w-75">
+                    <a href="{% url 'sale:delivery' ordered.pk %}">Modifier le moyen de livraison -></a>
+                </div>
+                <div class="mx-auto mt-4 w-75">
+                    <a href="{% url 'sale:fill' ordered.pk %}">Modifier votre email -></a>
+                </div>
+                <div class="mx-auto mt-4 w-75">
+                    <a href="{% url 'sale:fill_next' ordered.pk %}">Modifier l'adresse de commande -></a>
+                </div>            
+            </section>
+        {% endif %}
     </section>
-    {% if public_api_key %}
-    <section class="order_form">
-        <h2>Formulaire de paiement</h2>
-        <div class="form_fill_3">
-            <button type="button" id="checkout-button">Payer {{ amount }} EUR</button>
-        </div>
-    </section>
-    {% endif %}
-</section>
-<span id="sale-detail-url" data-url-sale-detail="{% url 'sale:detail' ordered.pk %}"></span>
+    <span id="sale-detail-url" data-url-sale-detail="{% url 'sale:detail' ordered.pk %}"></span>
 {% endblock %}
 
 {% block body_js %}
-{% if public_api_key %}
-<script type="text/javascript">
-    // Create an instance of the Stripe object with your publishable API key
-    var stripe = Stripe("{{ public_api_key }}");
-    var checkoutButton = document.getElementById("checkout-button");
+    {% if public_api_key %}
+        <script type="text/javascript">
+            // Create an instance of the Stripe object with your publishable API key
+            var stripe = Stripe("{{ public_api_key }}");
+            var checkoutButton = document.getElementById("checkout-button");
 
-    const headers = new Headers({
-        'X-CSRFToken': "{{ csrf_token }}"
-    })
+            const headers = new Headers({
+                'X-CSRFToken': "{{ csrf_token }}"
+            })
 
-    checkoutButton.addEventListener("click", function () {
-        fetch(document.getElementById("sale-detail-url").getAttribute("data-url-sale-detail"), {
-                method: "POST",
-                headers,
-            }
-        )
-            .then(function (response) {
-                response_json = response.json();
-                if (response_json.hasOwnProperty("redirect")) {
-                    window.location.href = response_json["redirect"];
-                }
-                return response_json;
-            })
-            .then(function (session) {
-                return stripe.redirectToCheckout({sessionId: session.id});
-            })
-            .then(function (result) {
-                // If redirectToCheckout fails due to a browser or network
-                // error, you should display the localized error message to your
-                // customer using error.message.
-                if (result.error) {
-                    document.body.setAttribute("JSError", result.error.message);
-                }
-            })
-            .catch(function (error) {
-                console.error("Error:", error);
-            })
-    });
-</script>
-{% endif %}
+            checkoutButton.addEventListener("click", function () {
+                fetch(document.getElementById("sale-detail-url").getAttribute("data-url-sale-detail"), {
+                        method: "POST",
+                        headers,
+                    }
+                )
+                    .then(function (response) {
+                        response_json = response.json();
+                        if (response_json.hasOwnProperty("redirect")) {
+                            window.location.href = response_json["redirect"];
+                        }
+                        return response_json;
+                    })
+                    .then(function (session) {
+                        return stripe.redirectToCheckout({sessionId: session.id});
+                    })
+                    .then(function (result) {
+                        // If redirectToCheckout fails due to a browser or network
+                        // error, you should display the localized error message to your
+                        // customer using error.message.
+                        if (result.error) {
+                            document.body.setAttribute("JSError", result.error.message);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.error("Error:", error);
+                    })
+            });
+        </script>
+    {% endif %}
 {% endblock %}
