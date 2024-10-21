@@ -6002,7 +6002,6 @@ body .navbar > ul:last-child > li > a {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   border-radius: 0.5em;
-  text-align: center;
 }
 @media only screen and (max-width: 992px) {
   body .navbar > ul:last-child > li > a {
