@@ -5963,7 +5963,7 @@ body .navbar > ul:first-child > li a {
   text-align: center;
 }
 body .navbar > ul:first-child > li a:hover {
-  background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(90deg, #78c6f6 0%, rgba(0, 0, 0, 0) 100%);
 }
 body .navbar > ul:last-child {
   grid-column: span 2;
