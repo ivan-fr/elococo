@@ -566,7 +566,7 @@ body main.gridded > .flash-message {
   padding: 0.75em;
   margin-top: 0.75em;
   margin-bottom: 0.75em;
-  background: radial-gradient(circle, rgb(255, 255, 255) 89%, rgb(255, 238, 229) 100%);
+  background: radial-gradient(circle, white 89%, #a8daf9 100%);
 }
 @media only screen and (max-width: 768px) {
   body main.gridded > .flash-message {
@@ -616,10 +616,10 @@ body main.gridded > .main > .catalog > nav.product_categories ul li {
   margin-bottom: 0.25em;
 }
 body main.gridded > .main > .catalog > nav.product_categories ul li a:hover {
-  background: #ffc886;
+  background: #9ad4f8;
 }
 body main.gridded > .main > .catalog > nav.product_categories ul li.is-active a {
-  background: #ffc886;
+  background: #9ad4f8;
 }
 body main.gridded > .main > .catalog > nav.product_categories ul li a {
   padding: 0.25em;
@@ -683,7 +683,7 @@ body main.gridded > .main > .catalog > div.filters li.is-active a, body main.gri
   border: 1px solid #cccccc;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter {
-  background: linear-gradient(90deg, #ffcf95 0%, rgba(0, 0, 0, 0) 50%, #ffcf95 100%);
+  background: linear-gradient(90deg, #a8daf9 0%, rgba(0, 0, 0, 0) 50%, #a8daf9 100%);
   border-radius: 0.75em;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul {
@@ -704,7 +704,7 @@ body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .dr_
   grid-column: span 5;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .double_range {
-  background-color: #ffb358;
+  background-color: #6fc2f5;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .dr_value_right {
   text-align: right;
@@ -760,7 +760,7 @@ body main.gridded > .main .order .order_data .order_form.size_2 {
 }
 body main.gridded > .main .order .order_form {
   padding: 0.75em;
-  background: radial-gradient(circle, rgb(255, 255, 255) 89%, rgb(255, 238, 229) 100%);
+  background: radial-gradient(circle, white 89%, #a8daf9 100%);
 }
 body main.gridded > .main .order .order_form h2 {
   text-align: center;
@@ -974,10 +974,10 @@ body main.gridded > .main #boutique-container .product_categories_right > ul > l
   display: block;
 }
 body main.gridded > .main #boutique-container .product_categories_right > ul > li li:not(.active) a {
-  background: #fffbf9 !important;
+  background: white !important;
 }
 body main.gridded > .main #boutique-container .product_categories_right li.active a {
-  background: #ffc886;
+  background: #9ad4f8;
 }
 body main.gridded > .main #boutique-container .product_categories_right h2 {
   margin-top: 0em !important;
@@ -1016,7 +1016,7 @@ body main.gridded > .main #boutique figure.hover_figure .info_price {
   position: absolute;
   border-top-right-radius: 0.25em;
   border-bottom-left-radius: 0.25em;
-  background-color: #ffe9d1;
+  background-color: #a8daf9;
   padding: 0.5em;
   text-align: center;
   box-sizing: border-box;
@@ -1026,7 +1026,7 @@ body main.gridded > .main #boutique figure.hover_figure .info_compo {
   right: 1px;
   top: 10em;
   position: absolute;
-  background-color: #ffe9d1;
+  background-color: #a8daf9;
   padding: 0.5em;
   text-align: center;
   box-sizing: border-box;
@@ -1039,7 +1039,7 @@ body main.gridded > .main #boutique figure.hover_figure .info_reduction {
   display: block;
   border-top-left-radius: 0;
   border-bottom-right-radius: 0.25em;
-  background-color: #eeb991;
+  background-color: #a8daf9;
   padding: 0.5em;
   text-align: center;
   box-sizing: border-box;
@@ -1067,7 +1067,7 @@ body .wrapper-navbar {
   position: relative;
   z-index: 1;
   color: white;
-  background: #ffcf95;
+  background: #a8daf9;
 }
 body .navbar {
   display: grid;
@@ -1160,7 +1160,7 @@ body .navbar > ul #navbar-basket nav::before {
   }
 }
 body .navbar > ul > li.is-active > a {
-  background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(90deg, #78c6f6 0%, rgba(0, 0, 0, 0) 100%);
 }
 body .navbar > ul:first-child {
   grid-column-start: 1;
@@ -1239,7 +1239,7 @@ body .navbar > ul:last-child > li > a {
   }
 }
 body .navbar > ul:last-child > li > a:hover {
-  background: linear-gradient(90deg, #ffb862 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(90deg, #78c6f6 0%, rgba(0, 0, 0, 0) 100%);
 }
 body .navbar > ul:last-child > li > a {
   display: inline-block;

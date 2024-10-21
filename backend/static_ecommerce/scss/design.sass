@@ -187,7 +187,7 @@ body
       @include span-e(12)
       @include p-(3)
       @include my-(3)
-      background: radial-gradient(circle, rgba(255, 255, 255, 1) 89%, rgba(255, 238, 229, 1) 100%)
+      background: radial-gradient(circle, white 89%, $primary 100%)
 
       @media #{$medium-down}
         @include grid-centered-column(24)
@@ -225,10 +225,10 @@ body
               @include my-(1)
 
               a:hover
-                background: darken(#ffcf95, 3)
+                background: darken($primary, 3)
 
               &.is-active a
-                background: darken(#ffcf95, 3)
+                background: darken($primary, 3)
 
               a
                 @include p-(1)
@@ -278,7 +278,7 @@ body
             border: 1px solid lighten(#000, 80)
 
           & > nav.range_filter
-            background: linear-gradient(90deg, #ffcf95 0%, rgba(0, 0, 0, 0) 50%, #ffcf95 100%)
+            background: linear-gradient(90deg, $primary 0%, rgba(0, 0, 0, 0) 50%, $primary 100%)
             @include radius(3)
 
             ul
@@ -294,7 +294,7 @@ body
                   @include span(5)
 
                 .double_range
-                  background-color: darken(#ffcf95, 12)
+                  background-color: darken($primary, 12)
 
                 .dr_value_right
                   text-align: right
@@ -339,7 +339,7 @@ body
 
         .order_form
           @include p-(3)
-          background: radial-gradient(circle, rgba(255, 255, 255, 1) 89%, rgba(255, 238, 229, 1) 100%)
+          background: radial-gradient(circle, white 89%, $primary 100%)
 
           h2
             text-align: center
@@ -510,10 +510,10 @@ body
                 display: block
 
               li:not(.active) a
-                background: #fffbf9 !important
+                background: lighten($primary, 20) !important
 
           li.active a
-            background: darken(#ffcf95, 3)
+            background: darken($primary, 3)
 
           h2
             @include mt(0)
@@ -546,7 +546,7 @@ body
               position: absolute
               border-top-right-radius: 0.25em
               border-bottom-left-radius: 0.25em
-              background-color: #ffe9d1
+              background-color: $primary
               padding: 0.5em
               text-align: center
               box-sizing: border-box
@@ -556,7 +556,7 @@ body
               right: 1px
               top: 10em
               position: absolute
-              background-color: #ffe9d1
+              background-color: $primary
               padding: 0.5em
               text-align: center
               box-sizing: border-box
@@ -569,7 +569,7 @@ body
               display: block
               border-top-left-radius: 0
               border-bottom-right-radius: 0.25em
-              background-color: #eeb991
+              background-color: $primary
               padding: 0.5em
               text-align: center
               box-sizing: border-box
@@ -597,7 +597,7 @@ body
     position: relative
     z-index: 1
     color: white
-    background: #ffcf95
+    background: $primary
 
   .navbar
     @include grid(4)
@@ -676,7 +676,7 @@ body
               margin-right: 85px
 
       & > li.is-active > a
-        background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
+        background: linear-gradient(90deg, darken($primary, 10) 0%, rgba(0, 0, 0, 0) 100%)
 
       &:first-child
         @include start(1)
@@ -742,7 +742,7 @@ body
               margin: 0 auto
 
             &:hover
-              background: linear-gradient(90deg, darken(#ffcf95, 10) 0%, rgba(0, 0, 0, 0) 100%)
+              background: linear-gradient(90deg, darken($primary, 10) 0%, rgba(0, 0, 0, 0) 100%)
 
           & > a
             display: inline-block
