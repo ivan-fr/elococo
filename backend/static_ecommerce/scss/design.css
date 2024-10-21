@@ -1011,8 +1011,8 @@ body main.gridded > .main #boutique article h3 {
   display: none;
 }
 body main.gridded > .main #boutique figure.hover_figure .info_price {
-  right: 1px;
-  top: 1px;
+  right: 0;
+  top: 0;
   position: absolute;
   border-top-right-radius: 0.25em;
   border-bottom-left-radius: 0.25em;
