@@ -1,9 +1,10 @@
 @import "grid"
 @import "responsive"
-@import "../bootstrap/scss/functions"
 
 $primary: #a8daf9
+$enable-spacing: true !default
 
+@import "../bootstrap/scss/functions"
 @import "../bootstrap/scss/variables"
 @import "../bootstrap/scss/mixins"
 @import "../bootstrap/scss/maps"
@@ -11,7 +12,6 @@ $primary: #a8daf9
 @import "../bootstrap/scss/tables"
 @import "../bootstrap/scss/spinners"
 @import "../bootstrap/scss/pagination"
-
 
 @mixin radius($i)
   border-radius: $i * 0.25em
