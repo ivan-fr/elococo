@@ -287,29 +287,31 @@ body
               list-style: none
 
               li
-                @include grid(6)
+                @include grid(24)
 
                 .dr_value_left
                   text-align: left
+                  @include span(5)
 
                 .double_range
                   background-color: darken(#ffcf95, 12)
 
                 .dr_value_right
                   text-align: right
+                  @include span(5)
 
                 .double_range_temoin
                   background-color: white
 
                 div:nth-child(2)
-                  @include span(4)
+                  @include span(14)
 
                   @media #{$medium-down}
-                    @include span(6)
+                    @include span(24)
 
                 @media #{$medium-down}
                   div:not(:nth-child(2))
-                    @include span(6)
+                    @include span(24)
 
       .order_retrieve
         width: 50%

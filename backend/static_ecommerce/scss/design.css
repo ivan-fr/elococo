@@ -695,33 +695,35 @@ body main.gridded > .main > .catalog > div.filters > nav.range_filter ul {
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(24, 1fr);
   grid-auto-rows: auto;
   box-sizing: border-box;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .dr_value_left {
   text-align: left;
+  grid-column: span 5;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .double_range {
   background-color: #ffb358;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .dr_value_right {
   text-align: right;
+  grid-column: span 5;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li .double_range_temoin {
   background-color: white;
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li div:nth-child(2) {
-  grid-column: span 4;
+  grid-column: span 14;
 }
 @media only screen and (max-width: 768px) {
   body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li div:nth-child(2) {
-    grid-column: span 6;
+    grid-column: span 24;
   }
 }
 @media only screen and (max-width: 768px) {
   body main.gridded > .main > .catalog > div.filters > nav.range_filter ul li div:not(:nth-child(2)) {
-    grid-column: span 6;
+    grid-column: span 24;
   }
 }
 body main.gridded > .main .order_retrieve {
