@@ -1,8 +1,6 @@
 from django.urls import path
-from rest_framework import routers
 
 import sale.views
-from sale.rest_views import SaleBasketViewSet, SaleOrderViewSet
 
 urlpatterns = [
     path('booking/', sale.views.BookingBasketView.as_view(), name='booking'),
@@ -16,7 +14,3 @@ urlpatterns = [
     path('invoice/<uuid:pk>/<str:secrets_>', sale.views.InvoiceView.as_view(), name='invoice'),
     path('webhook', sale.views.webhook_view, name='webhook'),
 ]
-
-router = routers.SimpleRouter()
-router.register(r'sale/basket', SaleBasketViewSet)
-router.register(r'sale/order', SaleOrderViewSet)
