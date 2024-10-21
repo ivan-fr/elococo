@@ -36,12 +36,6 @@
     <p>Tél: {{ ordered.phone }}</p>
 
 {% else %}
-    <p>
-        Notre site e-commerce prend en considération un stock disponible.<br>
-        Nous ne vendons pas un produit qui n'est pas en stock.<br>
-        Vos quantités seront réservées uniquement au moment du paiement.<br>
-        Si le paiement de la reservation est effective, la reservation sera permanent.
-    </p>
     {% if ordered.ordered_is_enable %}
         <p>
             Cette réservation est <strong>active</strong>
