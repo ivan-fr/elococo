@@ -5205,7 +5205,7 @@ body select option {
   border-radius: 0em;
   background-color: white;
 }
-body input[type=text], body input[type=submit], body button[type=submit], body input[type=email], body button[type=button] {
+body input[type=text], body input[type=submit], body button[type=submit], body input[type=email], body button[type=button], body input[type=number] {
   font-size: 16px;
   padding: 0.5em;
   width: calc(100% - 1em - 2px);
