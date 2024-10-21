@@ -80,13 +80,13 @@
 
 .table-primary {
   --bs-table-color: #000;
-  --bs-table-bg: #fff5ea;
-  --bs-table-border-color: #ccc4bb;
-  --bs-table-striped-bg: #f2e9de;
+  --bs-table-bg: #eef8fe;
+  --bs-table-border-color: #bec6cb;
+  --bs-table-striped-bg: #e2ecf1;
   --bs-table-striped-color: #000;
-  --bs-table-active-bg: #e6ddd3;
+  --bs-table-active-bg: #d6dfe5;
   --bs-table-active-color: #000;
-  --bs-table-hover-bg: #ece3d8;
+  --bs-table-hover-bg: #dce5eb;
   --bs-table-hover-color: #000;
   color: var(--bs-table-color);
   border-color: var(--bs-table-border-color);
@@ -301,10 +301,10 @@
   --bs-pagination-hover-border-color: var(--bs-border-color);
   --bs-pagination-focus-color: var(--bs-link-hover-color);
   --bs-pagination-focus-bg: var(--bs-secondary-bg);
-  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(255, 207, 149, 0.25);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(168, 218, 249, 0.25);
   --bs-pagination-active-color: #fff;
-  --bs-pagination-active-bg: #ffcf95;
-  --bs-pagination-active-border-color: #ffcf95;
+  --bs-pagination-active-bg: #a8daf9;
+  --bs-pagination-active-border-color: #a8daf9;
   --bs-pagination-disabled-color: var(--bs-secondary-color);
   --bs-pagination-disabled-bg: var(--bs-secondary-bg);
   --bs-pagination-disabled-border-color: var(--bs-border-color);
@@ -386,7 +386,7 @@ body {
   font-weight: 400;
   font-style: normal;
   font-size: 20px;
-  background: #ffcf95;
+  background: #90d0f7;
   box-sizing: border-box;
   margin: 0;
   color: black;
@@ -425,7 +425,7 @@ body .btn-group button:not(:last-child) {
 body select {
   padding: 0.5em;
   width: 100%;
-  background-color: #ffe7db;
+  background-color: #9ed6f8;
   border: 1px solid black;
   border-radius: 0.5em;
   cursor: pointer;
@@ -442,15 +442,15 @@ body input[type=text], body input[type=submit], body button[type=submit], body i
 }
 body input[type=submit], body button[type=submit], body button[type=button] {
   width: 100%;
-  background-color: #ffe7db;
+  background-color: #9ed6f8;
   border-radius: 0.5em;
   cursor: pointer;
 }
 body input[type=submit]:hover, body button[type=submit]:hover, body button[type=button]:hover {
-  background-color: #ffddcc;
+  background-color: #78c6f6;
 }
 body a {
-  color: #492800;
+  color: #063350;
 }
 body figure {
   margin: 0em;
@@ -463,7 +463,7 @@ body figure.hover_figure {
   position: relative;
   height: 100%;
   border-radius: 0.5em;
-  border: solid #f37333 1px;
+  border: solid #074368 1px;
   overflow: hidden;
 }
 body figure.hover_figure img {
@@ -485,7 +485,7 @@ body figure.hover_figure figcaption {
   box-sizing: border-box;
   width: 100%;
   font-weight: bold;
-  border-top: solid #f37333 1px;
+  border-top: solid #78c6f6 1px;
 }
 body figure img {
   max-width: 100%;

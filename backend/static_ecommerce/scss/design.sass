@@ -2,7 +2,7 @@
 @import "responsive"
 @import "../bootstrap/scss/functions"
 
-$primary: #ffcf95
+$primary: #a8daf9
 
 @import "../bootstrap/scss/variables"
 @import "../bootstrap/scss/mixins"
@@ -19,7 +19,7 @@ body
   font-weight: 400
   font-style: normal
   font-size: 20px
-  background: #ffcf95
+  background: darken($primary, 5)
   box-sizing: border-box
   margin: 0
   color: black
@@ -58,7 +58,7 @@ body
   select
     @include p-(2)
     width: 100%
-    background-color: darken(#ffeee5, 2)
+    background-color: darken($primary, 2)
     border: 1px solid black
     @include radius(2)
     cursor: pointer
@@ -75,15 +75,15 @@ body
 
   input[type=submit], button[type=submit], button[type=button]
     width: 100%
-    background-color: darken(#ffeee5, 2)
+    background-color: darken($primary, 2)
     @include radius(2)
     cursor: pointer
 
     &:hover
-      background-color: darken(#ffeee5, 5)
+      background-color: darken($primary, 10)
 
   a
-    color: darken(#ffcf95, 65)
+    color: darken($primary, 65)
 
   figure
     @include m(0)
@@ -96,7 +96,7 @@ body
       position: relative
       height: 100%
       @include radius(2)
-      border: solid #f37333 1px
+      border: solid darken($primary, 60) 1px
       overflow: hidden
 
       img
@@ -118,7 +118,7 @@ body
         box-sizing: border-box
         width: 100%
         font-weight: bold
-        border-top: solid #f37333 1px
+        border-top: solid darken($primary, 10) 1px
 
     img
       max-width: 100%
@@ -263,7 +263,7 @@ body
 
               li
                 width: 100%
-                
+
                 @media #{$small-down}
                   @include span(3)
 
@@ -393,8 +393,8 @@ body
         @include gap-(2)
 
         @media #{$medium-down}
-            @include gap-(0)
-            row-gap: 1em
+          @include gap-(0)
+          row-gap: 1em
 
         & > h3
           display: none
