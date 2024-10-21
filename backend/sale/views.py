@@ -275,6 +275,7 @@ def get_object(self, queryset=None, extra_filter=None):
 
         if not obj.ordered_is_enable:
             del self.request.session[settings.BOOKING_SESSION_KEY]
+            self.request.session.modified = True
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
