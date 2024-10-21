@@ -272,6 +272,9 @@ def get_object(self, queryset=None, extra_filter=None):
             **default_ordered_annotation_format()
         ).prefetch_related("order_address", "from_ordered", "from_ordered__to_product",
                            "from_ordered__to_product__productimage_set").get()
+
+        if not obj.ordered_is_enable:
+            del self.request.session[settings.BOOKING_SESSION_KEY]
     except queryset.model.DoesNotExist:
         raise Http404()
     return obj
