@@ -12,29 +12,6 @@
         Vous pouvez retrouver un <strong>duplicata de votre facture <a
             href="{% url 'sale:invoice' ordered.pk ordered.secrets %}">ICI</a></strong>.
     </p>
-    {% for order_adress in ordered.order_address.all %}
-        {% if forloop.counter0 == 0 %}
-            <p>
-                <strong>Adresse de livraison</strong>
-            </p>
-        {% else %}
-            <p>
-                <strong>Adresse de facturation</strong>
-            </p>
-        {% endif %}
-        <p>
-            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
-            {{ order_adress.address }}<br>
-            {% if order_adress.address2 %}
-                {{ order_adress.address2 }}<br>
-            {% endif %}
-            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
-            France<br>
-        </p>
-    {% endfor %}
-
-    <p>Tél: {{ ordered.phone }}</p>
-
 {% else %}
     {% if ordered.ordered_is_enable %}
         <p>
@@ -57,5 +34,30 @@
             Vous pourrez <strong>refaire une autre réservation dans au plus 25 minutes.</strong><br>
             Cette réservation sera bien entendue supprimer de nos bases de données.
         </p>
+    {% endif %}
+
+    {% for order_adress in ordered.order_address.all %}
+        {% if forloop.counter0 == 0 %}
+            <p>
+                <strong>Adresse de livraison</strong>
+            </p>
+        {% else %}
+            <p>
+                <strong>Adresse de facturation</strong>
+            </p>
+        {% endif %}
+        <p>
+            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+            {{ order_adress.address }}<br>
+            {% if order_adress.address2 %}
+                {{ order_adress.address2 }}<br>
+            {% endif %}
+            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+            France<br>
+        </p>
+    {% endfor %}
+
+    {% if ordered.phone %}
+        <p>Tél: {{ ordered.phone }}</p>
     {% endif %}
 {% endif %}
