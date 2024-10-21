@@ -36,28 +36,30 @@
         </p>
     {% endif %}
 
-    {% for order_adress in ordered.order_address.all %}
-        {% if forloop.counter0 == 0 %}
-            <p>
-                <strong>Adresse de livraison</strong>
-            </p>
-        {% else %}
-            <p>
-                <strong>Adresse de facturation</strong>
-            </p>
-        {% endif %}
-        <p>
-            <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
-            {{ order_adress.address }}<br>
-            {% if order_adress.address2 %}
-                {{ order_adress.address2 }}<br>
+    {% if ordered.ordered_is_enable %}
+        {% for order_adress in ordered.order_address.all %}
+            {% if forloop.counter0 == 0 %}
+                <p>
+                    <strong>Adresse de livraison</strong>
+                </p>
+            {% else %}
+                <p>
+                    <strong>Adresse de facturation</strong>
+                </p>
             {% endif %}
-            {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
-            France<br>
-        </p>
-    {% endfor %}
+            <p>
+                <strong>{{ order_adress.last_name|upper }} {{ order_adress.first_name|capfirst }}</strong><br>
+                {{ order_adress.address }}<br>
+                {% if order_adress.address2 %}
+                    {{ order_adress.address2 }}<br>
+                {% endif %}
+                {{ order_adress.postal_code }}, {{ order_adress.city }}<br>
+                France<br>
+            </p>
+        {% endfor %}
 
-    {% if ordered.phone %}
-        <p>Tél: {{ ordered.phone }}</p>
+        {% if ordered.phone %}
+            <p>Tél: {{ ordered.phone }}</p>
+        {% endif %}
     {% endif %}
 {% endif %}
