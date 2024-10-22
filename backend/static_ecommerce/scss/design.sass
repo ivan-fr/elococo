@@ -1,20 +1,11 @@
 @import "grid"
 @import "responsive"
 
+@import "../bootstrap/scss/bootstrap"
+
 $primary: #a8daf9
 $enable-spacing: true !default
-
-@import "../bootstrap/scss/functions"
-@import "../bootstrap/scss/variables"
-@import "../bootstrap/scss/mixins"
-@import "../bootstrap/scss/maps"
-@import "../bootstrap/scss/utilities"
-@import "../bootstrap/scss/tables"
-@import "../bootstrap/scss/spinners"
-@import "../bootstrap/scss/pagination"
-
-@import "../bootstrap/scss/utilities/api"
-
+$enable-shadows: true !default
 
 @mixin radius($i)
   border-radius: $i * 0.25em
@@ -684,7 +675,7 @@ body
 
       &:first-child
         @include start(1)
-        @include end(2)
+        @include end(1)
 
         &::before
           content: ""
@@ -710,7 +701,7 @@ body
               background: linear-gradient(90deg, darken($primary, 10) 0%, rgba(0, 0, 0, 0) 100%)
 
       &:last-child
-        @include span(2)
+        @include span(3)
 
         #navbar-basket
           nav.active
