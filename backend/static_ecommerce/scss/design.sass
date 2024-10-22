@@ -238,7 +238,7 @@ body
             @include span(1)
 
         & > div.filters
-          @include grid(2)
+          @include grid(24)
           align-items: center
           @include gap-(3)
           @include span(4)
@@ -251,6 +251,11 @@ body
             grid-template-columns: repeat(1, 1fr)
 
           & > nav.order_filters
+            @include span(15)
+
+            @media #{$small-down}
+              @include span(24)
+
             ul
               @include grid(3)
               @include gap-(3)
@@ -273,6 +278,11 @@ body
             background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, $primary 100%)
 
           & > nav.range_filter
+            @include span(9)
+
+            @media #{$small-down}
+              @include span(24)
+
             background: linear-gradient(90deg, $primary 0%, rgba(0, 0, 0, 0) 50%, $primary 100%)
             @include radius(3)
 

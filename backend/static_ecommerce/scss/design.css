@@ -12099,7 +12099,7 @@ body main.gridded > .main > .catalog > #boutique-container {
 }
 body main.gridded > .main > .catalog > div.filters {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(24, 1fr);
   grid-auto-rows: auto;
   box-sizing: border-box;
   align-items: center;
@@ -12115,6 +12115,14 @@ body main.gridded > .main > .catalog > div.filters {
 @media only screen and (max-width: 768px) {
   body main.gridded > .main > .catalog > div.filters {
     grid-template-columns: repeat(1, 1fr);
+  }
+}
+body main.gridded > .main > .catalog > div.filters > nav.order_filters {
+  grid-column: span 15;
+}
+@media only screen and (max-width: 576px) {
+  body main.gridded > .main > .catalog > div.filters > nav.order_filters {
+    grid-column: span 24;
   }
 }
 body main.gridded > .main > .catalog > div.filters > nav.order_filters ul {
@@ -12144,8 +12152,14 @@ body main.gridded > .main > .catalog > div.filters li.is-active a, body main.gri
   background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, #a8daf9 100%);
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter {
+  grid-column: span 9;
   background: linear-gradient(90deg, #a8daf9 0%, rgba(0, 0, 0, 0) 50%, #a8daf9 100%);
   border-radius: 0.75em;
+}
+@media only screen and (max-width: 576px) {
+  body main.gridded > .main > .catalog > div.filters > nav.range_filter {
+    grid-column: span 24;
+  }
 }
 body main.gridded > .main > .catalog > div.filters > nav.range_filter ul {
   padding-left: 0.75em;
