@@ -1,4 +1,6 @@
 from django.contrib.admin import AdminSite
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.flatpages.admin import FlatPageAdmin
 
 
 class MyAdminSite(AdminSite):
@@ -8,3 +10,4 @@ class MyAdminSite(AdminSite):
 
 
 admin_site = MyAdminSite()
+admin_site.register(FlatPage, FlatPageAdmin)
