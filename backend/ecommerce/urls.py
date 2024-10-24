@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin/', admin_site.urls),
     path('boutique/', include('catalogue.urls')),
     path('orders/', include(('sale.urls', 'sale'), namespace="sale")),
+    path("pages/", include("django.contrib.flatpages.urls")),
 ]
 
 if settings.DEBUG:
